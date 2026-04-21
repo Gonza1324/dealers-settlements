@@ -9,7 +9,7 @@ export default async function SettingsPage() {
       <PageHeader
         eyebrow="Settings"
         title="Admin settings"
-        description="Reserved for admin-only configuration such as templates, master data and future system settings."
+        description="Reserved for admin-only configuration and operational controls that are still outside the master-data CRUD implemented in this phase."
       />
       <section className="panel">
         <p className="muted" style={{ margin: 0 }}>

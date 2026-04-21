@@ -29,4 +29,3 @@ export interface FinancierSummary {
   legalName: string;
   isActive: boolean;
 }
-

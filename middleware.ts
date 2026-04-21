@@ -2,7 +2,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { requireSupabaseEnv } from "@/lib/env";
 
-const privatePrefixes = ["/dashboard", "/imports", "/dealers", "/expenses", "/settings"];
+const privatePrefixes = [
+  "/dashboard",
+  "/imports",
+  "/dealers",
+  "/partners",
+  "/financiers",
+  "/expenses",
+  "/settings",
+];
 type CookieToSet = {
   name: string;
   value: string;

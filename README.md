@@ -15,6 +15,7 @@ This repository now includes:
 - minimal pages only, without complex UI yet
 - import wizard with staging flow for files
 - Supabase auth with protected backoffice routes
+- master-data CRUD for dealers, partners, financiers, shares and assignments
 
 ## Stack
 
@@ -185,6 +186,23 @@ Base roles:
 
 For now, `partner_viewer` route access is prepared at the app level, while the
 fine-grained dealer scoping will be enforced in later data queries and RLS work.
+
+## Master Data
+
+The operational master-data layer now includes:
+
+- dealers CRUD with soft delete support
+- partners CRUD with optional profile linkage
+- dealer partner shares with validity ranges
+- financiers CRUD
+- financier aliases with derived normalized alias
+- dealer financier assignments with date-range validation
+
+Role access:
+
+- `super_admin`: full CRUD
+- `expense_admin`: no master-data access
+- `partner_viewer`: read-only dealer visibility shell
 
 ## What Is Intentionally Deferred
 
