@@ -260,6 +260,135 @@ textarea {
   font-weight: 700;
 }
 
+.secondary-button {
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-button.danger {
+  color: var(--danger);
+}
+
+.field.compact select {
+  min-width: 150px;
+}
+
+.small-text {
+  font-size: 12px;
+}
+
+.imports-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.imports-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.imports-table-wrapper {
+  overflow-x: auto;
+}
+
+.imports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.imports-table th,
+.imports-table td {
+  padding: 14px 12px;
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+  text-align: left;
+}
+
+.imports-status-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  width: fit-content;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+
+.status-pill.success,
+.status-pill.valid {
+  color: var(--accent-strong);
+  background: rgba(31, 107, 92, 0.12);
+}
+
+.status-pill.warning {
+  color: var(--warning);
+  background: rgba(139, 94, 0, 0.14);
+}
+
+.status-pill.danger,
+.status-pill.invalid {
+  color: var(--danger);
+  background: rgba(156, 47, 47, 0.12);
+}
+
+.status-pill.muted {
+  color: var(--muted);
+}
+
+.inline-issues {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.inline-issues.warning {
+  color: var(--warning);
+}
+
+.payload-block {
+  margin: 0;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #f9f5ed;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.import-edit-form {
+  display: grid;
+  gap: 20px;
+}
+
+.import-row-actions,
+.imports-row-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.import-row-editor {
+  margin-top: 20px;
+}
+
 .ghost-button {
   height: 40px;
   border: 1px solid var(--border);

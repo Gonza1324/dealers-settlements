@@ -1,11 +1,31 @@
 import { NextResponse } from "next/server";
+import { getCurrentProfile } from "@/lib/auth/profile";
 import {
   getImportTemplates,
   processImportUpload,
 } from "@/features/imports/server/import-service";
 
+async function requireImportAdmin() {
+  const profile = await getCurrentProfile();
+
+  if (!profile) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  if (profile.role !== "super_admin") {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  return null;
+}
+
 export async function GET() {
   try {
+    const authError = await requireImportAdmin();
+    if (authError) {
+      return authError;
+    }
+
     const templates = await getImportTemplates();
 
     return NextResponse.json({ templates });
@@ -19,6 +39,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authError = await requireImportAdmin();
+    if (authError) {
+      return authError;
+    }
+
     const formData = await request.formData();
     const file = formData.get("file");
     const sourceMonth = formData.get("sourceMonth");
@@ -56,4 +81,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

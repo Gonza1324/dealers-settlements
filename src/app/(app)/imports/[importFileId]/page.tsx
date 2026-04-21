@@ -35,7 +35,7 @@ export default async function ImportReviewPage({
         </section>
       )}
 
-      <ImportReviewTable rows={review.rows} />
+      <ImportReviewTable importFileId={importFileId} initialRows={review.rows} />
     </>
   );
 }

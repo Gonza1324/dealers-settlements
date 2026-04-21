@@ -11,14 +11,32 @@ export interface ParsedWorkbook {
 export interface NormalizedImportRow {
   rowNumber: number;
   originalPayload: Record<string, string | null>;
-  normalizedPayload: Record<string, string | number | null>;
+  normalizedPayload: NormalizedImportPayload;
   validationErrors: ImportIssue[];
   warnings: ImportIssue[];
   detectedFinancierId: string | null;
   detectedFinancierName: string | null;
   detectedDealerId: string | null;
   detectedDealerName: string | null;
-  duplicateKey: string;
+  exactDuplicateKey: string;
+  possibleDuplicateKey: string;
+}
+
+export interface NormalizedImportPayload {
+  periodMonth: string;
+  yearValue: number | null;
+  makeValue: string | null;
+  modelValue: string | null;
+  vinValue: string | null;
+  saleValue: number | null;
+  financeRaw: string | null;
+  financeNormalized: string | null;
+  netGrossValue: number | null;
+  pickupValue: number;
+  assignedFinancierId: string | null;
+  assignedFinancierName: string | null;
+  assignedDealerId: string | null;
+  assignedDealerName: string | null;
 }
 
 export interface ImportExecutionResult {
@@ -56,3 +74,17 @@ export interface ImportTemplateRecord {
 }
 
 export type ImportReviewRecord = ImportReviewPayload;
+
+export interface DuplicateDetectionRecord {
+  id?: string;
+  exactDuplicateKey: string;
+  possibleDuplicateKey: string;
+}
+
+export interface MatchingResult {
+  detectedFinancierId: string | null;
+  detectedFinancierName: string | null;
+  detectedDealerId: string | null;
+  detectedDealerName: string | null;
+  warnings: ImportIssue[];
+}

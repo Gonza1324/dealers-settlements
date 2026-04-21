@@ -1,8 +1,11 @@
+import { resolveAssignmentMatch } from "@/features/imports/server/matching";
 import type {
   DealerFinancierAssignmentLookup,
   FinancierAliasLookup,
+  NormalizedImportPayload,
   NormalizedImportRow,
 } from "@/features/imports/server/types";
+import type { ImportIssue, ImportRowUpdatePayload } from "@/features/imports/types";
 
 function normalizeText(value: string | null) {
   return value
@@ -12,9 +15,13 @@ function normalizeText(value: string | null) {
     .toLowerCase() ?? null;
 }
 
-function parseNumeric(value: string | null) {
-  if (!value) {
+function parseNumeric(value: string | number | null) {
+  if (value === null || value === undefined || value === "") {
     return null;
+  }
+
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
   }
 
   const normalized = value.replace(/[$,\s]/g, "");
@@ -23,49 +30,193 @@ function parseNumeric(value: string | null) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function parseInteger(value: string | null) {
+function parseInteger(value: string | number | null) {
   const parsed = parseNumeric(value);
 
   return parsed === null ? null : Math.trunc(parsed);
 }
 
-function buildDuplicateKey(payload: Record<string, string | number | null>) {
+function normalizeString(value: string | null) {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function buildExactDuplicateKey(payload: NormalizedImportPayload) {
   return [
-    payload.year,
-    payload.make,
-    payload.model,
-    payload.vin,
-    payload.saleRaw,
-    payload.financierAlias,
-    payload.netGross,
-    payload.pickUp,
+    payload.periodMonth,
+    payload.vinValue,
+    payload.yearValue,
+    payload.makeValue,
+    payload.modelValue,
+    payload.saleValue,
+    payload.financeNormalized,
+    payload.netGrossValue,
+    payload.pickupValue,
   ]
     .map((value) => String(value ?? ""))
     .join("|");
 }
 
-function matchDealerAssignment(
-  financierId: string | null,
-  periodMonth: string,
-  assignments: DealerFinancierAssignmentLookup[],
+function buildPossibleDuplicateKey(payload: NormalizedImportPayload) {
+  return [
+    payload.periodMonth,
+    payload.vinValue,
+    payload.yearValue,
+    payload.makeValue,
+    payload.modelValue,
+    payload.saleValue,
+  ]
+    .map((value) => String(value ?? ""))
+    .join("|");
+}
+
+export function normalizeFinancierAlias(value: string) {
+  return normalizeText(value) ?? "";
+}
+
+export function validateNormalizedPayload(
+  payload: Pick<
+    NormalizedImportPayload,
+    | "yearValue"
+    | "makeValue"
+    | "modelValue"
+    | "vinValue"
+    | "saleValue"
+    | "financeRaw"
+    | "netGrossValue"
+    | "pickupValue"
+  >,
 ) {
-  if (!financierId) {
-    return null;
+  const validationErrors: ImportIssue[] = [];
+
+  if (!payload.yearValue) {
+    validationErrors.push({
+      code: "invalid_year",
+      message: "Year is missing or invalid.",
+      field: "yearValue",
+      severity: "error",
+    });
   }
 
-  return (
-    assignments.find((assignment) => {
-      if (assignment.financierId !== financierId) {
-        return false;
-      }
+  if (!payload.makeValue) {
+    validationErrors.push({
+      code: "missing_make",
+      message: "Make is required.",
+      field: "makeValue",
+      severity: "error",
+    });
+  }
 
-      const startsBefore = assignment.effectiveFrom <= periodMonth;
-      const endsAfter =
-        assignment.effectiveTo === null || assignment.effectiveTo >= periodMonth;
+  if (!payload.modelValue) {
+    validationErrors.push({
+      code: "missing_model",
+      message: "Model is required.",
+      field: "modelValue",
+      severity: "error",
+    });
+  }
 
-      return startsBefore && endsAfter;
-    }) ?? null
-  );
+  if (!payload.vinValue) {
+    validationErrors.push({
+      code: "missing_vin",
+      message: "VIN is required.",
+      field: "vinValue",
+      severity: "error",
+    });
+  }
+
+  if (payload.saleValue === null) {
+    validationErrors.push({
+      code: "invalid_sale",
+      message: "Sale is missing or invalid.",
+      field: "saleValue",
+      severity: "error",
+    });
+  }
+
+  if (!payload.financeRaw) {
+    validationErrors.push({
+      code: "missing_finance",
+      message: "Finance is required.",
+      field: "financeRaw",
+      severity: "error",
+    });
+  }
+
+  if (payload.netGrossValue === null) {
+    validationErrors.push({
+      code: "invalid_net_gross",
+      message: "Net Gross is missing or invalid.",
+      field: "netGrossValue",
+      severity: "error",
+    });
+  }
+
+  if (payload.pickupValue < 0) {
+    validationErrors.push({
+      code: "invalid_pick_up",
+      message: "Pick Up cannot be negative.",
+      field: "pickupValue",
+      severity: "error",
+    });
+  }
+
+  return validationErrors;
+}
+
+export function buildNormalizedPayload(params: {
+  values: {
+    periodMonth: string;
+    yearValue: number | null;
+    makeValue: string | null;
+    modelValue: string | null;
+    vinValue: string | null;
+    saleValue: number | null;
+    financeRaw: string | null;
+    netGrossValue: number | null;
+    pickupValue: number | null;
+  };
+  financierAliases: FinancierAliasLookup[];
+  assignments: DealerFinancierAssignmentLookup[];
+}) {
+  const financeRaw = normalizeString(params.values.financeRaw);
+  const financeNormalized = financeRaw ? normalizeFinancierAlias(financeRaw) : null;
+
+  const matching = resolveAssignmentMatch({
+    financeNormalized,
+    periodMonth: params.values.periodMonth,
+    financierAliases: params.financierAliases,
+    assignments: params.assignments,
+  });
+
+  const payload: NormalizedImportPayload = {
+    periodMonth: params.values.periodMonth,
+    yearValue: params.values.yearValue,
+    makeValue: normalizeString(params.values.makeValue),
+    modelValue: normalizeString(params.values.modelValue),
+    vinValue: normalizeString(params.values.vinValue)?.toUpperCase() ?? null,
+    saleValue: params.values.saleValue,
+    financeRaw,
+    financeNormalized,
+    netGrossValue: params.values.netGrossValue,
+    pickupValue: params.values.pickupValue ?? 0,
+    assignedFinancierId: matching.detectedFinancierId,
+    assignedFinancierName: matching.detectedFinancierName,
+    assignedDealerId: matching.detectedDealerId,
+    assignedDealerName: matching.detectedDealerName,
+  };
+
+  return {
+    normalizedPayload: payload,
+    validationErrors: validateNormalizedPayload(payload),
+    warnings: matching.warnings,
+    detectedFinancierId: matching.detectedFinancierId,
+    detectedFinancierName: matching.detectedFinancierName,
+    detectedDealerId: matching.detectedDealerId,
+    detectedDealerName: matching.detectedDealerName,
+    exactDuplicateKey: buildExactDuplicateKey(payload),
+    possibleDuplicateKey: buildPossibleDuplicateKey(payload),
+  };
 }
 
 export function normalizeImportRows(params: {
@@ -74,142 +225,85 @@ export function normalizeImportRows(params: {
   assignments: DealerFinancierAssignmentLookup[];
   periodMonth: string;
 }): NormalizedImportRow[] {
-  const aliasMap = new Map<string, FinancierAliasLookup>();
-
-  params.financierAliases.forEach((alias) => {
-    aliasMap.set(alias.normalizedAlias, alias);
-  });
-
   return params.rows.map((row, index) => {
-    const validationErrors = [];
-    const warnings = [];
-
-    const normalizedFinanceAlias = normalizeText(row["Finance"] ?? null);
-    const matchedAlias = normalizedFinanceAlias
-      ? aliasMap.get(normalizedFinanceAlias) ?? null
-      : null;
-
-    const saleRaw = row["Sale"]?.trim() ?? null;
-    const saleValue = parseNumeric(row["Sale"] ?? null);
-    const year = parseInteger(row["Year"] ?? null);
-    const netGross = parseNumeric(row["Net Gross"] ?? null);
-    const pickUp = parseNumeric(row["Pick Up"] ?? null) ?? 0;
-    const vin = row["VIN"]?.trim().toUpperCase() ?? null;
-    const make = row["Make"]?.trim() ?? null;
-    const model = row["Model"]?.trim() ?? null;
-    const financierAlias = row["Finance"]?.trim() ?? null;
-
-    if (!year) {
-      validationErrors.push({
-        code: "invalid_year",
-        message: "Year is missing or invalid.",
-        field: "Year",
-        severity: "error" as const,
-      });
-    }
-
-    if (!make) {
-      validationErrors.push({
-        code: "missing_make",
-        message: "Make is required.",
-        field: "Make",
-        severity: "error" as const,
-      });
-    }
-
-    if (!model) {
-      validationErrors.push({
-        code: "missing_model",
-        message: "Model is required.",
-        field: "Model",
-        severity: "error" as const,
-      });
-    }
-
-    if (!vin) {
-      validationErrors.push({
-        code: "missing_vin",
-        message: "VIN is required.",
-        field: "VIN",
-        severity: "error" as const,
-      });
-    }
-
-    if (!saleRaw) {
-      validationErrors.push({
-        code: "missing_sale",
-        message: "Sale is required.",
-        field: "Sale",
-        severity: "error" as const,
-      });
-    }
-
-    if (netGross === null) {
-      validationErrors.push({
-        code: "invalid_net_gross",
-        message: "Net Gross is missing or invalid.",
-        field: "Net Gross",
-        severity: "error" as const,
-      });
-    }
-
-    if (!matchedAlias && financierAlias) {
-      warnings.push({
-        code: "unknown_financier_alias",
-        message: "Finance alias was not matched to a configured financier.",
-        field: "Finance",
-        severity: "warning" as const,
-      });
-    }
-
-    const dealerAssignment = matchDealerAssignment(
-      matchedAlias?.financierId ?? null,
-      params.periodMonth,
-      params.assignments,
-    );
-
-    if (!dealerAssignment && matchedAlias) {
-      warnings.push({
-        code: "missing_dealer_assignment",
-        message:
-          "The financier alias was matched, but no dealer assignment was found for the sale date.",
-        field: "Finance",
-        severity: "warning" as const,
-      });
-    }
-
-    const normalizedPayload = {
-      year,
-      make,
-      model,
-      vin,
-      saleRaw,
-      saleValue,
-      periodMonth: params.periodMonth,
-      financierAlias,
-      netGross,
-      pickUp,
-      financierId: matchedAlias?.financierId ?? null,
-      financierName: matchedAlias?.financierName ?? null,
-      dealerId: dealerAssignment?.dealerId ?? null,
-      dealerName: dealerAssignment?.dealerName ?? null,
-    };
+    const built = buildNormalizedPayload({
+      values: {
+        periodMonth: params.periodMonth,
+        yearValue: parseInteger(row["Year"] ?? null),
+        makeValue: row["Make"] ?? null,
+        modelValue: row["Model"] ?? null,
+        vinValue: row["VIN"] ?? null,
+        saleValue: parseNumeric(row["Sale"] ?? null),
+        financeRaw: row["Finance"] ?? null,
+        netGrossValue: parseNumeric(row["Net Gross"] ?? null),
+        pickupValue: parseNumeric(row["Pick Up"] ?? null) ?? 0,
+      },
+      financierAliases: params.financierAliases,
+      assignments: params.assignments,
+    });
 
     return {
       rowNumber: index + 2,
       originalPayload: row,
-      normalizedPayload,
-      validationErrors,
-      warnings,
-      detectedFinancierId: matchedAlias?.financierId ?? null,
-      detectedFinancierName: matchedAlias?.financierName ?? null,
-      detectedDealerId: dealerAssignment?.dealerId ?? null,
-      detectedDealerName: dealerAssignment?.dealerName ?? null,
-      duplicateKey: buildDuplicateKey(normalizedPayload),
+      normalizedPayload: built.normalizedPayload,
+      validationErrors: built.validationErrors,
+      warnings: built.warnings,
+      detectedFinancierId: built.detectedFinancierId,
+      detectedFinancierName: built.detectedFinancierName,
+      detectedDealerId: built.detectedDealerId,
+      detectedDealerName: built.detectedDealerName,
+      exactDuplicateKey: built.exactDuplicateKey,
+      possibleDuplicateKey: built.possibleDuplicateKey,
     };
   });
 }
 
-export function normalizeFinancierAlias(value: string) {
-  return normalizeText(value) ?? "";
+export function normalizeEditedRow(params: {
+  currentRow: Record<string, unknown>;
+  payload: ImportRowUpdatePayload;
+  periodMonth: string;
+  financierAliases: FinancierAliasLookup[];
+  assignments: DealerFinancierAssignmentLookup[];
+}) {
+  const originalPayload =
+    (params.currentRow.raw_payload as Record<string, string | null>) ?? {};
+
+  const updatedOriginalPayload = {
+    ...originalPayload,
+    Year:
+      params.payload.yearValue === null ? null : String(params.payload.yearValue),
+    Make: params.payload.makeValue || null,
+    Model: params.payload.modelValue || null,
+    VIN: params.payload.vinValue || null,
+    Sale:
+      params.payload.saleValue === null ? null : String(params.payload.saleValue),
+    Finance: params.payload.financeRaw || null,
+    "Net Gross":
+      params.payload.netGrossValue === null
+        ? null
+        : String(params.payload.netGrossValue),
+    "Pick Up":
+      params.payload.pickupValue === null ? null : String(params.payload.pickupValue),
+  };
+
+  const built = buildNormalizedPayload({
+    values: {
+      periodMonth: params.periodMonth,
+      yearValue: params.payload.yearValue,
+      makeValue: params.payload.makeValue,
+      modelValue: params.payload.modelValue,
+      vinValue: params.payload.vinValue,
+      saleValue: params.payload.saleValue,
+      financeRaw: params.payload.financeRaw,
+      netGrossValue: params.payload.netGrossValue,
+      pickupValue: params.payload.pickupValue ?? 0,
+    },
+    financierAliases: params.financierAliases,
+    assignments: params.assignments,
+  });
+
+  return {
+    originalPayload: updatedOriginalPayload,
+    ...built,
+  };
 }

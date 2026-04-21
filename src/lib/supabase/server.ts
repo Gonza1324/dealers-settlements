@@ -22,9 +22,14 @@ export async function createSupabaseServerClient() {
         return cookieStore.getAll();
       },
       setAll(cookiesToSet: CookieToSet[]) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          writableCookieStore.set?.(name, value, options);
-        });
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            writableCookieStore.set?.(name, value, options);
+          });
+        } catch {
+          // Server Components can read cookies but cannot mutate them.
+          // Middleware and Route Handlers handle persistence when writes are allowed.
+        }
       },
     },
   });

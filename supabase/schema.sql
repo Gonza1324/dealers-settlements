@@ -117,6 +117,42 @@ begin
 end;
 $$;
 
+create or replace function public.current_app_role()
+returns public.app_role
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p.role
+  from public.profiles as p
+  where p.id = auth.uid()
+$$;
+
+create or replace function public.is_super_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(public.current_app_role() = 'super_admin', false)
+$$;
+
+create or replace function public.current_partner_id()
+returns uuid
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p.id
+  from public.partners as p
+  where p.user_id = auth.uid()
+    and p.deleted_at is null
+  limit 1
+$$;
+
 -- =========================================================
 -- TABLES
 -- =========================================================
@@ -133,8 +169,8 @@ create table if not exists public.profiles (
 
 create table if not exists public.dealers (
   id uuid primary key default gen_random_uuid(),
-  code integer not null unique,
-  name text not null unique,
+  code integer not null,
+  name text not null,
   status public.dealer_status not null default 'active',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -170,7 +206,7 @@ create table if not exists public.dealer_partner_shares (
 
 create table if not exists public.financiers (
   id uuid primary key default gen_random_uuid(),
-  name text not null unique,
+  name text not null,
   is_active boolean not null default true,
   notes text,
   created_at timestamptz not null default now(),
@@ -206,7 +242,7 @@ create table if not exists public.dealer_financier_assignments (
 
 create table if not exists public.import_templates (
   id uuid primary key default gen_random_uuid(),
-  name text not null unique,
+  name text not null,
   source_type text not null,
   expected_headers text[] not null,
   column_map_json jsonb not null default '{}'::jsonb,
@@ -332,7 +368,7 @@ create table if not exists public.deal_edit_history (
 
 create table if not exists public.expense_categories (
   id uuid primary key default gen_random_uuid(),
-  name text not null unique,
+  name text not null,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -458,6 +494,23 @@ create table if not exists public.partner_monthly_payouts (
     check (public.is_month_start(period_month)),
   constraint partner_monthly_payouts_paid_amount_check
     check (paid_amount is null or paid_amount >= 0),
+  constraint partner_monthly_payouts_status_consistency_check
+    check (
+      (
+        payment_status = 'pending'
+        and paid_amount is null
+        and paid_at is null
+        and payment_method is null
+      )
+      or (
+        payment_status = 'paid'
+        and paid_amount is not null
+        and paid_amount >= 0
+        and paid_at is not null
+        and payment_method is not null
+        and btrim(payment_method) <> ''
+      )
+    ),
   constraint partner_monthly_payouts_unique unique (dealer_id, partner_id, period_month)
 );
 
@@ -508,9 +561,28 @@ begin
   end if;
 end $$;
 
+create unique index if not exists dealers_unique_active_code_idx
+  on public.dealers (code)
+  where deleted_at is null;
+
+create unique index if not exists dealers_unique_active_name_idx
+  on public.dealers (name)
+  where deleted_at is null;
+
 create unique index if not exists financier_aliases_unique_active_alias_idx
   on public.financier_aliases (normalized_alias)
   where deleted_at is null;
+
+create unique index if not exists financiers_unique_active_name_idx
+  on public.financiers (name)
+  where deleted_at is null;
+
+create unique index if not exists expense_categories_unique_active_name_idx
+  on public.expense_categories (name)
+  where deleted_at is null;
+
+create unique index if not exists import_templates_unique_active_name_idx
+  on public.import_templates (name);
 
 create unique index if not exists raw_deal_rows_import_row_unique_idx
   on public.raw_deal_rows (import_file_id, row_number);
@@ -541,8 +613,17 @@ create index if not exists dealer_financier_assignments_dealer_idx
 create index if not exists dealer_financier_assignments_start_date_idx
   on public.dealer_financier_assignments (start_date);
 
+create index if not exists financier_aliases_financier_id_idx
+  on public.financier_aliases (financier_id);
+
 create index if not exists import_files_period_month_idx
   on public.import_files (period_month);
+
+create index if not exists import_files_template_id_idx
+  on public.import_files (template_id);
+
+create index if not exists import_files_uploaded_by_idx
+  on public.import_files (uploaded_by);
 
 create index if not exists raw_deal_rows_period_month_idx
   on public.raw_deal_rows (period_month);
@@ -559,6 +640,12 @@ create index if not exists raw_deal_rows_duplicate_status_idx
 create index if not exists raw_deal_rows_validation_status_idx
   on public.raw_deal_rows (validation_status);
 
+create index if not exists import_review_actions_raw_row_id_idx
+  on public.import_review_actions (raw_row_id);
+
+create index if not exists import_review_actions_edited_by_idx
+  on public.import_review_actions (edited_by);
+
 create index if not exists deals_period_month_idx
   on public.deals (period_month);
 
@@ -571,8 +658,38 @@ create index if not exists deals_financier_idx
 create index if not exists deals_vin_idx
   on public.deals (vin_value);
 
+create index if not exists deals_source_file_id_idx
+  on public.deals (source_file_id);
+
+create index if not exists deals_created_by_idx
+  on public.deals (created_by);
+
+create index if not exists deals_updated_by_idx
+  on public.deals (updated_by);
+
+create index if not exists deal_edit_history_deal_id_idx
+  on public.deal_edit_history (deal_id);
+
+create index if not exists deal_edit_history_changed_by_idx
+  on public.deal_edit_history (changed_by);
+
+create index if not exists expense_recurring_templates_category_id_idx
+  on public.expense_recurring_templates (category_id);
+
 create index if not exists expenses_period_month_idx
   on public.expenses (period_month);
+
+create index if not exists expenses_category_id_idx
+  on public.expenses (category_id);
+
+create index if not exists expenses_recurring_template_id_idx
+  on public.expenses (recurring_template_id);
+
+create index if not exists expenses_created_by_idx
+  on public.expenses (created_by);
+
+create index if not exists expenses_updated_by_idx
+  on public.expenses (updated_by);
 
 create index if not exists expense_allocations_dealer_idx
   on public.expense_allocations (dealer_id);
@@ -583,6 +700,9 @@ create index if not exists expense_allocations_expense_idx
 create index if not exists dealer_monthly_results_period_month_idx
   on public.dealer_monthly_results (period_month);
 
+create index if not exists monthly_calculation_runs_triggered_by_idx
+  on public.monthly_calculation_runs (triggered_by);
+
 create index if not exists partner_monthly_results_period_month_idx
   on public.partner_monthly_results (period_month);
 
@@ -591,6 +711,9 @@ create index if not exists partner_monthly_payouts_period_month_idx
 
 create index if not exists partner_monthly_payouts_partner_idx
   on public.partner_monthly_payouts (partner_id);
+
+create index if not exists partner_monthly_payouts_selected_result_id_idx
+  on public.partner_monthly_payouts (selected_result_id);
 
 create index if not exists audit_logs_entity_idx
   on public.audit_logs (entity_table, entity_id);
@@ -701,6 +824,139 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
+
+-- =========================================================
+-- SECURITY
+-- =========================================================
+
+alter table public.profiles enable row level security;
+alter table public.profiles force row level security;
+alter table public.partners enable row level security;
+alter table public.partners force row level security;
+alter table public.dealers enable row level security;
+alter table public.dealers force row level security;
+alter table public.dealer_partner_shares enable row level security;
+alter table public.dealer_partner_shares force row level security;
+alter table public.partner_monthly_results enable row level security;
+alter table public.partner_monthly_results force row level security;
+alter table public.partner_monthly_payouts enable row level security;
+alter table public.partner_monthly_payouts force row level security;
+
+drop policy if exists profiles_admin_all on public.profiles;
+create policy profiles_admin_all
+on public.profiles
+for all
+to authenticated
+using (public.is_super_admin())
+with check (public.is_super_admin());
+
+drop policy if exists profiles_select_own on public.profiles;
+create policy profiles_select_own
+on public.profiles
+for select
+to authenticated
+using (auth.uid() = id);
+
+drop policy if exists partners_admin_all on public.partners;
+create policy partners_admin_all
+on public.partners
+for all
+to authenticated
+using (public.is_super_admin())
+with check (public.is_super_admin());
+
+drop policy if exists partners_select_own on public.partners;
+create policy partners_select_own
+on public.partners
+for select
+to authenticated
+using (user_id = auth.uid());
+
+drop policy if exists dealers_admin_all on public.dealers;
+create policy dealers_admin_all
+on public.dealers
+for all
+to authenticated
+using (public.is_super_admin())
+with check (public.is_super_admin());
+
+drop policy if exists dealers_select_partner_scope on public.dealers;
+create policy dealers_select_partner_scope
+on public.dealers
+for select
+to authenticated
+using (
+  exists (
+    select 1
+    from public.dealer_partner_shares as dps
+    where dps.dealer_id = dealers.id
+      and dps.partner_id = public.current_partner_id()
+      and dps.deleted_at is null
+  )
+);
+
+drop policy if exists dealer_partner_shares_admin_all on public.dealer_partner_shares;
+create policy dealer_partner_shares_admin_all
+on public.dealer_partner_shares
+for all
+to authenticated
+using (public.is_super_admin())
+with check (public.is_super_admin());
+
+drop policy if exists dealer_partner_shares_select_own on public.dealer_partner_shares;
+create policy dealer_partner_shares_select_own
+on public.dealer_partner_shares
+for select
+to authenticated
+using (partner_id = public.current_partner_id());
+
+drop policy if exists partner_monthly_results_admin_all on public.partner_monthly_results;
+create policy partner_monthly_results_admin_all
+on public.partner_monthly_results
+for all
+to authenticated
+using (public.is_super_admin())
+with check (public.is_super_admin());
+
+drop policy if exists partner_monthly_results_select_own on public.partner_monthly_results;
+create policy partner_monthly_results_select_own
+on public.partner_monthly_results
+for select
+to authenticated
+using (
+  partner_id = public.current_partner_id()
+  or exists (
+    select 1
+    from public.partners as p
+    where p.id = partner_monthly_results.partner_id
+      and p.user_id = auth.uid()
+      and p.deleted_at is null
+  )
+);
+
+drop policy if exists partner_monthly_payouts_admin_all on public.partner_monthly_payouts;
+create policy partner_monthly_payouts_admin_all
+on public.partner_monthly_payouts
+for all
+to authenticated
+using (public.is_super_admin())
+with check (public.is_super_admin());
+
+drop policy if exists partner_monthly_payouts_select_own on public.partner_monthly_payouts;
+create policy partner_monthly_payouts_select_own
+on public.partner_monthly_payouts
+for select
+to authenticated
+using (
+  partner_id = public.current_partner_id()
+  or exists (
+    select 1
+    from public.partners as p
+    where p.id = partner_monthly_payouts.partner_id
+      and p.user_id = auth.uid()
+      and p.deleted_at is null
+  )
+);
 
 -- =========================================================
 -- STORAGE

@@ -7,9 +7,13 @@ export function ImportSummaryCards({
 }) {
   const cards = [
     { label: "Rows", value: summary.totalRows },
+    { label: "Valid rows", value: summary.validRows },
     { label: "Rows with errors", value: summary.rowsWithErrors },
     { label: "Rows with warnings", value: summary.rowsWithWarnings },
     { label: "Duplicates", value: summary.duplicateRows },
+    { label: "Ready rows", value: summary.readyRows },
+    { label: "Approved rows", value: summary.approvedRows },
+    { label: "Pending rows", value: summary.pendingRows },
   ];
 
   return (

@@ -43,34 +43,56 @@ export function mapImportTemplate(record: Record<string, unknown>): ImportTempla
 }
 
 export function mapImportRow(record: Record<string, unknown>): ImportRowReview {
+  const normalizedPayload = (record.normalized_payload ??
+    {}) as ImportRowReview["normalizedPayload"];
+  const validationErrors = mapIssues(record.error_messages);
+  const warnings = mapIssues(record.warning_messages);
+  const duplicateStatus =
+    (record.duplicate_status as ImportRowReview["duplicateStatus"]) ??
+    "not_checked";
+
   return {
     id: String(record.id),
     rowNumber: Number(record.row_number),
     originalPayload: (record.raw_payload as Record<string, string | null>) ?? {},
-    normalizedPayload:
-      (record.normalized_payload as Record<string, string | number | null>) ?? {},
-    validationErrors: mapIssues(record.error_messages),
-    warnings: mapIssues(record.warning_messages),
+    normalizedPayload,
+    validationErrors,
+    warnings,
     isDuplicate:
-      String(record.duplicate_status ?? "not_checked") === "duplicate" ||
-      String(record.duplicate_status ?? "not_checked") === "possible_duplicate",
+      duplicateStatus === "duplicate" || duplicateStatus === "possible_duplicate",
     duplicateGroup: record.duplicate_key ? String(record.duplicate_key) : null,
     validationStatus:
       (record.validation_status as ImportRowReview["validationStatus"]) ?? "valid",
-    duplicateStatus:
-      (record.duplicate_status as ImportRowReview["duplicateStatus"]) ??
-      "not_checked",
+    duplicateStatus,
     reviewStatus:
       (record.review_status as ImportRowReview["reviewStatus"]) ?? "pending",
     isReadyForConsolidation: Boolean(record.is_ready_for_consolidation),
+    detectedDealerId:
+      typeof normalizedPayload.assignedDealerId === "string"
+        ? normalizedPayload.assignedDealerId
+        : null,
     detectedDealerName:
       typeof record.detected_dealer_name === "string"
         ? record.detected_dealer_name
+        : typeof normalizedPayload.assignedDealerName === "string"
+          ? normalizedPayload.assignedDealerName
+          : null,
+    detectedFinancierId:
+      typeof normalizedPayload.assignedFinancierId === "string"
+        ? normalizedPayload.assignedFinancierId
         : null,
     detectedFinancierName:
       typeof record.detected_financier_name === "string"
         ? record.detected_financier_name
-        : null,
+        : typeof normalizedPayload.assignedFinancierName === "string"
+          ? normalizedPayload.assignedFinancierName
+          : null,
+    isApprovable:
+      validationErrors.length === 0 &&
+      warnings.length === 0 &&
+      duplicateStatus === "unique" &&
+      Boolean(normalizedPayload.assignedDealerId) &&
+      Boolean(normalizedPayload.assignedFinancierId),
   };
 }
 

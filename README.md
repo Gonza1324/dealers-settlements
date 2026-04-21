@@ -122,6 +122,7 @@ This will apply:
 - `supabase/migrations/0004_indexes_and_constraints.sql`
 - `supabase/migrations/0005_triggers.sql`
 - `supabase/migrations/0006_storage.sql`
+- `supabase/migrations/0007_security_and_integrity.sql`
 - `supabase/seed.sql`
 
 ## Included Database Objects
@@ -177,6 +178,7 @@ The app now includes:
 - authenticated layout for the backoffice
 - middleware protection for private routes
 - role-aware navigation based on `profiles.role`
+- base RLS policies for profiles, partner-scoped visibility and payout reads
 
 Base roles:
 
@@ -184,8 +186,9 @@ Base roles:
 - `expense_admin`: access to dashboard and expenses
 - `partner_viewer`: read-oriented access shell for dashboard and dealers
 
-For now, `partner_viewer` route access is prepared at the app level, while the
-fine-grained dealer scoping will be enforced in later data queries and RLS work.
+`partner_viewer` route access is prepared at the app level and now has a base
+layer of database-enforced visibility through RLS for own profile, related
+partner records, dealer assignments and settlement reads.
 
 ## Master Data
 
@@ -210,7 +213,7 @@ Role access:
 - CRUD interfaces
 - expense workflows UI
 - dashboards and charts
-- RLS policies and production hardening
+- deeper RLS coverage for the remaining operational tables
 
 Those will be added in the next phases on top of this foundation.
 
@@ -233,4 +236,4 @@ Important:
 - files with critical structure errors are not consolidated and are marked as `error`
 - row-level errors are preserved for review in staging
 - both raw original payload and normalized payload are stored
-- RLS is intentionally not enabled yet and is reserved for phase 2
+- import flows still run through the service-role server path while broader RLS coverage for operational tables continues in later phases

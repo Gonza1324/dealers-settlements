@@ -1,9 +1,12 @@
-import type { NormalizedImportRow } from "@/features/imports/server/types";
+import type {
+  DuplicateDetectionRecord,
+  NormalizedImportRow,
+} from "@/features/imports/server/types";
 
 export interface DuplicateSummary {
   rows: Array<
     NormalizedImportRow & {
-      isDuplicate: boolean;
+      duplicateStatus: "unique" | "possible_duplicate" | "duplicate";
       duplicateGroup: string | null;
     }
   >;
@@ -12,31 +15,57 @@ export interface DuplicateSummary {
 
 export function detectDuplicates(params: {
   rows: NormalizedImportRow[];
-  existingKeys: string[];
+  existingRows: DuplicateDetectionRecord[];
 }): DuplicateSummary {
-  const existingKeySet = new Set(params.existingKeys);
-  const counts = new Map<string, number>();
+  const exactCounts = new Map<string, number>();
+  const possibleCounts = new Map<string, number>();
+  const existingExactKeys = new Set(
+    params.existingRows.map((row) => row.exactDuplicateKey),
+  );
+  const existingPossibleKeys = new Set(
+    params.existingRows.map((row) => row.possibleDuplicateKey),
+  );
 
   params.rows.forEach((row) => {
-    counts.set(row.duplicateKey, (counts.get(row.duplicateKey) ?? 0) + 1);
+    exactCounts.set(
+      row.exactDuplicateKey,
+      (exactCounts.get(row.exactDuplicateKey) ?? 0) + 1,
+    );
+    possibleCounts.set(
+      row.possibleDuplicateKey,
+      (possibleCounts.get(row.possibleDuplicateKey) ?? 0) + 1,
+    );
   });
 
   let duplicateRows = 0;
 
   const rows = params.rows.map((row) => {
-    const repeatedInFile = (counts.get(row.duplicateKey) ?? 0) > 1;
-    const repeatedInHistory = existingKeySet.has(row.duplicateKey);
-    const isDuplicate = repeatedInFile || repeatedInHistory;
-    const duplicateGroup = isDuplicate ? row.duplicateKey : null;
+    const exactInFile = (exactCounts.get(row.exactDuplicateKey) ?? 0) > 1;
+    const exactInHistory = existingExactKeys.has(row.exactDuplicateKey);
+    const possibleInFile =
+      (possibleCounts.get(row.possibleDuplicateKey) ?? 0) > 1;
+    const possibleInHistory = existingPossibleKeys.has(row.possibleDuplicateKey);
 
-    if (isDuplicate) {
+    const duplicateStatus: "unique" | "possible_duplicate" | "duplicate" =
+      exactInFile || exactInHistory
+        ? "duplicate"
+        : possibleInFile || possibleInHistory
+          ? "possible_duplicate"
+          : "unique";
+
+    if (duplicateStatus !== "unique") {
       duplicateRows += 1;
     }
 
     return {
       ...row,
-      isDuplicate,
-      duplicateGroup,
+      duplicateStatus,
+      duplicateGroup:
+        duplicateStatus === "duplicate"
+          ? row.exactDuplicateKey
+          : duplicateStatus === "possible_duplicate"
+            ? row.possibleDuplicateKey
+            : null,
     };
   });
 
@@ -45,4 +74,3 @@ export function detectDuplicates(params: {
     duplicateRows,
   };
 }
-
