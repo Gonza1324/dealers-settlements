@@ -28,7 +28,7 @@ export interface NormalizedImportPayload {
   makeValue: string | null;
   modelValue: string | null;
   vinValue: string | null;
-  saleValue: number | null;
+  saleValue: string | null;
   financeRaw: string | null;
   financeNormalized: string | null;
   netGrossValue: number | null;
@@ -48,6 +48,7 @@ export interface ImportExecutionResult {
   rowsWithWarnings: number;
   duplicateRows: number;
   status: string;
+  reusedExisting?: boolean;
 }
 
 export interface FinancierAliasLookup {

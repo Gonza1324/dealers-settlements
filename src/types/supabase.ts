@@ -395,6 +395,7 @@ export interface Database {
           is_recurring_instance: boolean;
           period_month: string;
           recurring_template_id: string | null;
+          selected_dealer_ids: Json;
           scope_type: Database["public"]["Enums"]["expense_scope_type"];
           updated_at: string;
           updated_by: string | null;
@@ -413,6 +414,7 @@ export interface Database {
           is_recurring_instance?: boolean;
           period_month: string;
           recurring_template_id?: string | null;
+          selected_dealer_ids?: Json;
           scope_type: Database["public"]["Enums"]["expense_scope_type"];
           updated_at?: string;
           updated_by?: string | null;
@@ -431,6 +433,7 @@ export interface Database {
           is_recurring_instance?: boolean;
           period_month?: string;
           recurring_template_id?: string | null;
+          selected_dealer_ids?: Json;
           scope_type?: Database["public"]["Enums"]["expense_scope_type"];
           updated_at?: string;
           updated_by?: string | null;
@@ -608,31 +611,37 @@ export interface Database {
       monthly_calculation_runs: {
         Row: {
           created_at: string;
+          error_messages: Json;
           id: string;
           is_current: boolean;
           notes: string | null;
           period_month: string;
           status: Database["public"]["Enums"]["calculation_run_status"];
+          summary_json: Json;
           triggered_by: string | null;
           updated_at: string;
         };
         Insert: {
           created_at?: string;
+          error_messages?: Json;
           id?: string;
           is_current?: boolean;
           notes?: string | null;
           period_month: string;
           status?: Database["public"]["Enums"]["calculation_run_status"];
+          summary_json?: Json;
           triggered_by?: string | null;
           updated_at?: string;
         };
         Update: {
           created_at?: string;
+          error_messages?: Json;
           id?: string;
           is_current?: boolean;
           notes?: string | null;
           period_month?: string;
           status?: Database["public"]["Enums"]["calculation_run_status"];
+          summary_json?: Json;
           triggered_by?: string | null;
           updated_at?: string;
         };
@@ -867,6 +876,38 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      build_deal_payload: {
+        Args: {
+          p_dealer_id: string;
+          p_financier_id: string | null;
+          p_period_month: string;
+          p_source_file_id: string | null;
+          p_source_row_id: string | null;
+          p_source_row_number: number | null;
+          p_year_value: number | null;
+          p_make_value: string | null;
+          p_model_value: string | null;
+          p_vin_value: string | null;
+          p_sale_value: string | null;
+          p_net_gross_value: number | null;
+          p_pickup_value: number | null;
+          p_finance_raw?: string | null;
+          p_finance_normalized?: string | null;
+        };
+        Returns: Json;
+      };
+      consolidate_approved_raw_rows: {
+        Args: {
+          p_row_ids: string[];
+          p_actor_user_id?: string | null;
+        };
+        Returns: {
+          deal_id: string | null;
+          message: string;
+          source_row_id: string;
+          status: string;
+        }[];
+      };
       handle_new_user: {
         Args: Record<string, never>;
         Returns: unknown;
@@ -875,9 +916,59 @@ export interface Database {
         Args: { p_date: string };
         Returns: boolean;
       };
+      run_monthly_calculation: {
+        Args: {
+          p_period_month: string;
+          p_actor_user_id?: string | null;
+          p_notes?: string | null;
+        };
+        Returns: Json;
+      };
       set_updated_at: {
         Args: Record<string, never>;
         Returns: unknown;
+      };
+      soft_delete_expense: {
+        Args: {
+          p_expense_id: string;
+          p_actor_user_id?: string | null;
+        };
+        Returns: undefined;
+      };
+      upsert_expense_with_allocations: {
+        Args: {
+          p_expense_id?: string | null;
+          p_actor_user_id?: string | null;
+          p_category_id?: string | null;
+          p_recurring_template_id?: string | null;
+          p_description?: string | null;
+          p_amount?: number | null;
+          p_expense_date?: string | null;
+          p_period_month?: string | null;
+          p_scope_type?: Database["public"]["Enums"]["expense_scope_type"];
+          p_selected_dealer_ids?: Json;
+          p_attachment_path?: string | null;
+          p_is_recurring_instance?: boolean | null;
+          p_allocations?: Json;
+        };
+        Returns: Database["public"]["Tables"]["expenses"]["Row"];
+      };
+      update_deal_manually: {
+        Args: {
+          p_deal_id: string;
+          p_actor_user_id: string;
+          p_dealer_id: string;
+          p_financier_id: string | null;
+          p_period_month: string;
+          p_year_value: number | null;
+          p_make_value: string;
+          p_model_value: string;
+          p_vin_value: string;
+          p_sale_value: string;
+          p_net_gross_value: number;
+          p_pickup_value: number | null;
+        };
+        Returns: Database["public"]["Tables"]["deals"]["Row"];
       };
     };
     Enums: {

@@ -8,6 +8,8 @@ const privatePrefixes = [
   "/dealers",
   "/partners",
   "/financiers",
+  "/deals",
+  "/settlements",
   "/expenses",
   "/settings",
 ];

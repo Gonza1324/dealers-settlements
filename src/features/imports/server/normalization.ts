@@ -24,8 +24,34 @@ function parseNumeric(value: string | number | null) {
     return Number.isFinite(value) ? value : null;
   }
 
-  const normalized = value.replace(/[$,\s]/g, "");
-  const parsed = Number(normalized);
+  const normalized = value
+    .replace(/\u00a0/g, " ")
+    .replace(/[$€£\s\t]/g, "")
+    .trim();
+
+  if (!normalized || normalized === "-") {
+    return null;
+  }
+
+  let decimalNormalized = normalized;
+
+  if (decimalNormalized.includes(",") && decimalNormalized.includes(".")) {
+    if (
+      decimalNormalized.lastIndexOf(",") > decimalNormalized.lastIndexOf(".")
+    ) {
+      decimalNormalized = decimalNormalized.replace(/\./g, "").replace(",", ".");
+    } else {
+      decimalNormalized = decimalNormalized.replace(/,/g, "");
+    }
+  } else if (decimalNormalized.includes(",")) {
+    decimalNormalized = /^-?\d{1,3}(,\d{3})+$/.test(decimalNormalized)
+      ? decimalNormalized.replace(/,/g, "")
+      : decimalNormalized.replace(",", ".");
+  } else if (/^-?\d{1,3}(\.\d{3})+$/.test(decimalNormalized)) {
+    decimalNormalized = decimalNormalized.replace(/\./g, "");
+  }
+
+  const parsed = Number(decimalNormalized);
 
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -39,6 +65,46 @@ function parseInteger(value: string | number | null) {
 function normalizeString(value: string | null) {
   const trimmed = value?.trim() ?? "";
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeDateParts(year: number, month: number, day: number) {
+  const candidate = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    candidate.getUTCFullYear() !== year ||
+    candidate.getUTCMonth() !== month - 1 ||
+    candidate.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return candidate.toISOString().slice(0, 10);
+}
+
+function parseSaleDate(value: string | null) {
+  const normalized = normalizeString(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+    const [year, month, day] = normalized.split("-").map(Number);
+    return normalizeDateParts(year, month, day);
+  }
+
+  const slashMatch = normalized.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
+  if (slashMatch) {
+    const [, monthPart, dayPart, yearPart] = slashMatch;
+    const month = Number(monthPart);
+    const day = Number(dayPart);
+    const year =
+      yearPart.length === 2 ? 2000 + Number(yearPart) : Number(yearPart);
+
+    return normalizeDateParts(year, month, day);
+  }
+
+  return null;
 }
 
 function buildExactDuplicateKey(payload: NormalizedImportPayload) {
@@ -128,7 +194,7 @@ export function validateNormalizedPayload(
   if (payload.saleValue === null) {
     validationErrors.push({
       code: "invalid_sale",
-      message: "Sale is missing or invalid.",
+      message: "Sale date is missing or invalid.",
       field: "saleValue",
       severity: "error",
     });
@@ -171,7 +237,7 @@ export function buildNormalizedPayload(params: {
     makeValue: string | null;
     modelValue: string | null;
     vinValue: string | null;
-    saleValue: number | null;
+    saleValue: string | null;
     financeRaw: string | null;
     netGrossValue: number | null;
     pickupValue: number | null;
@@ -233,7 +299,7 @@ export function normalizeImportRows(params: {
         makeValue: row["Make"] ?? null,
         modelValue: row["Model"] ?? null,
         vinValue: row["VIN"] ?? null,
-        saleValue: parseNumeric(row["Sale"] ?? null),
+        saleValue: parseSaleDate(row["Sale"] ?? null),
         financeRaw: row["Finance"] ?? null,
         netGrossValue: parseNumeric(row["Net Gross"] ?? null),
         pickupValue: parseNumeric(row["Pick Up"] ?? null) ?? 0,

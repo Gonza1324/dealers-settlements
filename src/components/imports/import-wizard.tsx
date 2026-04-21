@@ -18,6 +18,7 @@ interface UploadResult {
   rowsWithWarnings: number;
   duplicateRows: number;
   status: string;
+  reusedExisting?: boolean;
 }
 
 export function ImportWizard({ templates }: ImportWizardProps) {
@@ -42,7 +43,7 @@ export function ImportWizard({ templates }: ImportWizardProps) {
 
     const formData = new FormData();
     formData.set("templateId", templateId);
-    formData.set("sourceMonth", sourceMonth);
+    formData.set("sourceMonth", `${sourceMonth}-01`);
     formData.set("file", file);
 
     try {
@@ -74,9 +75,18 @@ export function ImportWizard({ templates }: ImportWizardProps) {
         <p className="subtitle" style={{ maxWidth: 780 }}>
           This flow uploads the source file to Storage, validates structure,
           parses rows, normalizes financier aliases, detects duplicates and
-          stages everything in `raw_deal_rows`. Consolidation to `deals` is
-          intentionally deferred.
+          stages everything in `raw_deal_rows` so approved rows can later be
+          consolidated into `deals`.
         </p>
+        <div className="table-actions" style={{ marginTop: 18 }}>
+          <Link
+            className="ghost-button"
+            download
+            href="/floorplan-default-example.csv"
+          >
+            Download example CSV
+          </Link>
+        </div>
         <div className="wizard-steps">
           {IMPORT_WIZARD_STEPS.map((step, index) => (
             <div key={step} className="wizard-step">
@@ -108,7 +118,7 @@ export function ImportWizard({ templates }: ImportWizardProps) {
             <input
               type="month"
               value={sourceMonth}
-              onChange={(event) => setSourceMonth(`${event.target.value}-01`)}
+              onChange={(event) => setSourceMonth(event.target.value)}
             />
           </label>
 
@@ -152,6 +162,13 @@ export function ImportWizard({ templates }: ImportWizardProps) {
               <h3 style={{ margin: 0 }}>{result.duplicateRows}</h3>
             </div>
           </div>
+
+          {result.reusedExisting && (
+            <p className="muted" style={{ marginTop: 16, marginBottom: 0 }}>
+              This exact file was already uploaded for the selected month. Reusing the
+              existing review batch instead of creating a duplicate.
+            </p>
+          )}
 
           {result.criticalErrors.length > 0 && (
             <ul className="inline-issues">

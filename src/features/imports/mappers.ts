@@ -93,6 +93,11 @@ export function mapImportRow(record: Record<string, unknown>): ImportRowReview {
       duplicateStatus === "unique" &&
       Boolean(normalizedPayload.assignedDealerId) &&
       Boolean(normalizedPayload.assignedFinancierId),
+    isConsolidated: Boolean(record.is_consolidated),
+    consolidatedDealId:
+      typeof record.consolidated_deal_id === "string"
+        ? record.consolidated_deal_id
+        : null,
   };
 }
 

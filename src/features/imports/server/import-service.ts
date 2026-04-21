@@ -9,6 +9,7 @@ import {
   normalizeEditedRow,
 } from "@/features/imports/server/normalization";
 import { recordImportReviewActions } from "@/features/imports/server/review-actions";
+import type { ConsolidationSummary } from "@/features/deals/types";
 import type {
   DealerFinancierAssignmentLookup,
   DuplicateDetectionRecord,
@@ -61,6 +62,13 @@ type ImportFileInsert = {
   uploaded_by: string | null;
 };
 
+type ExistingImportFileMatch = {
+  id: string;
+  status: string;
+  row_count: number;
+  metadata: Record<string, unknown>;
+};
+
 type RawRowForSummary = {
   id: string;
   error_messages: unknown;
@@ -69,6 +77,13 @@ type RawRowForSummary = {
   review_status: string;
   is_ready_for_consolidation: boolean;
   normalized_payload: unknown;
+};
+
+type ConsolidationRpcRow = {
+  source_row_id: string;
+  deal_id: string | null;
+  status: string;
+  message: string;
 };
 
 function getFileExtension(filename: string) {
@@ -121,8 +136,10 @@ function mapNormalizedPayload(
           ? payload.vin
           : null,
     saleValue:
-      typeof payload.saleValue === "number"
+      typeof payload.saleValue === "string"
         ? payload.saleValue
+        : typeof payload.saleRaw === "string"
+          ? payload.saleRaw
         : null,
     financeRaw:
       typeof payload.financeRaw === "string"
@@ -187,6 +204,27 @@ function isRowApprovable(row: RawRowForSummary) {
     Boolean(payload.assignedDealerId) &&
     Boolean(payload.assignedFinancierId)
   );
+}
+
+function mapConsolidationSummary(rows: ConsolidationRpcRow[]): ConsolidationSummary {
+  const mappedRows = rows.map((row) => ({
+    sourceRowId: row.source_row_id,
+    dealId: row.deal_id,
+    status:
+      row.status === "consolidated" ||
+      row.status === "skipped" ||
+      row.status === "failed"
+        ? row.status
+        : "failed",
+    message: row.message,
+  })) satisfies ConsolidationSummary["rows"];
+
+  return {
+    consolidatedCount: mappedRows.filter((row) => row.status === "consolidated").length,
+    skippedCount: mappedRows.filter((row) => row.status === "skipped").length,
+    failedCount: mappedRows.filter((row) => row.status === "failed").length,
+    rows: mappedRows,
+  };
 }
 
 async function getActiveTemplate(templateId: string): Promise<ImportTemplateRecord> {
@@ -352,6 +390,35 @@ async function insertImportFile(record: ImportFileInsert) {
   }
 
   return data.id as string;
+}
+
+async function getExistingImportFile(params: {
+  fileHash: string;
+  sourceMonth: string;
+}): Promise<ExistingImportFileMatch | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("import_files")
+    .select("id, status, row_count, metadata")
+    .eq("file_hash", params.fileHash)
+    .eq("period_month", params.sourceMonth)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to check existing imports: ${error.message}`);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return {
+    id: String(data.id),
+    status: String(data.status),
+    row_count: Number(data.row_count ?? 0),
+    metadata: ((data.metadata as Record<string, unknown> | null) ?? {}),
+  };
 }
 
 async function updateImportFile(params: {
@@ -591,9 +658,40 @@ export async function processImportUpload(params: {
   const arrayBuffer = await params.file.arrayBuffer();
   const fileBuffer = Buffer.from(arrayBuffer);
   const fileExtension = getFileExtension(params.file.name);
+  const checksum = createHash("sha256").update(fileBuffer).digest("hex");
 
   if (!["csv", "xlsx", "xls"].includes(fileExtension)) {
     throw new Error("Unsupported file extension.");
+  }
+
+  const existingImport = await getExistingImportFile({
+    fileHash: checksum,
+    sourceMonth: params.sourceMonth,
+  });
+
+  if (existingImport) {
+    const metadata = existingImport.metadata;
+
+    return {
+      importFileId: existingImport.id,
+      criticalErrors: Array.isArray(metadata.criticalErrors)
+        ? metadata.criticalErrors.filter(
+            (value): value is string => typeof value === "string",
+          )
+        : [],
+      warnings: ["This exact file was already uploaded for this source month."],
+      rowCount: existingImport.row_count,
+      rowsWithErrors:
+        typeof metadata.rowsWithErrors === "number" ? metadata.rowsWithErrors : 0,
+      rowsWithWarnings:
+        typeof metadata.rowsWithWarnings === "number"
+          ? metadata.rowsWithWarnings
+          : 0,
+      duplicateRows:
+        typeof metadata.duplicateRows === "number" ? metadata.duplicateRows : 0,
+      status: existingImport.status,
+      reusedExisting: true,
+    };
   }
 
   const storagePath = await uploadImportFileToStorage({
@@ -607,7 +705,6 @@ export async function processImportUpload(params: {
         : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
   });
 
-  const checksum = createHash("sha256").update(fileBuffer).digest("hex");
   const currentUser = await getCurrentUser();
   const parsedWorkbook = parseImportFile(fileBuffer, params.file.name);
   const structureValidation = validateImportHeaders(
@@ -731,6 +828,27 @@ export async function getImportReview(importFileId: string) {
     throw new Error(`Failed to load raw rows: ${rowsError.message}`);
   }
 
+  const rowIds = ((rows ?? []) as Array<{ id: string }>).map((row) => String(row.id));
+  let consolidatedMap = new Map<string, string>();
+
+  if (rowIds.length > 0) {
+    const { data: deals, error: dealsError } = await supabase
+      .from("deals")
+      .select("id, source_row_id")
+      .in("source_row_id", rowIds)
+      .is("deleted_at", null);
+
+    if (dealsError) {
+      throw new Error(`Failed to load consolidated deals: ${dealsError.message}`);
+    }
+
+    consolidatedMap = new Map(
+      ((deals ?? []) as Array<{ id: string; source_row_id: string | null }>)
+        .filter((deal) => Boolean(deal.source_row_id))
+        .map((deal) => [String(deal.source_row_id), String(deal.id)]),
+    );
+  }
+
   const rawMappedRows = (rows ?? []).map((row) => ({
     ...row,
     detected_dealer_name:
@@ -741,6 +859,8 @@ export async function getImportReview(importFileId: string) {
       ((row.detected_financier as { name?: string }[] | null)?.[0]?.name ??
         (row.detected_financier as { name?: string } | null)?.name ??
         null),
+    is_consolidated: consolidatedMap.has(String(row.id)),
+    consolidated_deal_id: consolidatedMap.get(String(row.id)) ?? null,
   }));
 
   const mappedRows = rawMappedRows.map((row) =>
@@ -758,6 +878,7 @@ export async function getImportReview(importFileId: string) {
   const readyRows = mappedRows.filter((row) => row.isReadyForConsolidation).length;
   const approvedRows = mappedRows.filter((row) => row.reviewStatus === "approved").length;
   const pendingRows = mappedRows.filter((row) => row.reviewStatus === "pending").length;
+  const consolidatedRows = mappedRows.filter((row) => row.isConsolidated).length;
   const importMetadata = (importFile.metadata as Record<string, unknown>) ?? {};
   const criticalErrors = Array.isArray(importMetadata.criticalErrors)
     ? (importMetadata.criticalErrors as string[])
@@ -793,11 +914,133 @@ export async function getImportReview(importFileId: string) {
       readyRows,
       approvedRows,
       pendingRows,
+      consolidatedRows,
       criticalErrors,
       canProceedToConsolidation,
     },
     rows: mappedRows,
   };
+}
+
+async function updateImportConsolidationStatus(importFileId: string) {
+  const supabase = createSupabaseAdminClient();
+  const { data: rows, error } = await supabase
+    .from("raw_deal_rows")
+    .select("id, review_status")
+    .eq("import_file_id", importFileId);
+
+  if (error) {
+    throw new Error(`Failed to update import consolidation status: ${error.message}`);
+  }
+
+  const rowIds = ((rows ?? []) as Array<{ id: string; review_status: string }>).map((row) =>
+    String(row.id),
+  );
+
+  let consolidatedIds = new Set<string>();
+
+  if (rowIds.length > 0) {
+    const { data: deals, error: dealsError } = await supabase
+      .from("deals")
+      .select("source_row_id")
+      .in("source_row_id", rowIds)
+      .is("deleted_at", null);
+
+    if (dealsError) {
+      throw new Error(`Failed to read consolidated rows: ${dealsError.message}`);
+    }
+
+    consolidatedIds = new Set(
+      ((deals ?? []) as Array<{ source_row_id: string | null }>)
+        .map((deal) => deal.source_row_id)
+        .filter(Boolean) as string[],
+    );
+  }
+
+  const approvedRows = ((rows ?? []) as Array<{ id: string; review_status: string }>).filter(
+    (row) => row.review_status === "approved",
+  );
+  const allApprovedConsolidated =
+    approvedRows.length > 0 &&
+    approvedRows.every((row) => consolidatedIds.has(String(row.id)));
+
+  const { data: currentImportFile, error: importError } = await supabase
+    .from("import_files")
+    .select("metadata")
+    .eq("id", importFileId)
+    .single();
+
+  if (importError || !currentImportFile) {
+    throw new Error("Import file not found while updating consolidation status.");
+  }
+
+  const metadata = (currentImportFile.metadata as Record<string, unknown>) ?? {};
+
+  const { error: updateError } = await supabase
+    .from("import_files")
+    .update({
+      status: allApprovedConsolidated ? "consolidated" : "validated",
+      metadata: {
+        ...metadata,
+        consolidatedRows: consolidatedIds.size,
+      } as never,
+    })
+    .eq("id", importFileId);
+
+  if (updateError) {
+    throw new Error(`Failed to update import status: ${updateError.message}`);
+  }
+}
+
+export async function consolidateImportRows(params: {
+  importFileId: string;
+  rowIds: string[];
+}): Promise<ConsolidationSummary> {
+  const supabase = createSupabaseAdminClient();
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    throw new Error("Unauthorized.");
+  }
+
+  const { data: importFile, error: importError } = await supabase
+    .from("import_files")
+    .select("id")
+    .eq("id", params.importFileId)
+    .single();
+
+  if (importError || !importFile) {
+    throw new Error("Import file not found.");
+  }
+
+  const { data: rows, error: rowsError } = await supabase
+    .from("raw_deal_rows")
+    .select("id")
+    .eq("import_file_id", params.importFileId)
+    .in("id", params.rowIds);
+
+  if (rowsError) {
+    throw new Error(`Failed to validate selected rows: ${rowsError.message}`);
+  }
+
+  const validRowIds = ((rows ?? []) as Array<{ id: string }>).map((row) => String(row.id));
+
+  if (validRowIds.length === 0) {
+    throw new Error("No valid rows were selected for consolidation.");
+  }
+
+  const { data, error } = await supabase.rpc("consolidate_approved_raw_rows", {
+    p_row_ids: validRowIds,
+    p_actor_user_id: currentUser.id,
+  });
+
+  if (error) {
+    throw new Error(`Failed to consolidate rows: ${error.message}`);
+  }
+
+  await updateImportConsolidationStatus(params.importFileId);
+
+  return mapConsolidationSummary((data ?? []) as ConsolidationRpcRow[]);
 }
 
 export async function applyImportReviewAction(params: {

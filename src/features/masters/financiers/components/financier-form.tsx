@@ -20,6 +20,8 @@ export function FinanciersPageContent({
   const [selectedFinancier, setSelectedFinancier] = useState<FinancierRow | null>(null);
   const [selectedAlias, setSelectedAlias] = useState<FinancierAliasRecord | null>(null);
   const [filter, setFilter] = useState("");
+  const [aliasDraft, setAliasDraft] = useState("");
+  const [selectedAliasFinancierId, setSelectedAliasFinancierId] = useState("");
   const [financierState, financierAction] = useActionState(
     saveFinancier,
     initialFormState,
@@ -35,12 +37,6 @@ export function FinanciersPageContent({
     }
   }, [financierState.success]);
 
-  useEffect(() => {
-    if (aliasState.success) {
-      setSelectedAlias(null);
-    }
-  }, [aliasState.success]);
-
   const filteredFinanciers = useMemo(() => {
     const normalized = filter.trim().toLowerCase();
 
@@ -52,6 +48,21 @@ export function FinanciersPageContent({
       financier.name.toLowerCase().includes(normalized),
     );
   }, [filter, financiers]);
+
+  useEffect(() => {
+    if (aliasState.success) {
+      setSelectedAlias(null);
+      setAliasDraft("");
+      setSelectedAliasFinancierId(filteredFinanciers[0]?.id ?? "");
+    }
+  }, [aliasState.success, filteredFinanciers]);
+
+  useEffect(() => {
+    setAliasDraft(selectedAlias?.alias ?? "");
+    setSelectedAliasFinancierId(
+      selectedAlias?.financier_id ?? filteredFinanciers[0]?.id ?? "",
+    );
+  }, [filteredFinanciers, selectedAlias]);
 
   return (
     <div className="grid" style={{ gap: 24 }}>
@@ -192,10 +203,9 @@ export function FinanciersPageContent({
             <label className="field">
               <span>Financier</span>
               <select
-                defaultValue={
-                  selectedAlias?.financier_id ?? filteredFinanciers[0]?.id ?? ""
-                }
                 name="financier_id"
+                onChange={(event) => setSelectedAliasFinancierId(event.target.value)}
+                value={selectedAliasFinancierId}
               >
                 {filteredFinanciers.map((financier) => (
                   <option key={financier.id} value={financier.id}>
@@ -206,19 +216,18 @@ export function FinanciersPageContent({
             </label>
             <label className="field">
               <span>Alias</span>
-              <input defaultValue={selectedAlias?.alias ?? ""} name="alias" />
+              <input
+                name="alias"
+                onChange={(event) => setAliasDraft(event.target.value)}
+                value={aliasDraft}
+              />
             </label>
             <label className="field">
               <span>Normalized preview</span>
               <input
-                defaultValue={selectedAlias?.normalized_alias ?? ""}
                 disabled
                 placeholder="Derived automatically"
-                value={
-                  selectedAlias
-                    ? normalizeAlias(selectedAlias.alias)
-                    : undefined
-                }
+                value={aliasDraft ? normalizeAlias(aliasDraft) : ""}
               />
             </label>
             <button className="action-button" type="submit">

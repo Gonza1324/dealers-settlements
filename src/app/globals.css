@@ -11,6 +11,13 @@
   --warning: #8b5e00;
   --danger: #9c2f2f;
   --shadow: 0 18px 40px rgba(25, 20, 16, 0.08);
+  --font-sans:
+    "SF Pro Text",
+    "SF Pro Display",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 * {
@@ -26,7 +33,12 @@ body {
     radial-gradient(circle at top left, rgba(215, 202, 181, 0.55), transparent 28%),
     linear-gradient(180deg, #faf7f1 0%, var(--background) 100%);
   color: var(--foreground);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -111,14 +123,15 @@ textarea {
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .title {
   margin: 0;
-  font-size: 32px;
+  font-size: 28px;
   line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .subtitle,
@@ -169,7 +182,7 @@ textarea {
   border: 1px solid var(--border);
   background: var(--surface-muted);
   color: var(--accent-strong);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -205,7 +218,7 @@ textarea {
   border-radius: 999px;
   background: var(--accent);
   color: white;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -223,7 +236,7 @@ textarea {
 }
 
 .field span {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
@@ -280,7 +293,7 @@ textarea {
 }
 
 .small-text {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .imports-toolbar {
@@ -315,6 +328,13 @@ textarea {
   text-align: left;
 }
 
+.imports-table th {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 .imports-status-stack {
   display: grid;
   gap: 8px;
@@ -325,7 +345,7 @@ textarea {
   align-items: center;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   width: fit-content;
   border: 1px solid var(--border);
@@ -370,6 +390,8 @@ textarea {
   background: #f9f5ed;
   font-size: 12px;
   line-height: 1.5;
+  white-space: pre-wrap;
+  max-width: 280px;
   overflow-x: auto;
 }
 
@@ -399,19 +421,6 @@ textarea {
   cursor: pointer;
 }
 
-.imports-toolbar {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  align-items: flex-start;
-  margin-bottom: 18px;
-}
-
-.imports-filters {
-  display: flex;
-  gap: 8px;
-}
-
 .filter-chip {
   border: 1px solid var(--border);
   background: white;
@@ -426,84 +435,6 @@ textarea {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
-}
-
-.imports-table-wrapper {
-  overflow-x: auto;
-}
-
-.imports-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.imports-table th,
-.imports-table td {
-  border-top: 1px solid var(--border);
-  padding: 14px 10px;
-  vertical-align: top;
-  text-align: left;
-}
-
-.imports-table th {
-  font-size: 12px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.payload-block {
-  margin: 0;
-  white-space: pre-wrap;
-  font-size: 12px;
-  line-height: 1.5;
-  max-width: 280px;
-}
-
-.imports-status-stack {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.status-pill.success {
-  background: #d9efe6;
-  color: #155c4a;
-}
-
-.status-pill.warning {
-  background: #f7e9bf;
-  color: #7d5d08;
-}
-
-.status-pill.danger {
-  background: #f6d8d8;
-  color: #8c2a2a;
-}
-
-.status-pill.muted {
-  background: #ebe4d7;
-  color: #665c52;
-}
-
-.inline-issues {
-  margin: 10px 0 0;
-  padding-left: 18px;
-  color: var(--danger);
-}
-
-.inline-issues.warning {
-  color: var(--warning);
 }
 
 .success-text {

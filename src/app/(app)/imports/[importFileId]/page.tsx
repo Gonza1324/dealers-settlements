@@ -20,7 +20,7 @@ export default async function ImportReviewPage({
       <PageHeader
         eyebrow="Pre-consolidation review"
         title={review.importFile.originalFilename}
-        description={`Source month ${review.importFile.sourceMonth}. This screen shows staged rows, row-level issues and duplicates before any future consolidation to deals.`}
+        description={`Source month ${review.importFile.sourceMonth}. This screen shows staged rows, row-level issues, duplicates and the manual consolidation flow into deals.`}
       />
       <ImportSummaryCards summary={review.summary} />
 

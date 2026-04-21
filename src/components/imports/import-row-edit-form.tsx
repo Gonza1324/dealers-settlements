@@ -43,7 +43,7 @@ export function ImportRowEditForm({
     makeValue: string;
     modelValue: string;
     vinValue: string;
-    saleValue: number | null;
+    saleValue: string | null;
     financeRaw: string;
     netGrossValue: number | null;
     pickupValue: number | null;
@@ -62,7 +62,7 @@ export function ImportRowEditForm({
       makeValue: fields.makeValue,
       modelValue: fields.modelValue,
       vinValue: fields.vinValue,
-      saleValue: fields.saleValue ? Number(fields.saleValue) : null,
+      saleValue: fields.saleValue || null,
       financeRaw: fields.financeRaw,
       netGrossValue: fields.netGrossValue ? Number(fields.netGrossValue) : null,
       pickupValue: fields.pickupValue ? Number(fields.pickupValue) : null,
@@ -121,8 +121,9 @@ export function ImportRowEditForm({
           />
         </label>
         <label className="field">
-          <span>Sale</span>
+          <span>Sale date</span>
           <input
+            type="date"
             value={fields.saleValue}
             onChange={(event) =>
               setFields((current) => ({

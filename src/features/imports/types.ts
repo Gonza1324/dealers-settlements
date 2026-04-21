@@ -47,7 +47,7 @@ export interface ImportNormalizedPayload {
   makeValue: string | null;
   modelValue: string | null;
   vinValue: string | null;
-  saleValue: number | null;
+  saleValue: string | null;
   financeRaw: string | null;
   financeNormalized: string | null;
   netGrossValue: number | null;
@@ -76,6 +76,8 @@ export interface ImportRowReview {
   detectedFinancierId: string | null;
   detectedFinancierName: string | null;
   isApprovable: boolean;
+  isConsolidated: boolean;
+  consolidatedDealId: string | null;
 }
 
 export interface ImportReviewSummary {
@@ -87,6 +89,7 @@ export interface ImportReviewSummary {
   readyRows: number;
   approvedRows: number;
   pendingRows: number;
+  consolidatedRows: number;
   criticalErrors: string[];
   canProceedToConsolidation: boolean;
 }
@@ -107,7 +110,7 @@ export interface ImportRowUpdatePayload {
   makeValue: string;
   modelValue: string;
   vinValue: string;
-  saleValue: number | null;
+  saleValue: string | null;
   financeRaw: string;
   netGrossValue: number | null;
   pickupValue: number | null;

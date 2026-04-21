@@ -14,6 +14,7 @@ export function ImportSummaryCards({
     { label: "Ready rows", value: summary.readyRows },
     { label: "Approved rows", value: summary.approvedRows },
     { label: "Pending rows", value: summary.pendingRows },
+    { label: "Consolidated rows", value: summary.consolidatedRows },
   ];
 
   return (
@@ -27,10 +28,10 @@ export function ImportSummaryCards({
       <article className="stat-card">
         <p className="eyebrow">Consolidation</p>
         <h2 style={{ margin: 0, fontSize: 22 }}>
-          {summary.canProceedToConsolidation ? "Ready later" : "Blocked"}
+          {summary.canProceedToConsolidation ? "Ready now" : "Blocked"}
         </h2>
         <p className="muted" style={{ marginBottom: 0 }}>
-          Consolidation is intentionally deferred to the next phase.
+          Only approved rows that are still not consolidated can move to deals.
         </p>
       </article>
     </section>

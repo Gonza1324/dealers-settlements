@@ -16,6 +16,18 @@ export async function requireExpenseAccess() {
   return requireRole(["super_admin", "expense_admin", "partner_viewer"]);
 }
 
+export async function requireExpenseManagerAccess() {
+  return requireRole(["super_admin", "expense_admin"]);
+}
+
+export async function requireSettlementAccess() {
+  return requireRole(["super_admin", "partner_viewer"]);
+}
+
+export async function requireSettlementManagerAccess() {
+  return requireRole(["super_admin"]);
+}
+
 export async function requireAdminAccess() {
   return requireRole(["super_admin"]);
 }

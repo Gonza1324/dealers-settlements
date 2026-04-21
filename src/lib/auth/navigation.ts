@@ -33,6 +33,16 @@ export const BACKOFFICE_NAV_ITEMS: NavItem[] = [
     roles: ["super_admin"],
   },
   {
+    href: "/deals",
+    label: "Deals",
+    roles: ["super_admin", "partner_viewer"],
+  },
+  {
+    href: "/settlements",
+    label: "Settlements",
+    roles: ["super_admin", "partner_viewer"],
+  },
+  {
     href: "/expenses",
     label: "Expenses",
     roles: ["super_admin", "expense_admin", "partner_viewer"],

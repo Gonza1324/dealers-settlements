@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ImportRowEditForm } from "@/components/imports/import-row-edit-form";
 import { mapImportReviewPayload } from "@/features/imports/mappers";
 import type { ImportRowReview } from "@/features/imports/types";
+import type { ConsolidationSummary } from "@/features/deals/types";
 
 type ValidationFilter = "all" | "valid" | "warning" | "invalid";
 type DuplicateFilter = "all" | "unique" | "possible_duplicate" | "duplicate";
@@ -15,7 +16,7 @@ const FIELD_LABELS: Record<string, string> = {
   makeValue: "Make",
   modelValue: "Model",
   vinValue: "VIN",
-  saleValue: "Sale",
+  saleValue: "Sale date",
   financeRaw: "Finance",
   netGrossValue: "Net Gross",
   pickupValue: "Pick Up",
@@ -44,8 +45,12 @@ export function ImportReviewTable({
     useState<DuplicateFilter>("all");
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [consolidationSummary, setConsolidationSummary] =
+    useState<ConsolidationSummary | null>(null);
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
@@ -60,9 +65,31 @@ export function ImportReviewTable({
     });
   }, [duplicateFilter, reviewFilter, rows, validationFilter]);
 
+  async function refreshReview() {
+    const response = await fetch(`/api/imports/${importFileId}`);
+    const data = (await response.json()) as Record<string, unknown>;
+
+    if (!response.ok) {
+      throw new Error(
+        typeof data.error === "string" ? data.error : "Failed to refresh review.",
+      );
+    }
+
+    const review = mapImportReviewPayload(data);
+    setRows(review.rows);
+    setSelectedRowIds((current) =>
+      current.filter((id) =>
+        review.rows.some((row) => row.id === id && !row.isConsolidated),
+      ),
+    );
+    router.refresh();
+  }
+
   async function runAction(payload: unknown) {
     setIsSubmitting(true);
     setError(null);
+    setSuccessMessage(null);
+    setConsolidationSummary(null);
 
     try {
       const response = await fetch(`/api/imports/${importFileId}`, {
@@ -87,6 +114,12 @@ export function ImportReviewTable({
       const review = mapImportReviewPayload(data as Record<string, unknown>);
       setRows(review.rows);
       setEditingRowId(null);
+      setSelectedRowIds((current) =>
+        current.filter((id) =>
+          review.rows.some((row) => row.id === id && !row.isConsolidated),
+        ),
+      );
+      setSuccessMessage("Review updated.");
       router.refresh();
     } catch (requestError) {
       setError(
@@ -97,6 +130,70 @@ export function ImportReviewTable({
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  async function consolidateSelectedRows() {
+    if (selectedRowIds.length === 0) {
+      setError("Select at least one row to consolidate.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+    setSuccessMessage(null);
+    setConsolidationSummary(null);
+
+    try {
+      const response = await fetch("/api/imports/consolidate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          importFileId,
+          rowIds: selectedRowIds,
+        }),
+      });
+      const data = (await response.json()) as
+        | { error?: string }
+        | ConsolidationSummary;
+
+      if (!response.ok) {
+        throw new Error(
+          "error" in data && typeof data.error === "string"
+            ? data.error
+            : "Consolidation failed.",
+        );
+      }
+
+      setConsolidationSummary(data as ConsolidationSummary);
+      setSuccessMessage("Consolidation finished.");
+      await refreshReview();
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Consolidation failed.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function toggleRowSelection(rowId: string) {
+    setSelectedRowIds((current) =>
+      current.includes(rowId)
+        ? current.filter((id) => id !== rowId)
+        : [...current, rowId],
+    );
+  }
+
+  function selectApprovedVisibleRows() {
+    setSelectedRowIds(
+      filteredRows
+        .filter((row) => row.reviewStatus === "approved" && !row.isConsolidated)
+        .map((row) => row.id),
+    );
   }
 
   return (
@@ -111,6 +208,14 @@ export function ImportReviewTable({
           </p>
         </div>
         <div className="imports-filters">
+          <button
+            className="secondary-button"
+            disabled={isSubmitting}
+            onClick={selectApprovedVisibleRows}
+            type="button"
+          >
+            Select approved
+          </button>
           <label className="field compact">
             <span>Validation</span>
             <select
@@ -161,18 +266,46 @@ export function ImportReviewTable({
           >
             {isSubmitting ? "Working..." : "Approve ready rows"}
           </button>
+          <button
+            className="action-button"
+            disabled={isSubmitting || selectedRowIds.length === 0}
+            onClick={consolidateSelectedRows}
+            type="button"
+          >
+            {isSubmitting ? "Working..." : `Consolidate selected (${selectedRowIds.length})`}
+          </button>
         </div>
       </div>
 
       {error && <p className="error-text">{error}</p>}
+      {successMessage && <p className="success-text">{successMessage}</p>}
+      {consolidationSummary && (
+        <div className="inline-alert" style={{ marginBottom: 18 }}>
+          <p className="eyebrow">Consolidation summary</p>
+          <p style={{ marginTop: 0 }}>
+            Consolidated {consolidationSummary.consolidatedCount}, skipped{" "}
+            {consolidationSummary.skippedCount}, failed {consolidationSummary.failedCount}.
+          </p>
+          <div className="table-actions">
+            <button
+              className="ghost-button"
+              onClick={() => router.push("/deals")}
+              type="button"
+            >
+              Open deals
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="imports-table-wrapper">
         <table className="imports-table">
           <thead>
             <tr>
+              <th>Select</th>
               <th>Row</th>
               <th>VIN</th>
-              <th>Sale</th>
+              <th>Sale date</th>
               <th>Finance</th>
               <th>Dealer</th>
               <th>Validation</th>
@@ -184,6 +317,14 @@ export function ImportReviewTable({
           <tbody>
             {filteredRows.map((row) => (
               <tr key={row.id}>
+                <td>
+                  <input
+                    checked={selectedRowIds.includes(row.id)}
+                    disabled={isSubmitting || row.isConsolidated}
+                    onChange={() => toggleRowSelection(row.id)}
+                    type="checkbox"
+                  />
+                </td>
                 <td>{row.rowNumber}</td>
                 <td>{row.normalizedPayload.vinValue ?? "-"}</td>
                 <td>
@@ -251,6 +392,9 @@ export function ImportReviewTable({
                   {row.isReadyForConsolidation && (
                     <div className="muted small-text">ready later</div>
                   )}
+                  {row.isConsolidated && (
+                    <div className="muted small-text">deal created</div>
+                  )}
                 </td>
                 <td>
                   <div className="imports-row-buttons">
@@ -266,9 +410,20 @@ export function ImportReviewTable({
                     >
                       {editingRowId === row.id ? "Close" : "Edit"}
                     </button>
+                    {row.isConsolidated && row.consolidatedDealId && (
+                      <button
+                        className="secondary-button"
+                        onClick={() => router.push(`/deals/${row.consolidatedDealId}`)}
+                        type="button"
+                      >
+                        View deal
+                      </button>
+                    )}
                     <button
                       className="secondary-button"
-                      disabled={isSubmitting || !row.isApprovable}
+                      disabled={
+                        isSubmitting || !row.isApprovable || row.isConsolidated
+                      }
                       onClick={() =>
                         runAction({ action: "approve_row", rowId: row.id })
                       }

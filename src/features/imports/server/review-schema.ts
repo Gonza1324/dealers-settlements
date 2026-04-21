@@ -8,13 +8,21 @@ const nullableNumberField = z.preprocess((value) => {
   return value;
 }, z.coerce.number().nullable());
 
+const nullableDateField = z.preprocess((value) => {
+  if (value === "" || value === null || value === undefined) {
+    return null;
+  }
+
+  return typeof value === "string" ? value.trim() : value;
+}, z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Sale date is invalid.").nullable());
+
 export const importRowUpdateSchema = z.object({
   rowId: z.string().uuid(),
   yearValue: nullableNumberField.pipe(z.number().int().nullable()),
   makeValue: z.string().trim().min(1, "Make is required."),
   modelValue: z.string().trim().min(1, "Model is required."),
   vinValue: z.string().trim().min(1, "VIN is required."),
-  saleValue: nullableNumberField,
+  saleValue: nullableDateField,
   financeRaw: z.string().trim().min(1, "Finance is required."),
   netGrossValue: nullableNumberField,
   pickupValue: nullableNumberField,

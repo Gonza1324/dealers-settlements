@@ -7,6 +7,11 @@ export const env = {
   supabaseAnonKey: getEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
   supabaseServiceRoleKey: getEnv("SUPABASE_SERVICE_ROLE_KEY"),
   importBucketName: getEnv("SUPABASE_IMPORT_BUCKET") ?? "import-files",
+  expenseAttachmentBucketName:
+    getEnv("SUPABASE_EXPENSE_ATTACHMENT_BUCKET") ?? "expense-attachments",
+  settlementAttachmentBucketName:
+    getEnv("SUPABASE_SETTLEMENT_ATTACHMENT_BUCKET") ??
+    "settlement-payment-attachments",
 };
 
 export function hasSupabaseEnv() {
