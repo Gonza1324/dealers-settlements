@@ -414,6 +414,47 @@ textarea {
   overflow-x: auto;
 }
 
+.audit-metadata {
+  display: inline-block;
+}
+
+.audit-metadata-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: white;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.audit-metadata-summary::-webkit-details-marker {
+  display: none;
+}
+
+.audit-metadata-summary::after {
+  content: "▾";
+  font-size: 10px;
+  line-height: 1;
+}
+
+.audit-metadata[open] .audit-metadata-summary::after {
+  content: "▴";
+}
+
+.audit-metadata-payload {
+  margin-top: 10px;
+  max-width: 420px;
+  max-height: 280px;
+}
+
 .import-edit-form {
   display: grid;
   gap: 20px;

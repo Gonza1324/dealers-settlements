@@ -61,17 +61,22 @@ export function AuditLogTable({ data }: { data: AuditPageData }) {
                   </td>
                   <td>{log.action}</td>
                   <td>
-                    <pre className="payload-block">
-                      {JSON.stringify(
-                        {
-                          before: log.beforeJson,
-                          after: log.afterJson,
-                          metadata: log.metadata,
-                        },
-                        null,
-                        2,
-                      )}
-                    </pre>
+                    <details className="audit-metadata">
+                      <summary className="audit-metadata-summary">
+                        <span>View</span>
+                      </summary>
+                      <pre className="payload-block audit-metadata-payload">
+                        {JSON.stringify(
+                          {
+                            before: log.beforeJson,
+                            after: log.afterJson,
+                            metadata: log.metadata,
+                          },
+                          null,
+                          2,
+                        )}
+                      </pre>
+                    </details>
                   </td>
                 </tr>
               ))}
