@@ -1,9 +1,24 @@
 import type { AuditPageData } from "@/features/audit/types";
 
 export function AuditLogTable({ data }: { data: AuditPageData }) {
+  const activeFilters = [
+    data.filters.entityTable && "Entity",
+    data.filters.action && "Action",
+  ].filter(Boolean);
+
   return (
     <>
-      <section className="panel" style={{ marginBottom: 24 }}>
+      <section className="panel filter-panel">
+        <div className="filter-panel-header">
+          <div>
+            <p className="eyebrow">Audit filters</p>
+            <h2>Trace sensitive changes faster</h2>
+            <p>Filter the audit trail by entity table and action type.</p>
+          </div>
+          <div className="filter-summary">
+            {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing full audit trail"}
+          </div>
+        </div>
         <form action="/audit" className="dashboard-filters-form" method="get">
           <label className="field compact">
             <span>Entity</span>
@@ -27,7 +42,7 @@ export function AuditLogTable({ data }: { data: AuditPageData }) {
               ))}
             </select>
           </label>
-          <div className="table-actions">
+          <div className="filter-panel-actions">
             <button className="action-button" type="submit">
               Apply filters
             </button>

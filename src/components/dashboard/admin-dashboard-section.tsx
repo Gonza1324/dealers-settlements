@@ -25,11 +25,12 @@ export function AdminDashboardSection({
 }) {
   return (
     <>
-      <section className="grid four" style={{ marginBottom: 24 }}>
+      <section className="dashboard-kpi-strip grid four">
         <MetricCard
           eyebrow="Net profit"
           helper="Total monthly net profit across visible dealers."
           value={formatCurrency(data.summary.totalNetProfit)}
+          featured
         />
         <MetricCard
           eyebrow="Partners to pay"
@@ -48,25 +49,45 @@ export function AdminDashboardSection({
         />
       </section>
 
-      <section className="panel dashboard-quick-actions">
-        <div>
-          <p className="eyebrow">Quick action</p>
-          <h2 style={{ marginTop: 0 }}>Current month settlement</h2>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            Jump straight into the settlement run and payout controls for the selected month.
-          </p>
-        </div>
-        <Link className="action-button" href={data.quickSettlementHref}>
-          Open settlements
-        </Link>
+      <section className="dashboard-primary-row">
+        <section className="panel dashboard-highlight-card">
+          <div className="dashboard-card-header">
+            <div>
+              <p className="eyebrow">Quick action</p>
+              <h2 className="dashboard-section-title">Current month settlement</h2>
+              <p className="dashboard-section-copy">
+                Jump straight into the settlement run and payout controls for the selected month.
+              </p>
+            </div>
+            <Link className="action-button" href={data.quickSettlementHref}>
+              Open settlements
+            </Link>
+          </div>
+          <div className="dashboard-highlight-stats">
+            <article className="dashboard-highlight-stat">
+              <span className="small-text muted">Dealer performance rows</span>
+              <strong>{data.dealerPerformance.length}</strong>
+            </article>
+            <article className="dashboard-highlight-stat">
+              <span className="small-text muted">Pending payouts</span>
+              <strong>{data.summary.pendingPayoutCount}</strong>
+            </article>
+            <article className="dashboard-highlight-stat">
+              <span className="small-text muted">Tracked financiers</span>
+              <strong>{data.topFinanciers.length}</strong>
+            </article>
+          </div>
+        </section>
+
+        <MonthlyComparisonCard points={data.comparison} />
       </section>
 
-      <section className="grid two" style={{ marginTop: 24, marginBottom: 24 }}>
+      <section className="grid two" style={{ marginBottom: 24 }}>
         <NetProfitByDealerTable
           rows={data.dealerPerformance}
           title="Net profit by dealer"
         />
-        <MonthlyComparisonCard points={data.comparison} />
+        <TopFinanciersTable rows={data.topFinanciers} />
       </section>
 
       <section className="grid two" style={{ marginBottom: 24 }}>
@@ -82,10 +103,8 @@ export function AdminDashboardSection({
 
       <section className="grid two" style={{ marginBottom: 24 }}>
         <ExpenseByDealerTable rows={data.expenseByDealer} />
-        <TopFinanciersTable rows={data.topFinanciers} />
+        <PayoutSummaryCard rows={data.payoutRows} title="Partner payouts by month" />
       </section>
-
-      <PayoutSummaryCard rows={data.payoutRows} title="Partner payouts by month" />
 
       <div style={{ marginTop: 24 }}>
         <DealerDetailReport report={data.dealerDetail} role="super_admin" />

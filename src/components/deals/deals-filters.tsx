@@ -9,12 +9,32 @@ export function DealsFilters({
   financiers: Array<{ id: string; name: string }>;
   filters: DealFilters;
 }) {
+  const activeFilters = [
+    filters.periodMonth && `Period ${filters.periodMonth}`,
+    filters.dealerId && "Dealer",
+    filters.financierId && "Financier",
+    filters.vin && "VIN",
+    filters.make && "Make",
+    filters.model && "Model",
+    filters.isManuallyEdited !== "all" && "Edit status",
+  ].filter(Boolean);
+
   return (
-    <section className="panel" style={{ marginBottom: 24 }}>
-      <form className="masters-form">
+    <section className="panel filter-panel">
+      <div className="filter-panel-header">
+        <div>
+          <p className="eyebrow">Deals filters</p>
+          <h2>Refine consolidated deal results</h2>
+          <p>Filter by month, dealer, financier and vehicle attributes.</p>
+        </div>
+        <div className="filter-summary">
+          {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing all consolidated deals"}
+        </div>
+      </div>
+      <form className="filter-form-grid" method="get">
         <label className="field">
           <span>Period month</span>
-          <input defaultValue={filters.periodMonth} name="periodMonth" type="date" />
+          <input defaultValue={filters.periodMonth} name="periodMonth" type="month" />
         </label>
         <label className="field">
           <span>Dealer</span>
@@ -59,9 +79,14 @@ export function DealsFilters({
           </select>
         </label>
         <input name="page" type="hidden" value="1" />
-        <button className="action-button" type="submit">
-          Apply filters
-        </button>
+        <div className="filter-panel-actions">
+          <button className="action-button" type="submit">
+            Apply filters
+          </button>
+          <a className="ghost-button" href="/deals">
+            Reset
+          </a>
+        </div>
       </form>
     </section>
   );

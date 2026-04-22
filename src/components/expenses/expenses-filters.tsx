@@ -10,10 +10,27 @@ export function ExpensesFilters({
   dealers: Array<{ id: string; name: string; code: number }>;
   filters: ExpenseFilters;
 }) {
+  const activeFilters = [
+    filters.periodMonth && `Period ${filters.periodMonth}`,
+    filters.categoryId && "Category",
+    filters.dealerId && "Dealer",
+    filters.scopeType && "Scope",
+  ].filter(Boolean);
+
   return (
-    <section className="panel" style={{ marginBottom: 24 }}>
-      <form className="masters-form">
-        <div className="grid four">
+    <section className="panel filter-panel">
+      <div className="filter-panel-header">
+        <div>
+          <p className="eyebrow">Expenses filters</p>
+          <h2>Focus the expense registry</h2>
+          <p>Slice monthly expenses by category, dealer and allocation scope.</p>
+        </div>
+        <div className="filter-summary">
+          {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing all expenses"}
+        </div>
+      </div>
+      <form method="get">
+        <div className="filter-form-grid">
           <label className="field">
             <span>Period month</span>
             <input defaultValue={filters.periodMonth} name="periodMonth" type="month" />
@@ -50,7 +67,7 @@ export function ExpensesFilters({
             </select>
           </label>
         </div>
-        <div className="table-actions">
+        <div className="filter-panel-actions">
           <button className="action-button" type="submit">
             Apply filters
           </button>

@@ -9,8 +9,25 @@ export function DashboardFiltersForm({
   dealers: DashboardOption[];
   financiers: DashboardOption[];
 }) {
+  const activeFilters = [
+    filters.periodMonth && `Period ${filters.periodMonth}`,
+    filters.dealerId && "Dealer filtered",
+    filters.financierId && "Financier filtered",
+    filters.paymentStatus && `Payment ${filters.paymentStatus}`,
+  ].filter(Boolean);
+
   return (
-    <section className="panel" style={{ marginBottom: 24 }}>
+    <section className="panel filter-panel">
+      <div className="filter-panel-header">
+        <div>
+          <p className="eyebrow">Dashboard filters</p>
+          <h2>Refine the visible business picture</h2>
+          <p>Use month, dealer, financier and payout status to focus the dashboard.</p>
+        </div>
+        <div className="filter-summary">
+          {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing default scope"}
+        </div>
+      </div>
       <form action="/dashboard" className="dashboard-filters-form" method="get">
         <label className="field compact">
           <span>Period</span>
@@ -46,7 +63,7 @@ export function DashboardFiltersForm({
             <option value="paid">Paid</option>
           </select>
         </label>
-        <div className="table-actions">
+        <div className="filter-panel-actions">
           <button className="action-button" type="submit">
             Apply filters
           </button>
