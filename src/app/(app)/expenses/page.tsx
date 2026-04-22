@@ -3,7 +3,6 @@ import { ExpenseForm } from "@/components/expenses/expense-form";
 import { ExpensesFilters } from "@/components/expenses/expenses-filters";
 import { ExpensesTable } from "@/components/expenses/expenses-table";
 import { RecurringTemplatesPanel } from "@/components/expenses/recurring-templates-panel";
-import { PageHeader } from "@/components/ui/page-header";
 import { expenseFiltersSchema } from "@/features/expenses/schema";
 import { getExpensesPageData } from "@/features/expenses/queries";
 import { requireExpenseAccess } from "@/lib/auth/guards";
@@ -39,11 +38,6 @@ export default async function ExpensesPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Expenses"
-        title="Expenses and allocations"
-        description="Register monthly expenses, attach receipts, split them across one or many dealers and maintain recurring templates for repeated operational costs."
-      />
       <ExpensesFilters
         categories={data.categories}
         dealers={data.dealers}

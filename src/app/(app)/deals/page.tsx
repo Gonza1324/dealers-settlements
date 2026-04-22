@@ -1,5 +1,4 @@
 import { DealCreateForm } from "@/components/deals/deal-create-form";
-import { PageHeader } from "@/components/ui/page-header";
 import { DealsFilters } from "@/components/deals/deals-filters";
 import { DealsTable } from "@/components/deals/deals-table";
 import { dealFiltersSchema } from "@/features/deals/schema";
@@ -45,11 +44,6 @@ export default async function DealsPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Deals"
-        title="Consolidated deals"
-        description="Review the deals created from approved staging rows, filter by operational dimensions and inspect which records were edited manually."
-      />
       {canCreate && (
         <DealCreateForm
           canCreate={canCreate}

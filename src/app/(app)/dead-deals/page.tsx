@@ -1,7 +1,6 @@
 import { DeadDealForm } from "@/components/dead-deals/dead-deal-form";
 import { DeadDealsFilters } from "@/components/dead-deals/dead-deals-filters";
 import { DeadDealsTable } from "@/components/dead-deals/dead-deals-table";
-import { PageHeader } from "@/components/ui/page-header";
 import { deadDealFiltersSchema } from "@/features/dead-deals/schema";
 import { getDeadDealsPageData } from "@/features/dead-deals/queries";
 import { requireDeadDealAccess } from "@/lib/auth/guards";
@@ -34,11 +33,6 @@ export default async function DeadDealsPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Dead deals"
-        title="Dead deals"
-        description="Register dead deals manually, keep dealer profit at net gross minus a fixed 20% financier commission, and include that profit in monthly settlements."
-      />
       <DeadDealsFilters
         dealers={data.dealers}
         financiers={data.financiers}

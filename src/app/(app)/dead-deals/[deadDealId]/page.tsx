@@ -3,7 +3,6 @@ import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { archiveDeadDeal } from "@/features/dead-deals/actions";
 import { DeadDealDetail } from "@/components/dead-deals/dead-deal-detail";
 import { DeadDealForm } from "@/components/dead-deals/dead-deal-form";
-import { PageHeader } from "@/components/ui/page-header";
 import { getDeadDealDetailData } from "@/features/dead-deals/queries";
 import { requireDeadDealAccess } from "@/lib/auth/guards";
 
@@ -26,11 +25,6 @@ export default async function DeadDealDetailPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Dead deal detail"
-        title={data.deadDeal.vin_value}
-        description={`Dealer ${data.deadDeal.dealer_name}. Date ${data.deadDeal.dead_deal_date}. Profit ${data.deadDeal.dealer_profit}.`}
-      />
       <div className="table-actions" style={{ marginBottom: 24 }}>
         <Link className="ghost-button" href="/dead-deals">
           Back to dead deals

@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/ui/page-header";
 import { ImportReviewTable } from "@/components/imports/import-review-table";
 import { ImportSummaryCards } from "@/components/imports/import-summary-cards";
 import { getImportReview } from "@/features/imports/server/import-service";
@@ -17,11 +16,6 @@ export default async function ImportReviewPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Pre-consolidation review"
-        title={review.importFile.originalFilename}
-        description={`Source month ${review.importFile.sourceMonth}. This screen shows staged rows, row-level issues, duplicates and the manual consolidation flow into deals.`}
-      />
       <ImportSummaryCards summary={review.summary} />
 
       {review.summary.criticalErrors.length > 0 && (

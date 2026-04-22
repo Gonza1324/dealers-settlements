@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/ui/page-header";
 import { DealerResultsTable } from "@/components/settlements/dealer-results-table";
 import { PartnerResultsTable } from "@/components/settlements/partner-results-table";
 import { RunSummary } from "@/components/settlements/run-summary";
@@ -34,11 +33,6 @@ export default async function SettlementsPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Settlements"
-        title="Monthly settlements"
-        description="Run month-by-month calculation versions, inspect dealer and partner distribution, and manage payout state without losing historical runs."
-      />
       {canRun && <SettlementsControls canRun periodMonth={filters.periodMonth} />}
       {data.currentRun && <RunSummary run={data.currentRun} />}
       <SettlementsRunsTable runs={data.runs} />

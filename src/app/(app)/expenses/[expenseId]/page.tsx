@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ExpenseAllocationsTable } from "@/components/expenses/expense-allocations-table";
 import { ExpenseDetail } from "@/components/expenses/expense-detail";
 import { ExpenseForm } from "@/components/expenses/expense-form";
-import { PageHeader } from "@/components/ui/page-header";
 import { getExpenseDetailData } from "@/features/expenses/queries";
 import { requireExpenseAccess } from "@/lib/auth/guards";
 
@@ -25,11 +24,6 @@ export default async function ExpenseDetailPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Expense detail"
-        title={data.expense.description}
-        description={`Period ${data.expense.period_month}. ${data.expense.allocations.length} dealer allocations generated for ${data.expense.scope_type}.`}
-      />
       <div className="table-actions" style={{ marginBottom: 24 }}>
         <Link className="ghost-button" href="/expenses">
           Back to expenses

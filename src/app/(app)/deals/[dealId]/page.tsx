@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PageHeader } from "@/components/ui/page-header";
 import { DealEditForm } from "@/components/deals/deal-edit-form";
 import { DealHistoryList } from "@/components/deals/deal-history-list";
 import { getDealDetailData } from "@/features/deals/queries";
@@ -22,11 +21,6 @@ export default async function DealDetailPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Deal detail"
-        title={`${data.deal.make_value} ${data.deal.model_value}`}
-        description={`Period ${data.deal.period_month}. Source row ${data.deal.source_row_number ?? "-"} from import ${data.deal.source_file_id ?? "-"}.`}
-      />
       <div className="table-actions" style={{ marginBottom: 24 }}>
         <Link className="ghost-button" href="/deals">
           Back to deals

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { AdminDashboardSection } from "@/components/dashboard/admin-dashboard-section";
 import { DashboardFiltersForm } from "@/components/dashboard/dashboard-filters";
 import { PartnerDashboardSection } from "@/components/dashboard/partner-dashboard-section";
-import { PageHeader } from "@/components/ui/page-header";
 import { parseDashboardFilters } from "@/features/dashboard/filters";
 import { getDashboardPageData } from "@/features/dashboard/queries";
 import { requireAuthenticatedProfile } from "@/lib/auth/profile";
@@ -20,11 +19,6 @@ export default async function DashboardPage({
   if (profile.role === "expense_admin") {
     return (
       <>
-        <PageHeader
-          eyebrow="Operations dashboard"
-          title="Expenses workspace"
-          description="Expense managers do not need the executive dashboard in this phase. Use the expense module to manage recurring templates, categories, attachments and dealer allocations."
-        />
         <section className="grid two">
           <article className="stat-card">
             <p className="eyebrow">Current role</p>
@@ -59,20 +53,6 @@ export default async function DashboardPage({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Operations dashboard"
-        title={
-          profile.role === "super_admin"
-            ? "Business overview"
-            : "Partner overview"
-        }
-        description={
-          profile.role === "super_admin"
-            ? "Track monthly net profit, payout exposure, dealer performance, top financiers and the latest settlement-ready picture of the business."
-            : "Monitor your dealers, monthly net performance, allocated expenses, payout status and read-only access to the underlying operating data."
-        }
-      />
-
       <DashboardFiltersForm
         dealers={data.dealerOptions}
         financiers={data.financierOptions}
