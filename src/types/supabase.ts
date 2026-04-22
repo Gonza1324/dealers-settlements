@@ -205,6 +205,50 @@ export interface Database {
           id?: string;
         };
       };
+      dead_deals: {
+        Row: {
+          commission_amount: string;
+          created_at: string;
+          created_by: string | null;
+          dead_deal_date: string;
+          dealer_id: string;
+          dealer_profit: string;
+          deleted_at: string | null;
+          financier_id: string;
+          id: string;
+          net_gross_value: string;
+          period_month: string;
+          updated_at: string;
+          updated_by: string | null;
+          vin_value: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          dead_deal_date: string;
+          dealer_id: string;
+          deleted_at?: string | null;
+          financier_id: string;
+          id?: string;
+          net_gross_value: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          vin_value: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          dead_deal_date?: string;
+          dealer_id?: string;
+          deleted_at?: string | null;
+          financier_id?: string;
+          id?: string;
+          net_gross_value?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          vin_value?: string;
+        };
+      };
       deals: {
         Row: {
           commission_amount: string;

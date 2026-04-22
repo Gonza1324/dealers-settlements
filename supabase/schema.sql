@@ -637,6 +637,13 @@ begin
           )
           or exists (
             select 1
+            from public.dead_deals
+            where dealer_id = d.id
+              and period_month = p_period_month
+              and deleted_at is null
+          )
+          or exists (
+            select 1
             from public.expense_allocations as allocation
             join public.expenses as expense
               on expense.id = allocation.expense_id
@@ -656,6 +663,13 @@ begin
     where deal.dealer_id = v_dealer.id
       and deal.period_month = p_period_month
       and deal.deleted_at is null;
+
+    select round(coalesce(v_gross, 0) + coalesce(sum(dead_deal.dealer_profit), 0), 2)
+    into v_gross
+    from public.dead_deals as dead_deal
+    where dead_deal.dealer_id = v_dealer.id
+      and dead_deal.period_month = p_period_month
+      and dead_deal.deleted_at is null;
 
     select round(coalesce(sum(allocation.allocated_amount), 0), 2)
     into v_expense
@@ -1034,6 +1048,31 @@ create table if not exists public.deals (
     check (public.is_month_start(period_month))
 );
 
+create table if not exists public.dead_deals (
+  id uuid primary key default gen_random_uuid(),
+  dealer_id uuid not null references public.dealers(id) on delete restrict,
+  financier_id uuid not null references public.financiers(id) on delete restrict,
+  dead_deal_date date not null,
+  period_month date generated always as (
+    date_trunc('month', dead_deal_date::timestamp)::date
+  ) stored,
+  vin_value text not null,
+  net_gross_value numeric(14,2) not null,
+  commission_amount numeric(14,2) generated always as (
+    round(net_gross_value * 0.20, 2)
+  ) stored,
+  dealer_profit numeric(14,2) generated always as (
+    round(net_gross_value - round(net_gross_value * 0.20, 2), 2)
+  ) stored,
+  created_by uuid references public.profiles(id) on delete set null,
+  updated_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  deleted_at timestamptz,
+  constraint dead_deals_vin_not_blank check (btrim(vin_value) <> ''),
+  constraint dead_deals_net_gross_check check (net_gross_value >= 0)
+);
+
 create table if not exists public.deal_edit_history (
   id uuid primary key default gen_random_uuid(),
   deal_id uuid not null references public.deals(id) on delete cascade,
@@ -1360,6 +1399,24 @@ create index if not exists deals_created_by_idx
 create index if not exists deals_updated_by_idx
   on public.deals (updated_by);
 
+create index if not exists dead_deals_period_month_idx
+  on public.dead_deals (period_month);
+
+create index if not exists dead_deals_dealer_idx
+  on public.dead_deals (dealer_id);
+
+create index if not exists dead_deals_financier_idx
+  on public.dead_deals (financier_id);
+
+create index if not exists dead_deals_vin_idx
+  on public.dead_deals (vin_value);
+
+create index if not exists dead_deals_created_by_idx
+  on public.dead_deals (created_by);
+
+create index if not exists dead_deals_updated_by_idx
+  on public.dead_deals (updated_by);
+
 create index if not exists deal_edit_history_deal_id_idx
   on public.deal_edit_history (deal_id);
 
@@ -1491,6 +1548,11 @@ create trigger set_deals_updated_at
 before update on public.deals
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_dead_deals_updated_at on public.dead_deals;
+create trigger set_dead_deals_updated_at
+before update on public.dead_deals
+for each row execute function public.set_updated_at();
+
 drop trigger if exists set_expense_categories_updated_at on public.expense_categories;
 create trigger set_expense_categories_updated_at
 before update on public.expense_categories
@@ -1558,6 +1620,8 @@ alter table public.dealer_monthly_results enable row level security;
 alter table public.dealer_monthly_results force row level security;
 alter table public.deals enable row level security;
 alter table public.deals force row level security;
+alter table public.dead_deals enable row level security;
+alter table public.dead_deals force row level security;
 alter table public.deal_edit_history enable row level security;
 alter table public.deal_edit_history force row level security;
 alter table public.expense_categories enable row level security;
@@ -1764,6 +1828,32 @@ using (
       and dps.deleted_at is null
       and deals.period_month >= dps.valid_from
       and (dps.valid_to is null or deals.period_month <= dps.valid_to)
+  )
+);
+
+drop policy if exists dead_deals_manager_all on public.dead_deals;
+create policy dead_deals_manager_all
+on public.dead_deals
+for all
+to authenticated
+using (public.current_app_role() in ('super_admin', 'expense_admin'))
+with check (public.current_app_role() in ('super_admin', 'expense_admin'));
+
+drop policy if exists dead_deals_select_partner_scope on public.dead_deals;
+create policy dead_deals_select_partner_scope
+on public.dead_deals
+for select
+to authenticated
+using (
+  public.current_app_role() in ('super_admin', 'expense_admin')
+  or exists (
+    select 1
+    from public.dealer_partner_shares as dps
+    where dps.dealer_id = dead_deals.dealer_id
+      and dps.partner_id = public.current_partner_id()
+      and dps.deleted_at is null
+      and dead_deals.period_month >= dps.valid_from
+      and (dps.valid_to is null or dead_deals.period_month <= dps.valid_to)
   )
 );
 

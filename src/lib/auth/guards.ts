@@ -20,6 +20,14 @@ export async function requireExpenseManagerAccess() {
   return requireRole(["super_admin", "expense_admin"]);
 }
 
+export async function requireDeadDealAccess() {
+  return requireRole(["super_admin", "expense_admin", "partner_viewer"]);
+}
+
+export async function requireDeadDealManagerAccess() {
+  return requireRole(["super_admin", "expense_admin"]);
+}
+
 export async function requireSettlementAccess() {
   return requireRole(["super_admin", "partner_viewer"]);
 }

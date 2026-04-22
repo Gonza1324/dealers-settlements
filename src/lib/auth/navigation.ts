@@ -38,6 +38,11 @@ export const BACKOFFICE_NAV_ITEMS: NavItem[] = [
     roles: ["super_admin", "partner_viewer"],
   },
   {
+    href: "/dead-deals",
+    label: "Dead Deals",
+    roles: ["super_admin", "expense_admin", "partner_viewer"],
+  },
+  {
     href: "/settlements",
     label: "Settlements",
     roles: ["super_admin", "partner_viewer"],

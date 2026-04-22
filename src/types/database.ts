@@ -25,6 +25,7 @@ export type ImportTemplateRow = TableRow<"import_templates">;
 export type ImportFileRow = TableRow<"import_files">;
 export type RawDealRow = TableRow<"raw_deal_rows">;
 export type DealRow = TableRow<"deals">;
+export type DeadDealRow = TableRow<"dead_deals">;
 export type ExpenseRow = TableRow<"expenses">;
 export type ExpenseAllocationRow = TableRow<"expense_allocations">;
 export type MonthlyCalculationRunRow = TableRow<"monthly_calculation_runs">;
