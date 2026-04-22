@@ -57,6 +57,11 @@ export const BACKOFFICE_NAV_ITEMS: NavItem[] = [
     label: "Settings",
     roles: ["super_admin"],
   },
+  {
+    href: "/audit",
+    label: "Audit",
+    roles: ["super_admin"],
+  },
 ];
 
 export function getNavigationForRole(role: AppRole) {

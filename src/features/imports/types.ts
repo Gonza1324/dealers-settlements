@@ -29,6 +29,18 @@ export interface ImportFileSummary {
   metadata?: Record<string, unknown>;
 }
 
+export interface ImportHistoryRecord {
+  id: string;
+  sourceMonth: string;
+  originalFilename: string;
+  status: ImportFileStatus;
+  rowCount: number;
+  readyRows: number;
+  approvedRows: number;
+  pendingRows: number;
+  consolidatedRows: number;
+}
+
 export interface ImportTemplateColumn {
   name: string;
   required: boolean;

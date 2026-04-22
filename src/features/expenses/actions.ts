@@ -13,6 +13,7 @@ import { initialFormState, type FormActionState } from "@/features/masters/share
 import { requireExpenseManagerAccess } from "@/lib/auth/guards";
 import { getCurrentUser } from "@/lib/auth/get-session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { writeAuditLog } from "@/lib/audit/write-audit-log";
 import type { ExpenseScopeType } from "@/types/database";
 
 async function fail(message: string): Promise<FormActionState> {
@@ -75,6 +76,17 @@ export async function saveExpenseCategory(
 
   const payload = parsed.data;
   const supabase = createSupabaseAdminClient();
+  const currentUser = await getCurrentUser();
+  const before =
+    payload.id
+      ? (
+          await supabase
+            .from("expense_categories")
+            .select("*")
+            .eq("id", payload.id)
+            .maybeSingle()
+        ).data
+      : null;
   const { data: existing, error: existingError } = await supabase
     .from("expense_categories")
     .select("id, name")
@@ -113,6 +125,30 @@ export async function saveExpenseCategory(
     return fail(error.message);
   }
 
+  const { data: after } = payload.id
+    ? await supabase
+        .from("expense_categories")
+        .select("*")
+        .eq("id", payload.id)
+        .single()
+    : await supabase
+        .from("expense_categories")
+        .select("*")
+        .eq("name", payload.name)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "expense_categories",
+    entityId: after?.id ? String(after.id) : payload.id ?? null,
+    action: payload.id ? "expense_category_updated" : "expense_category_created",
+    before: before as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { module: "expenses" },
+  });
+
   revalidatePath("/expenses");
 
   return {
@@ -125,10 +161,33 @@ export async function saveExpenseCategory(
 export async function archiveExpenseCategory(categoryId: string) {
   await requireExpenseManagerAccess();
   const supabase = createSupabaseAdminClient();
-  await supabase
+  const currentUser = await getCurrentUser();
+  const { data: before } = await supabase
+    .from("expense_categories")
+    .select("*")
+    .eq("id", categoryId)
+    .maybeSingle();
+  const { error } = await supabase
     .from("expense_categories")
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", categoryId);
+  if (error) {
+    throw new Error(error.message);
+  }
+  const { data: after } = await supabase
+    .from("expense_categories")
+    .select("*")
+    .eq("id", categoryId)
+    .maybeSingle();
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "expense_categories",
+    entityId: categoryId,
+    action: "expense_category_archived",
+    before: before as Record<string, unknown> | null,
+    after: after as Record<string, unknown> | null,
+    metadata: { module: "expenses" },
+  });
   revalidatePath("/expenses");
 }
 
@@ -157,6 +216,17 @@ export async function saveExpenseRecurringTemplate(
 
   const payload = parsed.data;
   const supabase = createSupabaseAdminClient();
+  const currentUser = await getCurrentUser();
+  const before =
+    payload.id
+      ? (
+          await supabase
+            .from("expense_recurring_templates")
+            .select("*")
+            .eq("id", payload.id)
+            .maybeSingle()
+        ).data
+      : null;
   const { data: existing, error: existingError } = await supabase
     .from("expense_recurring_templates")
     .select("id, name")
@@ -201,6 +271,30 @@ export async function saveExpenseRecurringTemplate(
     return fail(error.message);
   }
 
+  const { data: after } = payload.id
+    ? await supabase
+        .from("expense_recurring_templates")
+        .select("*")
+        .eq("id", payload.id)
+        .single()
+    : await supabase
+        .from("expense_recurring_templates")
+        .select("*")
+        .eq("name", payload.name)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "expense_recurring_templates",
+    entityId: after?.id ? String(after.id) : payload.id ?? null,
+    action: payload.id ? "expense_template_updated" : "expense_template_created",
+    before: before as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { module: "expenses" },
+  });
+
   revalidatePath("/expenses");
 
   return {
@@ -213,10 +307,33 @@ export async function saveExpenseRecurringTemplate(
 export async function archiveExpenseRecurringTemplate(templateId: string) {
   await requireExpenseManagerAccess();
   const supabase = createSupabaseAdminClient();
-  await supabase
+  const currentUser = await getCurrentUser();
+  const { data: before } = await supabase
+    .from("expense_recurring_templates")
+    .select("*")
+    .eq("id", templateId)
+    .maybeSingle();
+  const { error } = await supabase
     .from("expense_recurring_templates")
     .update({ deleted_at: new Date().toISOString(), is_active: false })
     .eq("id", templateId);
+  if (error) {
+    throw new Error(error.message);
+  }
+  const { data: after } = await supabase
+    .from("expense_recurring_templates")
+    .select("*")
+    .eq("id", templateId)
+    .maybeSingle();
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "expense_recurring_templates",
+    entityId: templateId,
+    action: "expense_template_archived",
+    before: before as Record<string, unknown> | null,
+    after: after as Record<string, unknown> | null,
+    metadata: { module: "expenses" },
+  });
   revalidatePath("/expenses");
 }
 
@@ -299,6 +416,16 @@ export async function saveExpense(
   }
 
   const supabase = createSupabaseAdminClient();
+  const before =
+    payload.id
+      ? (
+          await supabase
+            .from("expenses")
+            .select("*")
+            .eq("id", payload.id)
+            .maybeSingle()
+        ).data
+      : null;
   const { error } = await supabase.rpc("upsert_expense_with_allocations", {
     p_expense_id: payload.id || null,
     p_actor_user_id: currentUser.id,
@@ -321,6 +448,31 @@ export async function saveExpense(
   if (error) {
     return fail(error.message);
   }
+
+  const { data: after } = payload.id
+    ? await supabase.from("expenses").select("*").eq("id", payload.id).single()
+    : await supabase
+        .from("expenses")
+        .select("*")
+        .eq("description", payload.description)
+        .eq("expense_date", payload.expenseDate)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser.id,
+    entityTable: "expenses",
+    entityId: after?.id ? String(after.id) : payload.id ?? null,
+    action: payload.id ? "expense_updated" : "expense_created",
+    before: before as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: {
+      module: "expenses",
+      scopeType: payload.scopeType,
+      selectedDealerIds: targetDealers.map((dealer) => dealer.id),
+    },
+  });
 
   revalidatePath("/expenses");
   if (payload.id) {
@@ -348,6 +500,11 @@ export async function archiveExpense(expenseId: string) {
   }
 
   const supabase = createSupabaseAdminClient();
+  const { data: before } = await supabase
+    .from("expenses")
+    .select("*")
+    .eq("id", parsed.data.expenseId)
+    .maybeSingle();
   const { error } = await supabase.rpc("soft_delete_expense", {
     p_expense_id: parsed.data.expenseId,
     p_actor_user_id: currentUser.id,
@@ -356,6 +513,22 @@ export async function archiveExpense(expenseId: string) {
   if (error) {
     throw new Error(error.message);
   }
+
+  const { data: after } = await supabase
+    .from("expenses")
+    .select("*")
+    .eq("id", parsed.data.expenseId)
+    .maybeSingle();
+
+  await writeAuditLog({
+    actorUserId: currentUser.id,
+    entityTable: "expenses",
+    entityId: parsed.data.expenseId,
+    action: "expense_archived",
+    before: before as Record<string, unknown> | null,
+    after: after as Record<string, unknown> | null,
+    metadata: { module: "expenses" },
+  });
 
   revalidatePath("/expenses");
   revalidatePath(`/expenses/${expenseId}`);

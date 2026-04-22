@@ -50,10 +50,15 @@ export function mapImportRow(record: Record<string, unknown>): ImportRowReview {
   const duplicateStatus =
     (record.duplicate_status as ImportRowReview["duplicateStatus"]) ??
     "not_checked";
+  const parsedRowNumber =
+    typeof record.row_number === "number"
+      ? record.row_number
+      : Number.parseInt(String(record.row_number ?? ""), 10);
+  const rowNumber = Number.isFinite(parsedRowNumber) ? parsedRowNumber : 0;
 
   return {
     id: String(record.id),
-    rowNumber: Number(record.row_number),
+    rowNumber,
     originalPayload: (record.raw_payload as Record<string, string | null>) ?? {},
     normalizedPayload,
     validationErrors,

@@ -109,6 +109,10 @@ textarea {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .grid.four {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -309,6 +313,21 @@ textarea {
   flex-wrap: wrap;
   gap: 12px;
   align-items: end;
+}
+
+.imports-select-header {
+  display: grid;
+  gap: 6px;
+}
+
+.imports-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .imports-table-wrapper {
@@ -539,4 +558,94 @@ textarea {
   background: #fcf3d6;
   color: #6e5310;
   border-color: #f0d89c;
+}
+
+.dashboard-filters-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: end;
+}
+
+.dashboard-quick-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+}
+
+.dashboard-metric-card h2 {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.dashboard-table-wrapper {
+  overflow-x: auto;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 14px 12px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.dashboard-table th {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.comparison-chart {
+  display: grid;
+  gap: 14px;
+}
+
+.comparison-row {
+  display: grid;
+  gap: 8px;
+}
+
+.comparison-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.comparison-bar-track {
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+
+.comparison-bar {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.comparison-bar.positive {
+  background: linear-gradient(90deg, #79b6a2 0%, #2f7d69 100%);
+}
+
+.comparison-bar.negative {
+  background: linear-gradient(90deg, #d49494 0%, #9c2f2f 100%);
+}
+
+.dashboard-mini-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #faf7f0;
 }

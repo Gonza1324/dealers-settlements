@@ -19,6 +19,7 @@ import type { FinancierRow, PartnerRow } from "@/types/database";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 
 function DealerEditor({
   dealers,
@@ -110,9 +111,13 @@ function DealerEditor({
                           await archiveDealer(dealer.id);
                         }}
                       >
-                        <button className="ghost-button danger" type="submit">
+                        <ConfirmSubmitButton
+                          className="ghost-button danger"
+                          confirmMessage={`Archive dealer "${dealer.name}"? Historical records stay available, but it will leave the active registry.`}
+                          pendingLabel="Archiving..."
+                        >
                           Archive
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     </div>
                   ) : (
@@ -236,9 +241,13 @@ function SharesEditor({
                         await archiveShare(share.id);
                       }}
                     >
-                      <button className="ghost-button danger" type="submit">
+                      <ConfirmSubmitButton
+                        className="ghost-button danger"
+                        confirmMessage={`Remove the share for ${share.partner_name} on ${share.dealer_name}? Historical calculations stay preserved.`}
+                        pendingLabel="Removing..."
+                      >
                         Remove
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 ) : (
@@ -384,9 +393,13 @@ function AssignmentsEditor({
                         await archiveAssignment(assignment.id);
                       }}
                     >
-                      <button className="ghost-button danger" type="submit">
+                      <ConfirmSubmitButton
+                        className="ghost-button danger"
+                        confirmMessage={`Remove the financier assignment ${assignment.financier_name} -> ${assignment.dealer_name}?`}
+                        pendingLabel="Removing..."
+                      >
                         Remove
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 ) : (

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
 import { archiveFinancierAlias, saveFinancier, saveFinancierAlias } from "@/features/masters/financiers/actions";
@@ -185,9 +186,13 @@ export function FinanciersPageContent({
                         await archiveFinancierAlias(alias.id);
                       }}
                     >
-                      <button className="ghost-button danger" type="submit">
+                      <ConfirmSubmitButton
+                        className="ghost-button danger"
+                        confirmMessage={`Remove alias "${alias.alias}" from ${alias.financier_name}?`}
+                        pendingLabel="Removing..."
+                      >
                         Remove
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 </td>

@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { requireAdminAccess } from "@/lib/auth/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth/get-session";
+import { writeAuditLog } from "@/lib/audit/write-audit-log";
 import { aliasSchema, financierSchema } from "@/features/masters/financiers/schema";
 import { initialFormState, type FormActionState } from "@/features/masters/shared/form-state";
 import { normalizeAlias } from "@/features/masters/shared/utils";
@@ -29,6 +31,17 @@ export async function saveFinancier(
 
   const supabase = createSupabaseAdminClient();
   const payload = parsed.data;
+  const currentUser = await getCurrentUser();
+  const before =
+    payload.id
+      ? (
+          await supabase
+            .from("financiers")
+            .select("*")
+            .eq("id", payload.id)
+            .maybeSingle()
+        ).data
+      : null;
 
   const { data: conflicts, error: conflictsError } = await supabase
     .from("financiers")
@@ -68,6 +81,26 @@ export async function saveFinancier(
     return fail(error.message);
   }
 
+  const { data: after } = payload.id
+    ? await supabase.from("financiers").select("*").eq("id", payload.id).single()
+    : await supabase
+        .from("financiers")
+        .select("*")
+        .eq("name", payload.name)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "financiers",
+    entityId: after?.id ? String(after.id) : payload.id ?? null,
+    action: payload.id ? "financier_updated" : "financier_created",
+    before: before as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
+
   revalidatePath("/financiers");
   revalidatePath("/dealers");
   revalidatePath("/imports");
@@ -97,6 +130,17 @@ export async function saveFinancierAlias(
 
   const supabase = createSupabaseAdminClient();
   const normalized = normalizeAlias(parsed.data.alias);
+  const currentUser = await getCurrentUser();
+  const before =
+    parsed.data.id
+      ? (
+          await supabase
+            .from("financier_aliases")
+            .select("*")
+            .eq("id", parsed.data.id)
+            .maybeSingle()
+        ).data
+      : null;
 
   const { data: existing, error: existingError } = await supabase
     .from("financier_aliases")
@@ -136,6 +180,31 @@ export async function saveFinancierAlias(
     return fail(error.message);
   }
 
+  const { data: after } = parsed.data.id
+    ? await supabase
+        .from("financier_aliases")
+        .select("*")
+        .eq("id", parsed.data.id)
+        .single()
+    : await supabase
+        .from("financier_aliases")
+        .select("*")
+        .eq("financier_id", parsed.data.financier_id)
+        .eq("normalized_alias", normalized)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "financier_aliases",
+    entityId: after?.id ? String(after.id) : parsed.data.id ?? null,
+    action: parsed.data.id ? "financier_alias_updated" : "financier_alias_created",
+    before: before as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { module: "masters", normalizedAlias: normalized },
+  });
+
   revalidatePath("/financiers");
   revalidatePath("/imports");
 
@@ -149,9 +218,35 @@ export async function saveFinancierAlias(
 export async function archiveFinancierAlias(aliasId: string) {
   await requireAdminAccess();
   const supabase = createSupabaseAdminClient();
-  await supabase
+  const currentUser = await getCurrentUser();
+  const { data: before } = await supabase
+    .from("financier_aliases")
+    .select("*")
+    .eq("id", aliasId)
+    .maybeSingle();
+  const { error } = await supabase
     .from("financier_aliases")
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", aliasId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data: after } = await supabase
+    .from("financier_aliases")
+    .select("*")
+    .eq("id", aliasId)
+    .maybeSingle();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "financier_aliases",
+    entityId: aliasId,
+    action: "financier_alias_archived",
+    before: before as Record<string, unknown> | null,
+    after: after as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
   revalidatePath("/financiers");
 }

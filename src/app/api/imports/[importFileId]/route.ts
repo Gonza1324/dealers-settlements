@@ -68,6 +68,10 @@ export async function PATCH(
       action: parsed.data,
     });
 
+    if (parsed.data.action === "discard_import") {
+      return NextResponse.json({ success: true, discarded: true });
+    }
+
     const payload = await getImportReview(importFileId);
 
     return NextResponse.json(payload);

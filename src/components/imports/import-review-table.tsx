@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImportRowEditForm } from "@/components/imports/import-row-edit-form";
-import { mapImportReviewPayload } from "@/features/imports/mappers";
-import type { ImportRowReview } from "@/features/imports/types";
+import type { ImportReviewPayload, ImportRowReview } from "@/features/imports/types";
 import type { ConsolidationSummary } from "@/features/deals/types";
 
 type ValidationFilter = "all" | "valid" | "warning" | "invalid";
@@ -28,6 +27,10 @@ function renderIssueLabel(field: string | undefined, message: string) {
   }
 
   return `${FIELD_LABELS[field] ?? field}: ${message}`;
+}
+
+function formatRowNumber(value: number) {
+  return Number.isFinite(value) && value > 0 ? String(value) : "-";
 }
 
 export function ImportReviewTable({
@@ -65,17 +68,30 @@ export function ImportReviewTable({
     });
   }, [duplicateFilter, reviewFilter, rows, validationFilter]);
 
+  const selectableVisibleRows = useMemo(
+    () => filteredRows.filter((row) => !row.isConsolidated),
+    [filteredRows],
+  );
+
+  const allVisibleSelected =
+    selectableVisibleRows.length > 0 &&
+    selectableVisibleRows.every((row) => selectedRowIds.includes(row.id));
+
   async function refreshReview() {
     const response = await fetch(`/api/imports/${importFileId}`);
-    const data = (await response.json()) as Record<string, unknown>;
+    const data = (await response.json()) as
+      | { error?: string }
+      | ImportReviewPayload;
 
     if (!response.ok) {
       throw new Error(
-        typeof data.error === "string" ? data.error : "Failed to refresh review.",
+        "error" in data && typeof data.error === "string"
+          ? data.error
+          : "Failed to refresh review.",
       );
     }
 
-    const review = mapImportReviewPayload(data);
+    const review = data as ImportReviewPayload;
     setRows(review.rows);
     setSelectedRowIds((current) =>
       current.filter((id) =>
@@ -86,6 +102,23 @@ export function ImportReviewTable({
   }
 
   async function runAction(payload: unknown) {
+    const actionType =
+      typeof payload === "object" && payload !== null && "action" in payload
+        ? String((payload as { action?: unknown }).action ?? "")
+        : "";
+    const rejectedRowIds =
+      actionType === "reject_row" &&
+      typeof payload === "object" &&
+      payload !== null &&
+      "rowId" in payload
+        ? [String((payload as { rowId?: unknown }).rowId ?? "")]
+        : actionType === "reject_rows" &&
+            typeof payload === "object" &&
+            payload !== null &&
+            "rowIds" in payload &&
+            Array.isArray((payload as { rowIds?: unknown }).rowIds)
+          ? (payload as { rowIds: unknown[] }).rowIds.map((rowId) => String(rowId))
+          : [];
     setIsSubmitting(true);
     setError(null);
     setSuccessMessage(null);
@@ -101,7 +134,7 @@ export function ImportReviewTable({
       });
       const data = (await response.json()) as
         | { error: string }
-        | Record<string, unknown>;
+        | ({ discarded?: boolean } & Partial<ImportReviewPayload>);
 
       if (!response.ok) {
         throw new Error(
@@ -111,16 +144,33 @@ export function ImportReviewTable({
         );
       }
 
-      const review = mapImportReviewPayload(data as Record<string, unknown>);
+      if (
+        actionType === "discard_import" &&
+        "discarded" in data &&
+        Boolean((data as { discarded?: unknown }).discarded)
+      ) {
+        router.push("/imports");
+        return;
+      }
+
+      const review = data as ImportReviewPayload;
       setRows(review.rows);
-      setEditingRowId(null);
       setSelectedRowIds((current) =>
-        current.filter((id) =>
-          review.rows.some((row) => row.id === id && !row.isConsolidated),
+        current.filter(
+          (id) =>
+            !rejectedRowIds.includes(id) &&
+            review.rows.some((row) => row.id === id && !row.isConsolidated),
         ),
       );
-      setSuccessMessage("Review updated.");
-      router.refresh();
+
+      if (actionType !== "update_row") {
+        setEditingRowId(null);
+      } else if (
+        editingRowId &&
+        !review.rows.some((row) => row.id === editingRowId)
+      ) {
+        setEditingRowId(null);
+      }
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -196,6 +246,42 @@ export function ImportReviewTable({
     );
   }
 
+  function toggleSelectAllVisibleRows() {
+    if (allVisibleSelected) {
+      setSelectedRowIds((current) =>
+        current.filter((id) => !selectableVisibleRows.some((row) => row.id === id)),
+      );
+      return;
+    }
+
+    setSelectedRowIds((current) => {
+      const next = new Set(current);
+
+      selectableVisibleRows.forEach((row) => {
+        next.add(row.id);
+      });
+
+      return Array.from(next);
+    });
+  }
+
+  function rejectVisibleRows() {
+    if (selectableVisibleRows.length === 0) {
+      setError("There are no visible rows available to reject.");
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "Discard this whole import and remove all non-consolidated staging rows? Use this only when you want to upload the file again from scratch.",
+      )
+    ) {
+      return;
+    }
+
+    void runAction({ action: "discard_import" });
+  }
+
   return (
     <section className="panel">
       <div className="imports-toolbar">
@@ -208,6 +294,14 @@ export function ImportReviewTable({
           </p>
         </div>
         <div className="imports-filters">
+          <button
+            className="secondary-button"
+            disabled={isSubmitting || selectableVisibleRows.length === 0}
+            onClick={toggleSelectAllVisibleRows}
+            type="button"
+          >
+            {allVisibleSelected ? "Clear selection" : "Select all"}
+          </button>
           <button
             className="secondary-button"
             disabled={isSubmitting}
@@ -267,6 +361,14 @@ export function ImportReviewTable({
             {isSubmitting ? "Working..." : "Approve ready rows"}
           </button>
           <button
+            className="secondary-button danger"
+            disabled={isSubmitting || selectableVisibleRows.length === 0}
+            onClick={rejectVisibleRows}
+            type="button"
+          >
+            {isSubmitting ? "Working..." : "Reject all"}
+          </button>
+          <button
             className="action-button"
             disabled={isSubmitting || selectedRowIds.length === 0}
             onClick={consolidateSelectedRows}
@@ -302,7 +404,20 @@ export function ImportReviewTable({
         <table className="imports-table">
           <thead>
             <tr>
-              <th>Select</th>
+              <th>
+                <div className="imports-select-header">
+                  <span>Select</span>
+                  <label className="imports-select-all">
+                    <input
+                      checked={allVisibleSelected}
+                      disabled={isSubmitting || selectableVisibleRows.length === 0}
+                      onChange={toggleSelectAllVisibleRows}
+                      type="checkbox"
+                    />
+                    <span>All</span>
+                  </label>
+                </div>
+              </th>
               <th>Row</th>
               <th>VIN</th>
               <th>Sale date</th>
@@ -316,180 +431,183 @@ export function ImportReviewTable({
           </thead>
           <tbody>
             {filteredRows.map((row) => (
-              <tr key={row.id}>
-                <td>
-                  <input
-                    checked={selectedRowIds.includes(row.id)}
-                    disabled={isSubmitting || row.isConsolidated}
-                    onChange={() => toggleRowSelection(row.id)}
-                    type="checkbox"
-                  />
-                </td>
-                <td>{row.rowNumber}</td>
-                <td>{row.normalizedPayload.vinValue ?? "-"}</td>
-                <td>
-                  {row.normalizedPayload.saleValue === null
-                    ? "-"
-                    : row.normalizedPayload.saleValue}
-                </td>
-                <td>
-                  <strong>{row.detectedFinancierName ?? "-"}</strong>
-                  <div className="muted small-text">
-                    {row.normalizedPayload.financeRaw ?? "-"}
-                  </div>
-                </td>
-                <td>{row.detectedDealerName ?? "-"}</td>
-                <td>
-                  <div className="imports-status-stack">
-                    <span className={`status-pill ${row.validationStatus}`}>
-                      {row.validationStatus}
-                    </span>
-                    {row.validationErrors.length > 0 && (
-                      <ul className="inline-issues">
-                        {row.validationErrors.map((issue) => (
-                          <li key={`${row.id}-${issue.code}`}>
-                            {renderIssueLabel(issue.field, issue.message)}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    {row.warnings.length > 0 && (
-                      <ul className="inline-issues warning">
-                        {row.warnings.map((issue) => (
-                          <li key={`${row.id}-${issue.code}`}>
-                            {renderIssueLabel(issue.field, issue.message)}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </td>
-                <td>
-                  <span
-                    className={`status-pill ${
-                      row.duplicateStatus === "unique"
-                        ? "success"
-                        : row.duplicateStatus === "duplicate"
-                          ? "danger"
-                          : "warning"
-                    }`}
-                  >
-                    {row.duplicateStatus}
-                  </span>
-                </td>
-                <td>
-                  <span
-                    className={`status-pill ${
-                      row.reviewStatus === "approved"
-                        ? "success"
-                        : row.reviewStatus === "rejected"
-                          ? "muted"
-                          : "warning"
-                    }`}
-                  >
-                    {row.reviewStatus}
-                  </span>
-                  {row.isReadyForConsolidation && (
-                    <div className="muted small-text">ready later</div>
-                  )}
-                  {row.isConsolidated && (
-                    <div className="muted small-text">deal created</div>
-                  )}
-                </td>
-                <td>
-                  <div className="imports-row-buttons">
-                    <button
-                      className="secondary-button"
-                      disabled={isSubmitting}
-                      onClick={() =>
-                        setEditingRowId((current) =>
-                          current === row.id ? null : row.id,
-                        )
-                      }
-                      type="button"
+              <Fragment key={row.id}>
+                <tr key={row.id}>
+                  <td>
+                    <input
+                      checked={selectedRowIds.includes(row.id)}
+                      disabled={isSubmitting || row.isConsolidated}
+                      onChange={() => toggleRowSelection(row.id)}
+                      type="checkbox"
+                    />
+                  </td>
+                  <td>{formatRowNumber(row.rowNumber)}</td>
+                  <td>{row.normalizedPayload.vinValue ?? "-"}</td>
+                  <td>
+                    {row.normalizedPayload.saleValue === null
+                      ? "-"
+                      : row.normalizedPayload.saleValue}
+                  </td>
+                  <td>
+                    <strong>{row.detectedFinancierName ?? "-"}</strong>
+                    <div className="muted small-text">
+                      {row.normalizedPayload.financeRaw ?? "-"}
+                    </div>
+                  </td>
+                  <td>{row.detectedDealerName ?? "-"}</td>
+                  <td>
+                    <div className="imports-status-stack">
+                      <span className={`status-pill ${row.validationStatus}`}>
+                        {row.validationStatus}
+                      </span>
+                      {row.validationErrors.length > 0 && (
+                        <ul className="inline-issues">
+                          {row.validationErrors.map((issue) => (
+                            <li key={`${row.id}-${issue.code}`}>
+                              {renderIssueLabel(issue.field, issue.message)}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      {row.warnings.length > 0 && (
+                        <ul className="inline-issues warning">
+                          {row.warnings.map((issue) => (
+                            <li key={`${row.id}-${issue.code}`}>
+                              {renderIssueLabel(issue.field, issue.message)}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      className={`status-pill ${
+                        row.duplicateStatus === "unique"
+                          ? "success"
+                          : row.duplicateStatus === "duplicate"
+                            ? "danger"
+                            : "warning"
+                      }`}
                     >
-                      {editingRowId === row.id ? "Close" : "Edit"}
-                    </button>
-                    {row.isConsolidated && row.consolidatedDealId && (
+                      {row.duplicateStatus}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={`status-pill ${
+                        row.reviewStatus === "approved"
+                          ? "success"
+                          : row.reviewStatus === "rejected"
+                            ? "muted"
+                            : "warning"
+                      }`}
+                    >
+                      {row.reviewStatus}
+                    </span>
+                    {row.isReadyForConsolidation && (
+                      <div className="muted small-text">ready later</div>
+                    )}
+                    {row.isConsolidated && (
+                      <div className="muted small-text">deal created</div>
+                    )}
+                  </td>
+                  <td>
+                    <div className="imports-row-buttons">
                       <button
                         className="secondary-button"
-                        onClick={() => router.push(`/deals/${row.consolidatedDealId}`)}
+                        disabled={isSubmitting}
+                        onClick={() =>
+                          setEditingRowId((current) =>
+                            current === row.id ? null : row.id,
+                          )
+                        }
                         type="button"
                       >
-                        View deal
+                        {editingRowId === row.id ? "Close" : "Edit"}
                       </button>
-                    )}
-                    <button
-                      className="secondary-button"
-                      disabled={
-                        isSubmitting || !row.isApprovable || row.isConsolidated
-                      }
-                      onClick={() =>
-                        runAction({ action: "approve_row", rowId: row.id })
-                      }
-                      type="button"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      className="secondary-button danger"
-                      disabled={isSubmitting}
-                      onClick={() =>
-                        runAction({ action: "reject_row", rowId: row.id })
-                      }
-                      type="button"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                      {row.isConsolidated && row.consolidatedDealId && (
+                        <button
+                          className="secondary-button"
+                          onClick={() => router.push(`/deals/${row.consolidatedDealId}`)}
+                          type="button"
+                        >
+                          View deal
+                        </button>
+                      )}
+                      <button
+                        className="secondary-button"
+                        disabled={
+                          isSubmitting || !row.isApprovable || row.isConsolidated
+                        }
+                        onClick={() =>
+                          runAction({ action: "approve_row", rowId: row.id })
+                        }
+                        type="button"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        className="secondary-button danger"
+                        disabled={isSubmitting}
+                        onClick={() =>
+                          runAction({ action: "reject_row", rowId: row.id })
+                        }
+                        type="button"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {editingRowId === row.id ? (
+                  <tr key={`${row.id}-editor-row`}>
+                    <td colSpan={10} style={{ padding: 0, borderTop: "none" }}>
+                      <div className="panel import-row-editor">
+                        <div style={{ marginBottom: 16 }}>
+                          <p className="eyebrow">Row {formatRowNumber(row.rowNumber)}</p>
+                          <h3 style={{ marginTop: 0 }}>Edit normalized values</h3>
+                          <p className="muted" style={{ marginBottom: 0 }}>
+                            Changes are saved back into staging and logged in
+                            `import_review_actions`.
+                          </p>
+                        </div>
+
+                        <ImportRowEditForm
+                          row={row}
+                          isSaving={isSubmitting}
+                          onCancel={() => setEditingRowId(null)}
+                          onSave={(payload) =>
+                            runAction({
+                              action: "update_row",
+                              payload,
+                            })
+                          }
+                        />
+
+                        <div className="grid two" style={{ marginTop: 20 }}>
+                          <div>
+                            <p className="eyebrow">Original payload</p>
+                            <pre className="payload-block">
+                              {JSON.stringify(row.originalPayload, null, 2)}
+                            </pre>
+                          </div>
+                          <div>
+                            <p className="eyebrow">Normalized payload</p>
+                            <pre className="payload-block">
+                              {JSON.stringify(row.normalizedPayload, null, 2)}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : null}
+              </Fragment>
             ))}
           </tbody>
         </table>
       </div>
-
-      {filteredRows.map((row) =>
-        editingRowId === row.id ? (
-          <div key={`${row.id}-editor`} className="panel import-row-editor">
-            <div style={{ marginBottom: 16 }}>
-              <p className="eyebrow">Row {row.rowNumber}</p>
-              <h3 style={{ marginTop: 0 }}>Edit normalized values</h3>
-              <p className="muted" style={{ marginBottom: 0 }}>
-                Changes are saved back into staging and logged in
-                `import_review_actions`.
-              </p>
-            </div>
-
-            <ImportRowEditForm
-              row={row}
-              isSaving={isSubmitting}
-              onCancel={() => setEditingRowId(null)}
-              onSave={(payload) =>
-                runAction({
-                  action: "update_row",
-                  payload,
-                })
-              }
-            />
-
-            <div className="grid two" style={{ marginTop: 20 }}>
-              <div>
-                <p className="eyebrow">Original payload</p>
-                <pre className="payload-block">
-                  {JSON.stringify(row.originalPayload, null, 2)}
-                </pre>
-              </div>
-              <div>
-                <p className="eyebrow">Normalized payload</p>
-                <pre className="payload-block">
-                  {JSON.stringify(row.normalizedPayload, null, 2)}
-                </pre>
-              </div>
-            </div>
-          </div>
-        ) : null,
-      )}
     </section>
   );
 }

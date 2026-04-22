@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { archiveDeadDeal } from "@/features/dead-deals/actions";
 import { DeadDealDetail } from "@/components/dead-deals/dead-deal-detail";
 import { DeadDealForm } from "@/components/dead-deals/dead-deal-form";
@@ -36,9 +37,13 @@ export default async function DeadDealDetailPage({
         </Link>
         {canManage && (
           <form action={archiveDeadDeal.bind(null, data.deadDeal.id)}>
-            <button className="ghost-button danger" type="submit">
+            <ConfirmSubmitButton
+              className="ghost-button danger"
+              confirmMessage={`Delete dead deal ${data.deadDeal.vin_value}? This will archive it and remove it from current reporting.`}
+              pendingLabel="Deleting..."
+            >
               Delete dead deal
-            </button>
+            </ConfirmSubmitButton>
           </form>
         )}
       </div>

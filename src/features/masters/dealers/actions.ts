@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { requireAdminAccess } from "@/lib/auth/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth/get-session";
+import { writeAuditLog } from "@/lib/audit/write-audit-log";
 import { assignmentSchema, dealerSchema, shareSchema } from "@/features/masters/dealers/schema";
 import { initialFormState, type FormActionState } from "@/features/masters/shared/form-state";
 import { overlaps } from "@/features/masters/shared/utils";
@@ -30,6 +32,17 @@ export async function saveDealer(
 
   const supabase = createSupabaseAdminClient();
   const payload = parsed.data;
+  const currentUser = await getCurrentUser();
+  const before =
+    payload.id
+      ? (
+          await supabase
+            .from("dealers")
+            .select("*")
+            .eq("id", payload.id)
+            .maybeSingle()
+        ).data
+      : null;
 
   const { data: conflicts, error: conflictError } = await supabase
     .from("dealers")
@@ -78,6 +91,27 @@ export async function saveDealer(
     return fail(error.message);
   }
 
+  const { data: after } = payload.id
+    ? await supabase.from("dealers").select("*").eq("id", payload.id).single()
+    : await supabase
+        .from("dealers")
+        .select("*")
+        .eq("code", payload.code)
+        .eq("name", payload.name.trim())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "dealers",
+    entityId: after?.id ? String(after.id) : payload.id ?? null,
+    action: payload.id ? "dealer_updated" : "dealer_created",
+    before: before as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
+
   revalidatePath("/dealers");
 
   return {
@@ -90,14 +124,40 @@ export async function saveDealer(
 export async function archiveDealer(dealerId: string) {
   await requireAdminAccess();
   const supabase = createSupabaseAdminClient();
+  const currentUser = await getCurrentUser();
+  const { data: before } = await supabase
+    .from("dealers")
+    .select("*")
+    .eq("id", dealerId)
+    .maybeSingle();
 
-  await supabase
+  const { error } = await supabase
     .from("dealers")
     .update({
       deleted_at: new Date().toISOString(),
       status: "archived",
     })
     .eq("id", dealerId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data: after } = await supabase
+    .from("dealers")
+    .select("*")
+    .eq("id", dealerId)
+    .maybeSingle();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "dealers",
+    entityId: dealerId,
+    action: "dealer_archived",
+    before: before as Record<string, unknown> | null,
+    after: after as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
 
   revalidatePath("/dealers");
 }
@@ -124,6 +184,17 @@ export async function saveShare(
 
   const supabase = createSupabaseAdminClient();
   const payload = parsed.data;
+  const currentUser = await getCurrentUser();
+  const before =
+    payload.id
+      ? (
+          await supabase
+            .from("dealer_partner_shares")
+            .select("*")
+            .eq("id", payload.id)
+            .maybeSingle()
+        ).data
+      : null;
 
   const { data: existingShares, error: existingError } = await supabase
     .from("dealer_partner_shares")
@@ -180,6 +251,32 @@ export async function saveShare(
     return fail(error.message);
   }
 
+  const { data: after } = payload.id
+    ? await supabase
+        .from("dealer_partner_shares")
+        .select("*")
+        .eq("id", payload.id)
+        .single()
+    : await supabase
+        .from("dealer_partner_shares")
+        .select("*")
+        .eq("dealer_id", payload.dealer_id)
+        .eq("partner_id", payload.partner_id)
+        .eq("valid_from", payload.valid_from)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "dealer_partner_shares",
+    entityId: after?.id ? String(after.id) : payload.id ?? null,
+    action: payload.id ? "share_updated" : "share_created",
+    before: before as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
+
   revalidatePath("/dealers");
 
   return {
@@ -192,11 +289,37 @@ export async function saveShare(
 export async function archiveShare(shareId: string) {
   await requireAdminAccess();
   const supabase = createSupabaseAdminClient();
+  const currentUser = await getCurrentUser();
+  const { data: before } = await supabase
+    .from("dealer_partner_shares")
+    .select("*")
+    .eq("id", shareId)
+    .maybeSingle();
 
-  await supabase
+  const { error } = await supabase
     .from("dealer_partner_shares")
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", shareId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data: after } = await supabase
+    .from("dealer_partner_shares")
+    .select("*")
+    .eq("id", shareId)
+    .maybeSingle();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "dealer_partner_shares",
+    entityId: shareId,
+    action: "share_archived",
+    before: before as Record<string, unknown> | null,
+    after: after as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
 
   revalidatePath("/dealers");
 }
@@ -222,6 +345,17 @@ export async function saveAssignment(
 
   const supabase = createSupabaseAdminClient();
   const payload = parsed.data;
+  const currentUser = await getCurrentUser();
+  const before =
+    payload.id
+      ? (
+          await supabase
+            .from("dealer_financier_assignments")
+            .select("*")
+            .eq("id", payload.id)
+            .maybeSingle()
+        ).data
+      : null;
 
   const { data: existingAssignments, error: existingError } = await supabase
     .from("dealer_financier_assignments")
@@ -275,6 +409,32 @@ export async function saveAssignment(
     return fail(error.message);
   }
 
+  const { data: after } = payload.id
+    ? await supabase
+        .from("dealer_financier_assignments")
+        .select("*")
+        .eq("id", payload.id)
+        .single()
+    : await supabase
+        .from("dealer_financier_assignments")
+        .select("*")
+        .eq("dealer_id", payload.dealer_id)
+        .eq("financier_id", payload.financier_id)
+        .eq("start_date", payload.start_date)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "dealer_financier_assignments",
+    entityId: after?.id ? String(after.id) : payload.id ?? null,
+    action: payload.id ? "assignment_updated" : "assignment_created",
+    before: before as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
+
   revalidatePath("/dealers");
 
   return {
@@ -287,11 +447,37 @@ export async function saveAssignment(
 export async function archiveAssignment(assignmentId: string) {
   await requireAdminAccess();
   const supabase = createSupabaseAdminClient();
+  const currentUser = await getCurrentUser();
+  const { data: before } = await supabase
+    .from("dealer_financier_assignments")
+    .select("*")
+    .eq("id", assignmentId)
+    .maybeSingle();
 
-  await supabase
+  const { error } = await supabase
     .from("dealer_financier_assignments")
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", assignmentId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data: after } = await supabase
+    .from("dealer_financier_assignments")
+    .select("*")
+    .eq("id", assignmentId)
+    .maybeSingle();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "dealer_financier_assignments",
+    entityId: assignmentId,
+    action: "assignment_archived",
+    before: before as Record<string, unknown> | null,
+    after: after as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
 
   revalidatePath("/dealers");
 }

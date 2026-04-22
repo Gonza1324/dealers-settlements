@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { env } from "@/lib/env";
 import { getCurrentUser } from "@/lib/auth/get-session";
+import { writeAuditLog } from "@/lib/audit/write-audit-log";
 import { uploadImportFileToStorage } from "@/features/imports/server/storage";
 import { parseImportFile } from "@/features/imports/server/parser";
 import { detectDuplicates } from "@/features/imports/server/duplicates";
@@ -19,7 +21,7 @@ import type {
   NormalizedImportPayload,
 } from "@/features/imports/server/types";
 import type { ImportReviewActionInput } from "@/features/imports/server/review-schema";
-import type { ImportRowReview } from "@/features/imports/types";
+import type { ImportHistoryRecord, ImportRowReview } from "@/features/imports/types";
 import { validateImportHeaders } from "@/features/imports/validators";
 import { mapImportRow, mapImportTemplate } from "@/features/imports/mappers";
 
@@ -734,6 +736,23 @@ export async function processImportUpload(params: {
   if (!structureValidation.isValid) {
     await refreshImportSummary(importFileId);
 
+    await writeAuditLog({
+      actorUserId: currentUser?.id ?? null,
+      entityTable: "import_files",
+      entityId: importFileId,
+      action: "import_uploaded_invalid_structure",
+      before: null,
+      after: {
+        templateId: template.id,
+        sourceMonth: params.sourceMonth,
+        filename: params.file.name,
+      },
+      metadata: {
+        warnings: structureValidation.warnings,
+        criticalErrors: structureValidation.criticalErrors,
+      },
+    });
+
     return {
       importFileId,
       criticalErrors: structureValidation.criticalErrors,
@@ -767,6 +786,24 @@ export async function processImportUpload(params: {
   });
   await refreshImportSummary(importFileId);
 
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "import_files",
+    entityId: importFileId,
+    action: "import_uploaded",
+    before: null,
+    after: {
+      templateId: template.id,
+      sourceMonth: params.sourceMonth,
+      filename: params.file.name,
+      rowCount: deduplicated.rows.length,
+    },
+    metadata: {
+      warnings: structureValidation.warnings,
+      duplicateRows: deduplicated.duplicateRows,
+    },
+  });
+
   const rowsWithErrors = deduplicated.rows.filter(
     (row) => row.validationErrors.length > 0,
   ).length;
@@ -790,6 +827,37 @@ export async function getImportTemplates() {
   const templates = await ensureDefaultImportTemplate();
 
   return templates.map((record) => mapImportTemplate(record));
+}
+
+export async function getRecentImports(): Promise<ImportHistoryRecord[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("import_files")
+    .select("id, period_month, file_name, status, row_count, metadata")
+    .is("deleted_at", null)
+    .order("period_month", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    throw new Error(`Failed to load recent imports: ${error.message}`);
+  }
+
+  return ((data ?? []) as Array<Record<string, unknown>>).map((record) => {
+    const metadata = (record.metadata as Record<string, unknown> | null) ?? {};
+
+    return {
+      id: String(record.id),
+      sourceMonth: String(record.period_month),
+      originalFilename: String(record.file_name),
+      status: String(record.status) as ImportHistoryRecord["status"],
+      rowCount: Number(record.row_count ?? 0),
+      readyRows: Number(metadata.readyRows ?? 0),
+      approvedRows: Number(metadata.approvedRows ?? 0),
+      pendingRows: Number(metadata.pendingRows ?? 0),
+      consolidatedRows: Number(metadata.consolidatedRows ?? 0),
+    };
+  });
 }
 
 export async function getImportReview(importFileId: string) {
@@ -1039,8 +1107,26 @@ export async function consolidateImportRows(params: {
   }
 
   await updateImportConsolidationStatus(params.importFileId);
+  const summary = mapConsolidationSummary((data ?? []) as ConsolidationRpcRow[]);
 
-  return mapConsolidationSummary((data ?? []) as ConsolidationRpcRow[]);
+  await writeAuditLog({
+    actorUserId: currentUser.id,
+    entityTable: "import_files",
+    entityId: params.importFileId,
+    action: "deals_consolidated_from_import",
+    before: null,
+    after: {
+      consolidatedCount: summary.consolidatedCount,
+      skippedCount: summary.skippedCount,
+      failedCount: summary.failedCount,
+    },
+    metadata: {
+      rowIds: validRowIds,
+      rows: summary.rows,
+    },
+  });
+
+  return summary;
 }
 
 export async function applyImportReviewAction(params: {
@@ -1049,6 +1135,69 @@ export async function applyImportReviewAction(params: {
 }) {
   const supabase = createSupabaseAdminClient();
   const currentUser = await getCurrentUser();
+
+  if (params.action.action === "discard_import") {
+    const { data: importFile, error: importFileError } = await supabase
+      .from("import_files")
+      .select("*")
+      .eq("id", params.importFileId)
+      .single();
+
+    if (importFileError || !importFile) {
+      throw new Error("Import file not found.");
+    }
+
+    const { data: deals, error: dealsError } = await supabase
+      .from("deals")
+      .select("id")
+      .eq("source_file_id", params.importFileId)
+      .is("deleted_at", null)
+      .limit(1);
+
+    if (dealsError) {
+      throw new Error(`Failed to validate import deletion: ${dealsError.message}`);
+    }
+
+    if ((deals ?? []).length > 0) {
+      throw new Error(
+        "This import already has consolidated deals and cannot be discarded.",
+      );
+    }
+
+    const storagePath = String(importFile.storage_path ?? "");
+
+    if (storagePath) {
+      const { error: storageError } = await supabase
+        .storage
+        .from(env.importBucketName)
+        .remove([storagePath]);
+
+      if (storageError && !storageError.message.toLowerCase().includes("not found")) {
+        throw new Error(`Failed to remove import file from storage: ${storageError.message}`);
+      }
+    }
+
+    const { error: deleteError } = await supabase
+      .from("import_files")
+      .delete()
+      .eq("id", params.importFileId);
+
+    if (deleteError) {
+      throw new Error(`Failed to discard import file: ${deleteError.message}`);
+    }
+
+    await writeAuditLog({
+      actorUserId: currentUser?.id ?? null,
+      entityTable: "import_files",
+      entityId: params.importFileId,
+      action: "import_discarded",
+      before: importFile as Record<string, unknown>,
+      after: null,
+      metadata: { module: "imports" },
+    });
+
+    return;
+  }
 
   if (params.action.action === "approve_ready_rows") {
     const { data: rows, error } = await supabase
@@ -1114,11 +1263,41 @@ export async function applyImportReviewAction(params: {
       throw new Error(`Failed to approve row: ${updateError.message}`);
     }
 
+    await writeAuditLog({
+      actorUserId: currentUser?.id ?? null,
+      entityTable: "raw_deal_rows",
+      entityId: params.action.rowId,
+      action: "raw_row_approved",
+      before: {
+        reviewStatus: row.review_status,
+        isReadyForConsolidation: row.is_ready_for_consolidation,
+      },
+      after: {
+        reviewStatus: "approved",
+        isReadyForConsolidation: true,
+      },
+      metadata: {
+        importFileId: params.importFileId,
+        duplicateStatus: row.duplicate_status,
+      },
+    });
+
     await refreshImportSummary(params.importFileId);
     return;
   }
 
   if (params.action.action === "reject_row") {
+    const { data: row, error: rowError } = await supabase
+      .from("raw_deal_rows")
+      .select("id, review_status, is_ready_for_consolidation")
+      .eq("id", params.action.rowId)
+      .eq("import_file_id", params.importFileId)
+      .maybeSingle();
+
+    if (rowError) {
+      throw new Error(`Failed to load row before rejection: ${rowError.message}`);
+    }
+
     const { error } = await supabase
       .from("raw_deal_rows")
       .update({
@@ -1130,6 +1309,60 @@ export async function applyImportReviewAction(params: {
 
     if (error) {
       throw new Error(`Failed to reject row: ${error.message}`);
+    }
+
+    await writeAuditLog({
+      actorUserId: currentUser?.id ?? null,
+      entityTable: "raw_deal_rows",
+      entityId: params.action.rowId,
+      action: "raw_row_rejected",
+      before: row
+        ? {
+            reviewStatus: row.review_status,
+            isReadyForConsolidation: row.is_ready_for_consolidation,
+          }
+        : null,
+      after: {
+        reviewStatus: "rejected",
+        isReadyForConsolidation: false,
+      },
+      metadata: {
+        importFileId: params.importFileId,
+      },
+    });
+
+    await refreshImportSummary(params.importFileId);
+    return;
+  }
+
+  if (params.action.action === "reject_rows") {
+    const { data: rows, error: rowsError } = await supabase
+      .from("raw_deal_rows")
+      .select("id")
+      .eq("import_file_id", params.importFileId)
+      .in("id", params.action.rowIds);
+
+    if (rowsError) {
+      throw new Error(`Failed to load rows for bulk rejection: ${rowsError.message}`);
+    }
+
+    const validRowIds = ((rows ?? []) as Array<{ id: string }>).map((row) => String(row.id));
+
+    if (validRowIds.length === 0) {
+      throw new Error("No valid rows were selected for rejection.");
+    }
+
+    const { error } = await supabase
+      .from("raw_deal_rows")
+      .update({
+        review_status: "rejected",
+        is_ready_for_consolidation: false,
+      })
+      .in("id", validRowIds)
+      .eq("import_file_id", params.importFileId);
+
+    if (error) {
+      throw new Error(`Failed to reject rows: ${error.message}`);
     }
 
     await refreshImportSummary(params.importFileId);
@@ -1210,6 +1443,24 @@ export async function applyImportReviewAction(params: {
   if (updateError) {
     throw new Error(`Failed to update row: ${updateError.message}`);
   }
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "raw_deal_rows",
+    entityId: params.action.payload.rowId,
+    action: "raw_row_updated_manual",
+    before: mapNormalizedPayload(
+      row.normalized_payload,
+      String(importFile.period_month),
+    ) as unknown as Record<string, unknown>,
+    after: nextState.normalizedPayload as unknown as Record<string, unknown>,
+    metadata: {
+      importFileId: params.importFileId,
+      validationStatus,
+      detectedFinancierId: nextState.detectedFinancierId,
+      detectedDealerId: nextState.detectedDealerId,
+    },
+  });
 
   await recalculateImportDuplicates(params.importFileId, String(importFile.period_month));
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -85,9 +86,13 @@ export function ExpensesTable({
                 </Link>
                 {canManage && (
                   <form action={archiveExpense.bind(null, expense.id)}>
-                    <button className="ghost-button danger" type="submit">
+                    <ConfirmSubmitButton
+                      className="ghost-button danger"
+                      confirmMessage={`Delete expense "${expense.description}" from ${expense.period_month}? Its allocations will be archived as well.`}
+                      pendingLabel="Deleting..."
+                    >
                       Delete
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 )}
               </div>

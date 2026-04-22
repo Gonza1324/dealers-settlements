@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { archiveExpenseCategory, saveExpenseCategory } from "@/features/expenses/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { ExpenseCategoryRecord } from "@/features/expenses/types";
@@ -46,9 +47,13 @@ export function ExpenseCategoriesPanel({
                     Edit
                   </button>
                   <form action={archiveExpenseCategory.bind(null, category.id)}>
-                    <button className="ghost-button danger" type="submit">
+                    <ConfirmSubmitButton
+                      className="ghost-button danger"
+                      confirmMessage={`Remove category "${category.name}"? Existing history stays, but this category will no longer be active.`}
+                      pendingLabel="Removing..."
+                    >
                       Remove
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </td>

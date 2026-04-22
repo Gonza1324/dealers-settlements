@@ -42,6 +42,13 @@ export const importReviewActionSchema = z.discriminatedUnion("action", [
     rowId: z.string().uuid(),
   }),
   z.object({
+    action: z.literal("reject_rows"),
+    rowIds: z.array(z.string().uuid()).min(1, "Select at least one row."),
+  }),
+  z.object({
+    action: z.literal("discard_import"),
+  }),
+  z.object({
     action: z.literal("approve_ready_rows"),
   }),
 ]);

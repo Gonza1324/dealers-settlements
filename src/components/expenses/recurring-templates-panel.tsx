@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import {
   archiveExpenseRecurringTemplate,
   saveExpenseRecurringTemplate,
@@ -78,9 +79,13 @@ export function RecurringTemplatesPanel({
                     Edit
                   </button>
                   <form action={archiveExpenseRecurringTemplate.bind(null, template.id)}>
-                    <button className="ghost-button danger" type="submit">
+                    <ConfirmSubmitButton
+                      className="ghost-button danger"
+                      confirmMessage={`Remove recurring template "${template.name}"? Existing expenses stay intact, but the template will be archived.`}
+                      pendingLabel="Removing..."
+                    >
                       Remove
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </td>

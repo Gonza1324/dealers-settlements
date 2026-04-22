@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdminAccess } from "@/lib/auth/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth/get-session";
+import { writeAuditLog } from "@/lib/audit/write-audit-log";
 import { dealManualCreateSchema, dealManualEditSchema } from "@/features/deals/schema";
 import { initialFormState, type FormActionState } from "@/features/masters/shared/form-state";
 
@@ -105,6 +106,22 @@ export async function createManualDeal(
     return fail(error?.message ?? "Failed to create deal.");
   }
 
+  const { data: createdDeal } = await supabase
+    .from("deals")
+    .select("*")
+    .eq("id", data.id)
+    .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser.id,
+    entityTable: "deals",
+    entityId: data.id,
+    action: "deal_created_manual",
+    before: null,
+    after: (createdDeal ?? null) as Record<string, unknown> | null,
+    metadata: { sourceType: "manual" },
+  });
+
   revalidatePath("/deals");
   redirect(`/deals/${data.id}`);
 }
@@ -141,6 +158,11 @@ export async function saveDealManualEdit(
   }
 
   const supabase = createSupabaseAdminClient();
+  const { data: before } = await supabase
+    .from("deals")
+    .select("*")
+    .eq("id", payload.id)
+    .single();
   const { error } = await supabase.rpc("update_deal_manually", {
     p_deal_id: payload.id,
     p_actor_user_id: currentUser.id,
@@ -159,6 +181,22 @@ export async function saveDealManualEdit(
   if (error) {
     return fail(error.message);
   }
+
+  const { data: after } = await supabase
+    .from("deals")
+    .select("*")
+    .eq("id", payload.id)
+    .single();
+
+  await writeAuditLog({
+    actorUserId: currentUser.id,
+    entityTable: "deals",
+    entityId: payload.id,
+    action: "deal_updated_manual",
+    before: (before ?? null) as Record<string, unknown> | null,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { sourceType: "manual_edit" },
+  });
 
   revalidatePath("/deals");
   revalidatePath(`/deals/${payload.id}`);

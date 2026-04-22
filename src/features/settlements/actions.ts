@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth/get-session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { writeAuditLog } from "@/lib/audit/write-audit-log";
 import {
   requireSettlementManagerAccess,
 } from "@/lib/auth/guards";
@@ -43,6 +44,24 @@ export async function executeMonthlyCalculation(
       periodMonth: parsed.data.periodMonth,
       actorUserId: currentUser.id,
       notes: parsed.data.notes,
+    });
+
+    await writeAuditLog({
+      actorUserId: currentUser.id,
+      entityTable: "monthly_calculation_runs",
+      entityId: result.runId,
+      action: "monthly_calculation_executed",
+      before: null,
+      after: {
+        runId: result.runId,
+        status: result.status,
+        summary: result.summary,
+      },
+      metadata: {
+        module: "settlements",
+        periodMonth: parsed.data.periodMonth,
+        notes: parsed.data.notes,
+      },
     });
 
     revalidatePath("/settlements");
@@ -117,6 +136,12 @@ export async function savePartnerPayout(
   }
 
   const supabase = createSupabaseAdminClient();
+  const currentUser = await getCurrentUser();
+  const { data: before } = await supabase
+    .from("partner_monthly_payouts")
+    .select("*")
+    .eq("id", payload.payoutId)
+    .maybeSingle();
   const { error } = await supabase
     .from("partner_monthly_payouts")
     .update({
@@ -133,6 +158,26 @@ export async function savePartnerPayout(
   if (error) {
     return fail(error.message);
   }
+
+  const { data: after } = await supabase
+    .from("partner_monthly_payouts")
+    .select("*")
+    .eq("id", payload.payoutId)
+    .maybeSingle();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "partner_monthly_payouts",
+    entityId: payload.payoutId,
+    action: "payout_status_updated",
+    before: before as Record<string, unknown> | null,
+    after: after as Record<string, unknown> | null,
+    metadata: {
+      module: "settlements",
+      runId: payload.runId,
+      paymentStatus: payload.paymentStatus,
+    },
+  });
 
   revalidatePath("/settlements");
   if (payload.runId) {
