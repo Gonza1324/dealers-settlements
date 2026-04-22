@@ -7,16 +7,14 @@ export function AuthenticatedShell({
   children,
   profile,
   navigation,
-  currentPath,
 }: {
   children: React.ReactNode;
   profile: ProfileSummary;
   navigation: NavItem[];
-  currentPath: string;
 }) {
   return (
     <div className="app-shell">
-      <Sidebar currentPath={currentPath} navigation={navigation} profile={profile} />
+      <Sidebar navigation={navigation} profile={profile} />
       <div className="content">
         <Topbar profile={profile} />
         <main className="page">{children}</main>

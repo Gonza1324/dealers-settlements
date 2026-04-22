@@ -3,29 +3,31 @@ import type { ProfileSummary } from "@/features/auth/types";
 import type { NavItem } from "@/lib/auth/navigation";
 
 export function Sidebar({
-  currentPath,
   navigation,
   profile,
 }: {
-  currentPath: string;
   navigation: NavItem[];
   profile: ProfileSummary;
 }) {
   return (
     <aside className="sidebar">
-      <p className="eyebrow">Dealers Settlements</p>
-      <h2 style={{ marginTop: 0 }}>Operations Console</h2>
-      <p className="muted">
-        Desktop-first internal app for monthly operational finance.
-      </p>
-      <div className="panel" style={{ padding: 16, marginTop: 22 }}>
-        <p className="eyebrow">Signed in</p>
-        <h3 style={{ margin: "0 0 6px", fontSize: 18 }}>{profile.fullName}</h3>
-        <p className="muted" style={{ margin: 0 }}>
+      <div className="panel" style={{ padding: 16, marginTop: 0 }}>
+        <p className="eyebrow" style={{ marginBottom: 4 }}>
+          Signed in
+        </p>
+        <h3 style={{ margin: "0 0 2px", fontSize: 18, lineHeight: 1.15 }}>
+          {profile.fullName}
+        </h3>
+        <p className="muted" style={{ margin: 0, lineHeight: 1.2 }}>
           {profile.role}
         </p>
+        <form action="/logout" method="post" style={{ marginTop: 12 }}>
+          <button className="ghost-button" style={{ width: "100%" }} type="submit">
+            Sign out
+          </button>
+        </form>
       </div>
-      <NavSection currentPath={currentPath} items={navigation} />
+      <NavSection items={navigation} />
     </aside>
   );
 }

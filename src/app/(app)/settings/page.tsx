@@ -1,22 +1,20 @@
 import { PageHeader } from "@/components/ui/page-header";
+import { UsersSettingsPanel } from "@/features/settings/users/components/users-settings-panel";
+import { getSettingsUsersPageData } from "@/features/settings/users/queries";
 import { requireAdminAccess } from "@/lib/auth/guards";
 
 export default async function SettingsPage() {
   await requireAdminAccess();
+  const data = await getSettingsUsersPageData();
 
   return (
     <>
       <PageHeader
         eyebrow="Settings"
         title="Admin settings"
-        description="Reserved for admin-only configuration and operational controls that are still outside the master-data CRUD implemented in this phase."
+        description="Manage internal access, keep roles aligned with operational responsibilities, and monitor when partner-viewer users still need a linked partner record."
       />
-      <section className="panel">
-        <p className="muted" style={{ margin: 0 }}>
-          This placeholder confirms that admin-only navigation and route
-          protection are working.
-        </p>
-      </section>
+      <UsersSettingsPanel users={data.users} />
     </>
   );
 }

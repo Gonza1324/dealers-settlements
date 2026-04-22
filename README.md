@@ -1,8 +1,8 @@
 # Dealers Settlements
 
-Base project for an internal web application that manages dealers, partners, financiers, monthly imports, expenses and partner settlements.
+Internal web application that manages dealers, partners, financiers, monthly imports, expenses and partner settlements.
 
-## Phase 1 Scope
+## Current Scope
 
 This repository now includes:
 
@@ -16,6 +16,8 @@ This repository now includes:
 - import wizard with staging flow for files
 - Supabase auth with protected backoffice routes
 - master-data CRUD for dealers, partners, financiers, shares and assignments
+- staging-oriented demo seed with realistic operational data for February and March 2026
+- minimal staging setup and validation documentation
 
 ## Stack
 
@@ -89,6 +91,9 @@ Required variables:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_IMPORT_BUCKET`
+- `SUPABASE_EXPENSE_ATTACHMENT_BUCKET`
+- `SUPABASE_SETTLEMENT_ATTACHMENT_BUCKET`
 
 ### 3. Run the app
 
@@ -124,6 +129,38 @@ This will apply:
 - `supabase/migrations/0006_storage.sql`
 - `supabase/migrations/0007_security_and_integrity.sql`
 - `supabase/seed.sql`
+
+The seed now creates:
+
+- 5 test users across `super_admin`, `expense_admin`, and `partner_viewer`
+- 4 dealers and 3 partners
+- historical dealer share changes
+- multiple financiers, aliases, and dealer-financier assignments by date
+- staged imports for February, March, and one invalid April file
+- consolidated deals for February and March plus manual/edit-history examples
+- expenses for one dealer, selected dealers, all dealers, and one recurring template
+- completed and failed settlement runs with example payouts
+
+Default password for every seeded user:
+
+- `StagingDemo123!`
+
+Seeded users:
+
+- `staging-admin@dealers.local`
+- `staging-expenses@dealers.local`
+- `alice.partner@dealers.local`
+- `bob.partner@dealers.local`
+- `carla.partner@dealers.local`
+
+## Staging Setup
+
+Use these docs when preparing a real staging environment:
+
+- [Staging Setup](docs/staging-setup.md)
+- [Staging Checklist](docs/staging-checklist.md)
+- [Operational QA Checklist](docs/qa-functional-checklist.md)
+- [Pre-Production Risks](docs/pre-production-risks.md)
 
 ## Included Database Objects
 
@@ -207,19 +244,19 @@ Role access:
 - `expense_admin`: no master-data access
 - `partner_viewer`: read-only dealer visibility shell
 
-## What Is Intentionally Deferred
+## Environment Notes
 
-- real authentication screens
-- CRUD interfaces
-- expense workflows UI
-- dashboards and charts
-- deeper RLS coverage for the remaining operational tables
+Bucket defaults expected by the app:
 
-Those will be added in the next phases on top of this foundation.
+- `import-files`
+- `expense-attachments`
+- `settlement-payment-attachments`
+
+For Vercel staging deployments, keep the public URL and anon key aligned with the staging Supabase project, and keep the service-role key server-side only.
 
 ## Import Workflow
 
-Phase 3 adds a full staging workflow:
+The app includes a full staging workflow for monthly floorplan files:
 
 - upload `csv`, `xlsx` or `xls`
 - store the original file in Supabase Storage bucket `import-files`
