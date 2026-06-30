@@ -16,15 +16,17 @@ This checklist is for real staging validation with the seeded demo dataset. It i
 
 ## Seeded Test Accounts
 
-- `staging-admin@dealers.local` / `StagingDemo123!`
+- Use the current `STAGING_DEMO_PASSWORD` from the staging secret manager. Do
+  not paste it into this checklist, tickets, commits, or chat.
+- `staging-admin@dealers.local`
   - role: `super_admin`
-- `staging-expenses@dealers.local` / `StagingDemo123!`
+- `staging-expenses@dealers.local`
   - role: `expense_admin`
-- `alice.partner@dealers.local` / `StagingDemo123!`
+- `alice.partner@dealers.local`
   - role: `partner_viewer`
-- `bob.partner@dealers.local` / `StagingDemo123!`
+- `bob.partner@dealers.local`
   - role: `partner_viewer`
-- `carla.partner@dealers.local` / `StagingDemo123!`
+- `carla.partner@dealers.local`
   - role: `partner_viewer`
 
 ## Seeded Business Scenarios

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { DealFilters } from "@/features/deals/types";
 
 export function DealsFilters({
@@ -83,9 +84,9 @@ export function DealsFilters({
           <button className="action-button" type="submit">
             Apply filters
           </button>
-          <a className="ghost-button" href="/deals">
+          <Link className="ghost-button" href="/deals">
             Reset
-          </a>
+          </Link>
         </div>
       </form>
     </section>

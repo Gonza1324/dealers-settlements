@@ -13,16 +13,19 @@ Prepare a staging environment that behaves like production for real operational 
 
 ## Required Environment Variables
 
-Set these values in Vercel and, if needed, in local `.env.local`:
+Set these required values in Vercel and, if needed, in local `.env.local`:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+
+Optional bucket overrides:
+
 - `SUPABASE_IMPORT_BUCKET`
 - `SUPABASE_EXPENSE_ATTACHMENT_BUCKET`
 - `SUPABASE_SETTLEMENT_ATTACHMENT_BUCKET`
 
-Recommended bucket values:
+Default bucket values:
 
 - `SUPABASE_IMPORT_BUCKET=import-files`
 - `SUPABASE_EXPENSE_ATTACHMENT_BUCKET=expense-attachments`
@@ -56,16 +59,28 @@ Then run `supabase/seed.sql` against the linked staging project using the method
 
 ## Vercel Preparation
 
-1. Add the six environment variables above to the staging environment in Vercel.
+1. Add the three required environment variables above to the staging environment in Vercel. Add bucket overrides only when the project uses non-default names.
 2. Keep `SUPABASE_SERVICE_ROLE_KEY` server-side only.
 3. Trigger a fresh deployment after the environment variables are set.
 4. Confirm the deployment can load the login screen and complete a successful sign-in.
 
 ## Seeded Demo Users
 
-All seeded users share the same password:
+The seed assigns a random, non-recoverable password to every demo user on each
+reset. After seeding an isolated staging project, load these values from your
+secret manager (never commit them):
 
-- `StagingDemo123!`
+- `STAGING_DEMO_PASSWORD`: a strong value with at least 16 characters
+- `STAGING_SETUP_CONFIRM=dealers-settlements-staging`
+
+Then run:
+
+```bash
+npm run staging:set-passwords
+```
+
+The script only updates the five deterministic QA user IDs and refuses the
+retired public demo password. Rotate the secret after the QA window.
 
 Users:
 
@@ -110,6 +125,10 @@ The seed prepares realistic data for:
 Staging setup is considered ready when:
 
 - the app deploys in Vercel with the correct staging environment variables
+- QA credentials were provisioned from a secret manager and are not committed
 - the seeded users can sign in
 - imports, expenses, dashboard, and settlements load with seeded data
 - the team can execute [Staging Checklist](./staging-checklist.md) end to end
+
+For the GitHub environment secrets and the ordered Supabase → Vercel release
+flow, follow [Deployment Automation](./deployment-automation.md).

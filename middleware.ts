@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { requireSupabaseEnv } from "@/lib/env";
+import { requireSupabasePublicEnv } from "@/lib/env";
 
 const privatePrefixes = [
   "/dashboard",
@@ -27,7 +27,7 @@ function isPrivatePath(pathname: string) {
 }
 
 export async function middleware(request: NextRequest) {
-  const { supabaseUrl, supabaseAnonKey } = requireSupabaseEnv();
+  const { supabaseUrl, supabaseAnonKey } = requireSupabasePublicEnv();
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
 

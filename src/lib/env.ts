@@ -1,24 +1,22 @@
-function getEnv(name: string) {
-  return process.env[name] ?? "";
-}
-
 export const env = {
-  supabaseUrl: getEnv("NEXT_PUBLIC_SUPABASE_URL"),
-  supabaseAnonKey: getEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
-  supabaseServiceRoleKey: getEnv("SUPABASE_SERVICE_ROLE_KEY"),
-  importBucketName: getEnv("SUPABASE_IMPORT_BUCKET") ?? "import-files",
+  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "",
+  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? "",
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? "",
+  importBucketName:
+    process.env.SUPABASE_IMPORT_BUCKET?.trim() || "import-files",
   expenseAttachmentBucketName:
-    getEnv("SUPABASE_EXPENSE_ATTACHMENT_BUCKET") ?? "expense-attachments",
+    process.env.SUPABASE_EXPENSE_ATTACHMENT_BUCKET?.trim() ||
+    "expense-attachments",
   settlementAttachmentBucketName:
-    getEnv("SUPABASE_SETTLEMENT_ATTACHMENT_BUCKET") ??
+    process.env.SUPABASE_SETTLEMENT_ATTACHMENT_BUCKET?.trim() ||
     "settlement-payment-attachments",
 };
 
-export function hasSupabaseEnv() {
+export function hasSupabasePublicEnv() {
   return Boolean(env.supabaseUrl && env.supabaseAnonKey);
 }
 
-export function requireSupabaseEnv() {
+export function requireSupabasePublicEnv() {
   if (!env.supabaseUrl) {
     throw new Error("Missing required environment variable: NEXT_PUBLIC_SUPABASE_URL");
   }
@@ -29,6 +27,15 @@ export function requireSupabaseEnv() {
     );
   }
 
+  return {
+    supabaseUrl: env.supabaseUrl,
+    supabaseAnonKey: env.supabaseAnonKey,
+  };
+}
+
+export function requireSupabaseAdminEnv() {
+  const publicEnv = requireSupabasePublicEnv();
+
   if (!env.supabaseServiceRoleKey) {
     throw new Error(
       "Missing required environment variable: SUPABASE_SERVICE_ROLE_KEY",
@@ -36,8 +43,7 @@ export function requireSupabaseEnv() {
   }
 
   return {
-    supabaseUrl: env.supabaseUrl,
-    supabaseAnonKey: env.supabaseAnonKey,
+    ...publicEnv,
     supabaseServiceRoleKey: env.supabaseServiceRoleKey,
   };
 }

@@ -7,15 +7,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:supabase-security": "node scripts/check-supabase-security.mjs",
+    "staging:set-passwords": "node scripts/set-staging-passwords.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.104.0",
-    "next": "^15.3.0",
+    "next": "15.5.19",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -24,7 +26,7 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.25.1",
-    "eslint-config-next": "^15.3.0",
+    "eslint-config-next": "15.5.19",
     "typescript": "^5.8.3"
   }
 }

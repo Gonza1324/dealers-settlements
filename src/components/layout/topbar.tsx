@@ -1,6 +1,4 @@
-import type { ProfileSummary } from "@/features/auth/types";
-
-export function Topbar({ profile: _profile }: { profile: ProfileSummary }) {
+export function Topbar() {
   return (
     <header className="topbar">
       <div>

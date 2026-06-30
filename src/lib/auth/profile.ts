@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { hasSupabaseEnv } from "@/lib/env";
+import { hasSupabasePublicEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth/get-session";
@@ -67,7 +67,7 @@ async function ensureProfileForUser(user: {
 }
 
 export const getCurrentProfile = cache(async () => {
-  if (!hasSupabaseEnv()) {
+  if (!hasSupabasePublicEnv()) {
     return null;
   }
 

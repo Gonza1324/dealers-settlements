@@ -15,15 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         }}
       />
       <div className="content">
-        <Topbar
-          profile={{
-            id: "placeholder",
-            email: null,
-            fullName: "Placeholder User",
-            isActive: true,
-            role: "super_admin",
-          }}
-        />
+        <Topbar />
         <main className="page">{children}</main>
       </div>
     </div>

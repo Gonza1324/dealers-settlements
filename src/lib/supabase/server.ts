@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { requireSupabaseEnv } from "@/lib/env";
+import { requireSupabasePublicEnv } from "@/lib/env";
 import type { Database } from "@/types/database";
 
 type CookieToSet = {
@@ -10,7 +10,7 @@ type CookieToSet = {
 };
 
 export async function createSupabaseServerClient() {
-  const { supabaseUrl, supabaseAnonKey } = requireSupabaseEnv();
+  const { supabaseUrl, supabaseAnonKey } = requireSupabasePublicEnv();
   const cookieStore = await cookies();
   const writableCookieStore = cookieStore as unknown as {
     set?: (name: string, value: string, options?: Record<string, unknown>) => void;
