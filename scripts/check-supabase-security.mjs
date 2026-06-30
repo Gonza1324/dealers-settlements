@@ -63,6 +63,17 @@ for (const expected of [
   }
 }
 
+const legacyCleanup = readFileSync(
+  "supabase/migrations/0016_remove_legacy_sale_value_functions.sql",
+  "utf8",
+).toLowerCase();
+
+for (const legacyFunction of ["update_deal_manually", "build_deal_payload"]) {
+  if (!legacyCleanup.includes(`drop function if exists public.${legacyFunction}`)) {
+    throw new Error(`Legacy Supabase function is not removed: ${legacyFunction}`);
+  }
+}
+
 console.log(
   `Supabase security checks passed for ${tables.length} public tables and ${migrationFiles.length} migrations.`,
 );
