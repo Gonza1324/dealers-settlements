@@ -16,7 +16,7 @@ export function AuthenticatedShell({
     <div className="app-shell">
       <Sidebar navigation={navigation} profile={profile} />
       <div className="content">
-        <Topbar profile={profile} />
+        <Topbar />
         <main className="page">{children}</main>
       </div>
     </div>

@@ -2,8 +2,9 @@ begin;
 
 -- =========================================================
 -- STAGING DEMO USERS
--- Password for every seeded user: StagingDemo123!
--- These records are intended for local and staging resets only.
+-- Passwords are randomized on every reset. Set QA credentials afterward with
+-- `npm run staging:set-passwords`; never place a shared password in this file.
+-- These records are intended for local and isolated staging resets only.
 -- =========================================================
 
 insert into auth.users (
@@ -32,7 +33,7 @@ values
     'authenticated',
     'authenticated',
     'staging-admin@dealers.local',
-    crypt('StagingDemo123!', gen_salt('bf')),
+    crypt(encode(gen_random_bytes(32), 'hex'), gen_salt('bf')),
     now(),
     now(),
     now(),
@@ -51,7 +52,7 @@ values
     'authenticated',
     'authenticated',
     'staging-expenses@dealers.local',
-    crypt('StagingDemo123!', gen_salt('bf')),
+    crypt(encode(gen_random_bytes(32), 'hex'), gen_salt('bf')),
     now(),
     now(),
     now(),
@@ -70,7 +71,7 @@ values
     'authenticated',
     'authenticated',
     'alice.partner@dealers.local',
-    crypt('StagingDemo123!', gen_salt('bf')),
+    crypt(encode(gen_random_bytes(32), 'hex'), gen_salt('bf')),
     now(),
     now(),
     now(),
@@ -89,7 +90,7 @@ values
     'authenticated',
     'authenticated',
     'bob.partner@dealers.local',
-    crypt('StagingDemo123!', gen_salt('bf')),
+    crypt(encode(gen_random_bytes(32), 'hex'), gen_salt('bf')),
     now(),
     now(),
     now(),
@@ -108,7 +109,7 @@ values
     'authenticated',
     'authenticated',
     'carla.partner@dealers.local',
-    crypt('StagingDemo123!', gen_salt('bf')),
+    crypt(encode(gen_random_bytes(32), 'hex'), gen_salt('bf')),
     now(),
     now(),
     now(),

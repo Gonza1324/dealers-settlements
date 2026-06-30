@@ -1,9 +1,9 @@
 import { cache } from "react";
-import { hasSupabaseEnv } from "@/lib/env";
+import { hasSupabasePublicEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const getSession = cache(async () => {
-  if (!hasSupabaseEnv()) {
+  if (!hasSupabasePublicEnv()) {
     return null;
   }
 

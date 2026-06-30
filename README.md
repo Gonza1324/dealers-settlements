@@ -91,9 +91,15 @@ Required variables:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+
+Optional bucket overrides:
+
 - `SUPABASE_IMPORT_BUCKET`
 - `SUPABASE_EXPENSE_ATTACHMENT_BUCKET`
 - `SUPABASE_SETTLEMENT_ATTACHMENT_BUCKET`
+
+When omitted, the app uses `import-files`, `expense-attachments`, and
+`settlement-payment-attachments` respectively.
 
 ### 3. Run the app
 
@@ -141,10 +147,6 @@ The seed now creates:
 - expenses for one dealer, selected dealers, all dealers, and one recurring template
 - completed and failed settlement runs with example payouts
 
-Default password for every seeded user:
-
-- `StagingDemo123!`
-
 Seeded users:
 
 - `staging-admin@dealers.local`
@@ -152,6 +154,11 @@ Seeded users:
 - `alice.partner@dealers.local`
 - `bob.partner@dealers.local`
 - `carla.partner@dealers.local`
+
+The seed assigns random, non-recoverable passwords on every reset. For isolated
+staging QA, load a strong `STAGING_DEMO_PASSWORD` from your secret manager, set
+`STAGING_SETUP_CONFIRM=dealers-settlements-staging`, and run
+`npm run staging:set-passwords`.
 
 ## Staging Setup
 
@@ -161,6 +168,7 @@ Use these docs when preparing a real staging environment:
 - [Staging Checklist](docs/staging-checklist.md)
 - [Operational QA Checklist](docs/qa-functional-checklist.md)
 - [Pre-Production Risks](docs/pre-production-risks.md)
+- [Deployment Automation](docs/deployment-automation.md)
 
 ## Included Database Objects
 
