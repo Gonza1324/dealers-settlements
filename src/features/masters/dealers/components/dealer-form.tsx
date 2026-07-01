@@ -5,6 +5,7 @@ import {
   archiveAssignment,
   archiveDealer,
   archiveShare,
+  restoreDealer,
   saveAssignment,
   saveDealer,
   saveShare,
@@ -22,14 +23,18 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 
 function DealerEditor({
+  archivedDealers,
   dealers,
   canEdit,
 }: {
+  archivedDealers: DealerWithShareAlert[];
   dealers: DealerWithShareAlert[];
   canEdit: boolean;
 }) {
   const [selectedDealer, setSelectedDealer] = useState<DealerWithShareAlert | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
   const [state, formAction] = useActionState(saveDealer, initialFormState);
+  const displayedDealers = showArchived ? archivedDealers : dealers;
 
   useEffect(() => {
     if (state.success) {
@@ -45,21 +50,39 @@ function DealerEditor({
             <p className="eyebrow">Dealers</p>
             <h2 style={{ marginTop: 0 }}>Dealer registry</h2>
           </div>
-          {selectedDealer && canEdit && (
-            <button
-              className="ghost-button"
-              onClick={() => setSelectedDealer(null)}
-              type="button"
-            >
-              New dealer
-            </button>
+          {canEdit && (
+            <div className="table-actions">
+              <button
+                className="ghost-button"
+                onClick={() => {
+                  setShowArchived((current) => !current);
+                  setSelectedDealer(null);
+                }}
+                type="button"
+              >
+                {showArchived ? "View active dealers" : "View archived dealers"}
+              </button>
+              {selectedDealer && (
+                <button
+                  className="ghost-button"
+                  onClick={() => setSelectedDealer(null)}
+                  type="button"
+                >
+                  New dealer
+                </button>
+              )}
+            </div>
           )}
         </div>
 
-        {dealers.length === 0 ? (
+        {displayedDealers.length === 0 ? (
           <EmptyState
-            title="No dealers yet"
-            description="Create the first dealer to start managing shares and financier assignments."
+            title={showArchived ? "No archived dealers" : "No dealers yet"}
+            description={
+              showArchived
+                ? "Archived dealers will appear here."
+                : "Create the first dealer to start managing shares and financier assignments."
+            }
           />
         ) : (
           <DataTable
@@ -71,7 +94,7 @@ function DealerEditor({
               { key: "actions", label: "Actions" },
             ]}
           >
-            {dealers.map((dealer) => (
+            {displayedDealers.map((dealer) => (
               <tr key={dealer.id}>
                 <td>{dealer.code}</td>
                 <td>{dealer.name}</td>
@@ -106,19 +129,35 @@ function DealerEditor({
                       >
                         Edit
                       </button>
-                      <form
-                        action={async () => {
-                          await archiveDealer(dealer.id);
-                        }}
-                      >
-                        <ConfirmSubmitButton
-                          className="ghost-button danger"
-                          confirmMessage={`Archive dealer "${dealer.name}"? Historical records stay available, but it will leave the active registry.`}
-                          pendingLabel="Archiving..."
+                      {showArchived ? (
+                        <form
+                          action={async () => {
+                            await restoreDealer(dealer.id);
+                          }}
                         >
-                          Archive
-                        </ConfirmSubmitButton>
-                      </form>
+                          <ConfirmSubmitButton
+                            className="ghost-button"
+                            confirmMessage={`Restore dealer "${dealer.name}" to the active registry?`}
+                            pendingLabel="Restoring..."
+                          >
+                            Restore
+                          </ConfirmSubmitButton>
+                        </form>
+                      ) : (
+                        <form
+                          action={async () => {
+                            await archiveDealer(dealer.id);
+                          }}
+                        >
+                          <ConfirmSubmitButton
+                            className="ghost-button danger"
+                            confirmMessage={`Archive dealer "${dealer.name}"? Historical records stay available, but it will leave the active registry.`}
+                            pendingLabel="Archiving..."
+                          >
+                            Archive
+                          </ConfirmSubmitButton>
+                        </form>
+                      )}
                     </div>
                   ) : (
                     <span className="muted">Read only</span>
@@ -485,6 +524,7 @@ function AssignmentsEditor({
 }
 
 export function DealersPageContent({
+  archivedDealers,
   canEdit,
   dealers,
   partners,
@@ -492,6 +532,7 @@ export function DealersPageContent({
   financiers,
   assignments,
 }: {
+  archivedDealers: DealerWithShareAlert[];
   canEdit: boolean;
   dealers: DealerWithShareAlert[];
   partners: PartnerRow[];
@@ -501,7 +542,11 @@ export function DealersPageContent({
 }) {
   return (
     <div className="grid" style={{ gap: 24 }}>
-      <DealerEditor canEdit={canEdit} dealers={dealers} />
+      <DealerEditor
+        archivedDealers={archivedDealers}
+        canEdit={canEdit}
+        dealers={dealers}
+      />
       <SharesEditor
         canEdit={canEdit}
         dealers={dealers}

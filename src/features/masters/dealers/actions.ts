@@ -162,6 +162,69 @@ export async function archiveDealer(dealerId: string) {
   revalidatePath("/dealers");
 }
 
+export async function restoreDealer(dealerId: string) {
+  await requireAdminAccess();
+  const supabase = createSupabaseAdminClient();
+  const currentUser = await getCurrentUser();
+  const { data: before, error: beforeError } = await supabase
+    .from("dealers")
+    .select("*")
+    .eq("id", dealerId)
+    .maybeSingle();
+
+  if (beforeError || !before) {
+    throw new Error(beforeError?.message ?? "Archived dealer not found.");
+  }
+
+  const { data: conflicts, error: conflictError } = await supabase
+    .from("dealers")
+    .select("id, code, name")
+    .is("deleted_at", null);
+
+  if (conflictError) {
+    throw new Error(conflictError.message);
+  }
+
+  if (conflicts?.some((dealer) => dealer.code === before.code)) {
+    throw new Error("Another active dealer already uses this code.");
+  }
+
+  if (
+    conflicts?.some(
+      (dealer) => dealer.name.trim().toLowerCase() === before.name.trim().toLowerCase(),
+    )
+  ) {
+    throw new Error("Another active dealer already uses this name.");
+  }
+
+  const { error } = await supabase
+    .from("dealers")
+    .update({ deleted_at: null, status: "active" })
+    .eq("id", dealerId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data: after } = await supabase
+    .from("dealers")
+    .select("*")
+    .eq("id", dealerId)
+    .maybeSingle();
+
+  await writeAuditLog({
+    actorUserId: currentUser?.id ?? null,
+    entityTable: "dealers",
+    entityId: dealerId,
+    action: "dealer_restored",
+    before: before as Record<string, unknown>,
+    after: (after ?? null) as Record<string, unknown> | null,
+    metadata: { module: "masters" },
+  });
+
+  revalidatePath("/dealers");
+}
+
 export async function saveShare(
   _previousState: FormActionState,
   formData: FormData,
