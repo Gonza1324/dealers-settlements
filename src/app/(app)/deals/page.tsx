@@ -32,6 +32,11 @@ export default async function DealsPage({
       typeof rawSearchParams.isManuallyEdited === "string"
         ? rawSearchParams.isManuallyEdited
         : "all",
+    sortBy: typeof rawSearchParams.sortBy === "string" ? rawSearchParams.sortBy : "period",
+    sortDirection:
+      typeof rawSearchParams.sortDirection === "string"
+        ? rawSearchParams.sortDirection
+        : "desc",
     page: typeof rawSearchParams.page === "string" ? rawSearchParams.page : "1",
   });
 

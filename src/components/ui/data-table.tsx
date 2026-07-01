@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 
 export interface DataTableColumn {
   key: string;
-  label: string;
+  label: ReactNode;
+  ariaSort?: "ascending" | "descending" | "none";
 }
 
 export function DataTable({
@@ -18,7 +19,9 @@ export function DataTable({
         <thead>
           <tr>
             {columns.map((column) => (
-              <th key={column.key}>{column.label}</th>
+              <th aria-sort={column.ariaSort} key={column.key}>
+                {column.label}
+              </th>
             ))}
           </tr>
         </thead>

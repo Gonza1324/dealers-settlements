@@ -2,7 +2,7 @@ import Link from "next/link";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
-import type { DealFilters, DealListRecord } from "@/features/deals/types";
+import type { DealFilters, DealListRecord, DealSortKey } from "@/features/deals/types";
 
 function buildPageHref(filters: DealFilters, page: number) {
   const params = new URLSearchParams();
@@ -16,9 +16,52 @@ function buildPageHref(filters: DealFilters, page: number) {
   if (filters.isManuallyEdited !== "all") {
     params.set("isManuallyEdited", filters.isManuallyEdited);
   }
+  params.set("sortBy", filters.sortBy);
+  params.set("sortDirection", filters.sortDirection);
 
   params.set("page", String(page));
   return `/deals?${params.toString()}`;
+}
+
+function buildSortHref(filters: DealFilters, sortBy: DealSortKey) {
+  const nextDirection =
+    filters.sortBy === sortBy && filters.sortDirection === "asc" ? "desc" : "asc";
+  const href = new URL(buildPageHref(filters, 1), "https://placeholder.local");
+  href.searchParams.set("sortBy", sortBy);
+  href.searchParams.set("sortDirection", nextDirection);
+  return `${href.pathname}${href.search}`;
+}
+
+function sortableHeading(filters: DealFilters, sortBy: DealSortKey, label: string) {
+  const isActive = filters.sortBy === sortBy;
+  const directionLabel = isActive
+    ? filters.sortDirection === "asc"
+      ? "ascending"
+      : "descending"
+    : "not sorted";
+
+  return {
+    key: sortBy,
+    ariaSort: isActive
+      ? filters.sortDirection === "asc"
+        ? "ascending"
+        : "descending"
+      : "none",
+    label: (
+      <Link
+        aria-label={`${label}, ${directionLabel}. Click to sort ${
+          isActive && filters.sortDirection === "asc" ? "descending" : "ascending"
+        }.`}
+        className="table-sort-link"
+        href={buildSortHref(filters, sortBy)}
+      >
+        {label}
+        <span aria-hidden="true" className="table-sort-indicator">
+          {isActive ? (filters.sortDirection === "asc" ? "▲" : "▼") : "↕"}
+        </span>
+      </Link>
+    ),
+  } as const;
 }
 
 export function DealsTable({
@@ -57,15 +100,15 @@ export function DealsTable({
 
       <DataTable
         columns={[
-          { key: "period", label: "Period" },
-          { key: "dealer", label: "Dealer" },
-          { key: "financier", label: "Financier" },
+          sortableHeading(filters, "period", "Period"),
+          sortableHeading(filters, "dealer", "Dealer"),
+          sortableHeading(filters, "financier", "Financier"),
           { key: "vin", label: "VIN" },
-          { key: "vehicle", label: "Vehicle" },
-          { key: "sale", label: "Sale date" },
-          { key: "net", label: "Net gross" },
-          { key: "commission", label: "Commission" },
-          { key: "profit", label: "Deal profit" },
+          sortableHeading(filters, "vehicle", "Vehicle"),
+          sortableHeading(filters, "saleDate", "Sale date"),
+          sortableHeading(filters, "netGross", "Net gross"),
+          sortableHeading(filters, "commission", "Commission"),
+          sortableHeading(filters, "dealProfit", "Deal profit"),
           { key: "edited", label: "Edited" },
           { key: "actions", label: "Actions" },
         ]}
