@@ -22,7 +22,7 @@ export function ExpenseCategoriesPanel({
   }, [state.success]);
 
   return (
-    <section className="masters-grid">
+    <section className="masters-grid expenses-categories-layout">
       <article className="panel">
         <p className="eyebrow">Expense categories</p>
         <h2 style={{ marginTop: 0 }}>Categories</h2>
