@@ -18,7 +18,6 @@ export async function getDealersPageData(params: {
       supabase
         .from("dealers")
         .select("*")
-        .is("deleted_at", null)
         .order("name"),
       supabase
         .from("dealer_partner_shares")
@@ -53,7 +52,7 @@ export async function getDealersPageData(params: {
         ]
       : null;
 
-  const dealers = ((dealersData ?? []) as DealerRow[])
+  const visibleDealers = ((dealersData ?? []) as DealerRow[])
     .filter((dealer) => !visibleDealerIds || visibleDealerIds.includes(dealer.id))
     .map((dealer) => {
       const today = new Date().toISOString().slice(0, 10);
@@ -78,6 +77,12 @@ export async function getDealersPageData(params: {
         shareAlert: currentShareTotal !== 100,
       };
     });
+
+  const dealers = visibleDealers.filter((dealer) => !dealer.deleted_at);
+  const archivedDealers =
+    params.role === "super_admin"
+      ? visibleDealers.filter((dealer) => Boolean(dealer.deleted_at))
+      : [];
 
   const dealerIds = dealers.map((dealer) => dealer.id);
 
@@ -134,6 +139,7 @@ export async function getDealersPageData(params: {
 
   return {
     dealers,
+    archivedDealers,
     shares,
     assignments,
     partners: (partnersData ?? []) as PartnerRow[],

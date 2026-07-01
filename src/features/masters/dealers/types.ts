@@ -25,6 +25,7 @@ export interface DealerAssignmentRecord
 
 export interface DealersPageData {
   dealers: DealerWithShareAlert[];
+  archivedDealers: DealerWithShareAlert[];
   shares: DealerShareRecord[];
   assignments: DealerAssignmentRecord[];
   partners: PartnerRow[];

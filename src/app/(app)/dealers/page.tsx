@@ -12,6 +12,7 @@ export default async function DealersPage() {
   return (
     <>
       <DealersPageContent
+        archivedDealers={data.archivedDealers}
         assignments={data.assignments}
         canEdit={profile.role === "super_admin"}
         dealers={data.dealers}
