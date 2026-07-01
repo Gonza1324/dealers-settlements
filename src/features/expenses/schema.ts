@@ -42,14 +42,6 @@ export const expenseRecurringTemplateSchema = z
     defaultAmount: z.coerce.number().min(0, "Amount must be zero or greater."),
     scopeType: z.enum(["single_dealer", "selected_dealers", "all_dealers"]),
     selectedDealerIds: z.array(z.string().uuid()).default([]),
-    startDate: requiredDateField,
-    endDate: z.preprocess((value) => {
-      if (value === "" || value === null || value === undefined) {
-        return null;
-      }
-
-      return typeof value === "string" ? value.trim() : value;
-    }, z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()),
     isActive: z.preprocess((value) => value === "true" || value === true, z.boolean()),
   })
   .superRefine((value, ctx) => {
@@ -75,13 +67,6 @@ export const expenseRecurringTemplateSchema = z
       });
     }
 
-    if (value.endDate && value.endDate < value.startDate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "End date cannot be earlier than start date.",
-        path: ["endDate"],
-      });
-    }
   });
 
 export const expenseSchema = z

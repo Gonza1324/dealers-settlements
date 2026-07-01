@@ -205,8 +205,6 @@ export async function saveExpenseRecurringTemplate(
     defaultAmount: formData.get("defaultAmount"),
     scopeType: formData.get("scopeType"),
     selectedDealerIds: formData.getAll("selectedDealerIds"),
-    startDate: formData.get("startDate"),
-    endDate: formData.get("endDate"),
     isActive: formData.get("isActive") ?? "true",
   });
 
@@ -253,8 +251,6 @@ export async function saveExpenseRecurringTemplate(
     default_amount: payload.defaultAmount,
     scope_type: payload.scopeType,
     selected_dealer_ids: payload.selectedDealerIds,
-    start_date: payload.startDate,
-    end_date: payload.endDate,
     is_active: payload.isActive,
   };
 
@@ -263,7 +259,11 @@ export async function saveExpenseRecurringTemplate(
         .from("expense_recurring_templates")
         .update(record)
         .eq("id", payload.id)
-    : supabase.from("expense_recurring_templates").insert(record);
+    : supabase.from("expense_recurring_templates").insert({
+        ...record,
+        start_date: new Date().toISOString().slice(0, 10),
+        end_date: null,
+      });
 
   const { error } = await operation;
 

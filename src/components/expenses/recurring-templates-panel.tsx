@@ -164,14 +164,6 @@ export function RecurringTemplatesPanel({
             </div>
           </label>
           <label className="field">
-            <span>Start date</span>
-            <input defaultValue={selectedTemplate?.start_date ?? ""} name="startDate" type="date" />
-          </label>
-          <label className="field">
-            <span>End date</span>
-            <input defaultValue={selectedTemplate?.end_date ?? ""} name="endDate" type="date" />
-          </label>
-          <label className="field">
             <span>Status</span>
             <select defaultValue={selectedTemplate?.is_active ? "true" : "false"} name="isActive">
               <option value="true">active</option>
