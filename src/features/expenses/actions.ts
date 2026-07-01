@@ -352,7 +352,7 @@ export async function saveExpense(
     expenseDate: formData.get("expenseDate"),
     periodMonth: formData.get("periodMonth"),
     scopeType: formData.get("scopeType"),
-    singleDealerId: formData.get("singleDealerId"),
+    singleDealerId: formData.get("singleDealerId") ?? "",
     selectedDealerIds: formData.getAll("selectedDealerIds"),
     existingAttachmentPath: formData.get("existingAttachmentPath") ?? "",
     removeAttachment: formData.get("removeAttachment") ?? false,
