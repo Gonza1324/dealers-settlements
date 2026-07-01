@@ -347,7 +347,6 @@ export async function saveExpense(
     id: formData.get("id"),
     recurringTemplateId: formData.get("recurringTemplateId"),
     categoryId: formData.get("categoryId"),
-    description: formData.get("description"),
     amount: formData.get("amount"),
     expenseDate: formData.get("expenseDate"),
     periodMonth: formData.get("periodMonth"),
@@ -426,12 +425,32 @@ export async function saveExpense(
             .maybeSingle()
         ).data
       : null;
+  let expenseDescription = before?.description ? String(before.description) : "Expense";
+
+  if (!payload.id && payload.categoryId) {
+    const { data: category } = await supabase
+      .from("expense_categories")
+      .select("name")
+      .eq("id", payload.categoryId)
+      .maybeSingle();
+
+    expenseDescription = category?.name ? String(category.name) : expenseDescription;
+  } else if (!payload.id && payload.recurringTemplateId) {
+    const { data: template } = await supabase
+      .from("expense_recurring_templates")
+      .select("name")
+      .eq("id", payload.recurringTemplateId)
+      .maybeSingle();
+
+    expenseDescription = template?.name ? String(template.name) : expenseDescription;
+  }
+
   const { error } = await supabase.rpc("upsert_expense_with_allocations", {
     p_expense_id: payload.id || null,
     p_actor_user_id: currentUser.id,
     p_category_id: payload.categoryId || null,
     p_recurring_template_id: payload.recurringTemplateId || null,
-    p_description: payload.description,
+    p_description: expenseDescription,
     p_amount: payload.amount,
     p_expense_date: payload.expenseDate,
     p_period_month: payload.periodMonth,
@@ -454,7 +473,7 @@ export async function saveExpense(
     : await supabase
         .from("expenses")
         .select("*")
-        .eq("description", payload.description)
+        .eq("description", expenseDescription)
         .eq("expense_date", payload.expenseDate)
         .order("created_at", { ascending: false })
         .limit(1)
