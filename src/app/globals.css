@@ -106,16 +106,6 @@ textarea {
   min-width: 0;
 }
 
-.topbar {
-  border-bottom: 1px solid var(--border);
-  padding: 16px 32px;
-  background: rgba(255, 253, 250, 0.82);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-
 .page {
   padding: 28px 32px 48px;
 }
