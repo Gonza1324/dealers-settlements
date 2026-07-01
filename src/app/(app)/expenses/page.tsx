@@ -46,7 +46,7 @@ export default async function ExpensesPage({
       <ExpensesTable canManage={canManage} expenses={data.expenses} />
       {canManage && (
         <>
-          <div className="grid two" style={{ marginTop: 24 }}>
+          <div className="expenses-management-stack">
             <ExpenseForm
               canEdit
               categories={data.categories}
@@ -64,7 +64,7 @@ export default async function ExpensesPage({
                 isActive: template.is_active,
               }))}
             />
-            <div className="grid" style={{ gap: 24 }}>
+            <div className="expenses-secondary-stack">
               <ExpenseCategoriesPanel categories={data.categories} />
               <RecurringTemplatesPanel
                 categories={data.categories}
