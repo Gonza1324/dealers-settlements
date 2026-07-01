@@ -183,6 +183,12 @@ textarea {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.selected-dealers-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
 .panel,
 .stat-card {
   padding: 20px;

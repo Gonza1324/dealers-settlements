@@ -244,7 +244,7 @@ export function ExpenseForm({
         {values.scopeType === "selected_dealers" && (
           <div className="field">
             <span>Selected dealers</span>
-            <div className="grid two">
+            <div className="selected-dealers-list">
               {dealers.map((dealer) => (
                 <label key={dealer.id} className="field" style={{ marginBottom: 0 }}>
                   <span>
