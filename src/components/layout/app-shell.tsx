@@ -1,5 +1,4 @@
 import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +14,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         }}
       />
       <div className="content">
-        <Topbar />
         <main className="page">{children}</main>
       </div>
     </div>

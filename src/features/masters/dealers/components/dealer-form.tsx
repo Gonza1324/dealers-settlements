@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import {
   archiveAssignment,
   archiveDealer,
@@ -499,54 +499,19 @@ export function DealersPageContent({
   financiers: FinancierRow[];
   assignments: DealerAssignmentRecord[];
 }) {
-  const [filter, setFilter] = useState("");
-
-  const filteredDealers = useMemo(() => {
-    const normalized = filter.trim().toLowerCase();
-
-    if (!normalized) {
-      return dealers;
-    }
-
-    return dealers.filter(
-      (dealer) =>
-        dealer.name.toLowerCase().includes(normalized) ||
-        String(dealer.code).includes(normalized),
-    );
-  }, [dealers, filter]);
-
   return (
     <div className="grid" style={{ gap: 24 }}>
-      <section className="panel">
-        <div className="masters-toolbar">
-          <div>
-            <p className="eyebrow">Filter</p>
-            <h2 style={{ marginTop: 0 }}>Master data operations</h2>
-          </div>
-          <input
-            className="masters-filter"
-            onChange={(event) => setFilter(event.target.value)}
-            placeholder="Filter dealers by code or name"
-            value={filter}
-          />
-        </div>
-      </section>
-
-      <DealerEditor canEdit={canEdit} dealers={filteredDealers} />
+      <DealerEditor canEdit={canEdit} dealers={dealers} />
       <SharesEditor
         canEdit={canEdit}
-        dealers={filteredDealers}
+        dealers={dealers}
         partners={partners}
-        shares={shares.filter((share) =>
-          filteredDealers.some((dealer) => dealer.id === share.dealer_id),
-        )}
+        shares={shares}
       />
       <AssignmentsEditor
-        assignments={assignments.filter((assignment) =>
-          filteredDealers.some((dealer) => dealer.id === assignment.dealer_id),
-        )}
+        assignments={assignments}
         canEdit={canEdit}
-        dealers={filteredDealers}
+        dealers={dealers}
         financiers={financiers}
       />
     </div>
