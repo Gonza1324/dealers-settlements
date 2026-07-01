@@ -49,6 +49,20 @@ export const dealFiltersSchema = z.object({
     .enum(["all", "yes", "no"])
     .optional()
     .default("all"),
+  sortBy: z
+    .enum([
+      "period",
+      "dealer",
+      "financier",
+      "vehicle",
+      "saleDate",
+      "netGross",
+      "commission",
+      "dealProfit",
+    ])
+    .optional()
+    .default("period"),
+  sortDirection: z.enum(["asc", "desc"]).optional().default("desc"),
   page: z.coerce.number().int().min(1).optional().default(1),
 });
 

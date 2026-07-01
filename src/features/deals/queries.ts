@@ -45,6 +45,47 @@ function mapDealRecord(
   };
 }
 
+function sortDeals(deals: DealListRecord[], filters: DealFilters) {
+  const direction = filters.sortDirection === "asc" ? 1 : -1;
+  const text = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
+
+  function valueFor(deal: DealListRecord): string | number {
+    switch (filters.sortBy) {
+      case "dealer":
+        return deal.dealer_name;
+      case "financier":
+        return deal.financier_name ?? "";
+      case "vehicle":
+        return `${deal.year_value ?? ""} ${deal.make_value} ${deal.model_value}`;
+      case "saleDate":
+        return deal.sale_value;
+      case "netGross":
+        return Number(deal.net_gross_value);
+      case "commission":
+        return Number(deal.commission_amount);
+      case "dealProfit":
+        return Number(deal.deal_profit);
+      case "period":
+      default:
+        return deal.period_month;
+    }
+  }
+
+  return deals
+    .map((deal, index) => ({ deal, index }))
+    .sort((left, right) => {
+      const leftValue = valueFor(left.deal);
+      const rightValue = valueFor(right.deal);
+      const comparison =
+        typeof leftValue === "number" && typeof rightValue === "number"
+          ? leftValue - rightValue
+          : text.compare(String(leftValue), String(rightValue));
+
+      return comparison === 0 ? left.index - right.index : comparison * direction;
+    })
+    .map(({ deal }) => deal);
+}
+
 async function getPartnerShareScopes(profileId: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
@@ -160,9 +201,9 @@ export async function getDealsPageData(params: {
       throw new Error(`Failed to load deals: ${error.message}`);
     }
 
-    const visibleDeals = ((data ?? []) as Array<Record<string, unknown>>)
+    const visibleDeals = sortDeals(((data ?? []) as Array<Record<string, unknown>>)
       .map((row) => mapDealRecord(row as Record<string, unknown> & { dealers?: { name?: string; code?: number } | null; financiers?: { name?: string } | null }))
-      .filter((deal) => isDealVisibleToPartner(deal, scopes));
+      .filter((deal) => isDealVisibleToPartner(deal, scopes)), params.filters);
 
     const totalCount = visibleDeals.length;
     const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
@@ -184,16 +225,12 @@ export async function getDealsPageData(params: {
     };
   }
 
-  const from = (params.filters.page - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
-  const { data, error, count } = await applyDbFilters(
+  const { data, error } = await applyDbFilters(
     supabase
       .from("deals")
-      .select("*, dealers!inner(name, code), financiers(name)", { count: "exact" })
+      .select("*, dealers!inner(name, code), financiers(name)")
       .is("deleted_at", null)
-      .order("period_month", { ascending: false })
-      .order("created_at", { ascending: false })
-      .range(from, to),
+      .order("created_at", { ascending: false }),
     params.filters,
   );
 
@@ -201,20 +238,26 @@ export async function getDealsPageData(params: {
     throw new Error(`Failed to load deals: ${error.message}`);
   }
 
-  const totalCount = count ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-
-  return {
-    deals: ((data ?? []) as Array<Record<string, unknown>>).map((row) =>
+  const sortedDeals = sortDeals(
+    ((data ?? []) as Array<Record<string, unknown>>).map((row) =>
       mapDealRecord(row as Record<string, unknown> & { dealers?: { name?: string; code?: number } | null; financiers?: { name?: string } | null }),
     ),
+    params.filters,
+  );
+  const totalCount = sortedDeals.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const page = Math.min(params.filters.page, totalPages);
+  const deals = sortedDeals.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  return {
+    deals,
     dealers: filterOptions.dealers.map((dealer) => ({
       dealer_id: dealer.id,
       dealer_name: dealer.name,
       dealer_code: dealer.code,
     })),
     financiers: filterOptions.financiers,
-    filters: params.filters,
+    filters: { ...params.filters, page },
     totalCount,
     totalPages,
     pageSize: PAGE_SIZE,

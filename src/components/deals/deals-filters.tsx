@@ -79,6 +79,8 @@ export function DealsFilters({
             <option value="no">Original only</option>
           </select>
         </label>
+        <input name="sortBy" type="hidden" value={filters.sortBy} />
+        <input name="sortDirection" type="hidden" value={filters.sortDirection} />
         <input name="page" type="hidden" value="1" />
         <div className="filter-panel-actions">
           <button className="action-button" type="submit">

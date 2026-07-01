@@ -779,6 +779,24 @@ textarea {
   color: var(--muted);
 }
 
+.table-sort-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.table-sort-link:hover,
+.table-sort-link:focus-visible {
+  color: var(--accent);
+}
+
+.table-sort-indicator {
+  font-size: 10px;
+  line-height: 1;
+}
+
 .masters-table tbody tr {
   transition: background-color 0.15s var(--ease);
 }

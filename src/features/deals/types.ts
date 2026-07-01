@@ -1,5 +1,15 @@
 import type { DealRow, FinancierRow, PartnerRow, TableRow } from "@/types/database";
 
+export type DealSortKey =
+  | "period"
+  | "dealer"
+  | "financier"
+  | "vehicle"
+  | "saleDate"
+  | "netGross"
+  | "commission"
+  | "dealProfit";
+
 export interface DealFilters {
   periodMonth: string;
   dealerId: string;
@@ -8,6 +18,8 @@ export interface DealFilters {
   make: string;
   model: string;
   isManuallyEdited: "all" | "yes" | "no";
+  sortBy: DealSortKey;
+  sortDirection: "asc" | "desc";
   page: number;
 }
 
