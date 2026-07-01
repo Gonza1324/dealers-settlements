@@ -74,7 +74,6 @@ export const expenseSchema = z
     id: z.string().uuid().optional().or(z.literal("")).default(""),
     recurringTemplateId: optionalIdField,
     categoryId: optionalIdField,
-    description: z.string().trim().min(1, "Description is required."),
     amount: z.coerce.number().min(0, "Amount must be zero or greater."),
     expenseDate: requiredDateField,
     periodMonth: z.preprocess(normalizeMonthStart, requiredDateField),

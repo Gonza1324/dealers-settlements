@@ -87,7 +87,6 @@ export interface ExpenseFormValues {
   id?: string;
   recurringTemplateId: string;
   categoryId: string;
-  description: string;
   amount: string;
   expenseDate: string;
   periodMonth: string;

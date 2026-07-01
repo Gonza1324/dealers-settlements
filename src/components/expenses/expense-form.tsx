@@ -18,7 +18,6 @@ function buildInitialValues(expense?: ExpenseListRecord | null): ExpenseFormValu
     id: expense?.id,
     recurringTemplateId: expense?.recurring_template_id ?? "",
     categoryId: expense?.category_id ?? "",
-    description: expense?.description ?? "",
     amount: expense?.amount ?? "",
     expenseDate: expense?.expense_date ?? "",
     periodMonth: expense?.period_month?.slice(0, 7) ?? "",
@@ -86,7 +85,6 @@ export function ExpenseForm({
       ...current,
       recurringTemplateId: template.id,
       categoryId: template.categoryId ?? current.categoryId,
-      description: template.defaultDescription ?? current.description,
       amount: String(template.defaultAmount),
       scopeType: template.scopeType,
       singleDealerId: template.selectedDealerIds[0] ?? "",
@@ -144,17 +142,6 @@ export function ExpenseForm({
                 </option>
               ))}
             </select>
-          </label>
-          <label className="field">
-            <span>Description</span>
-            <input
-              disabled={!canEdit}
-              name="description"
-              onChange={(event) =>
-                setValues((current) => ({ ...current, description: event.target.value }))
-              }
-              value={values.description}
-            />
           </label>
           <label className="field">
             <span>Amount</span>
