@@ -797,6 +797,73 @@ textarea {
   line-height: 1;
 }
 
+.deals-results-panel .masters-section-header {
+  margin-bottom: 28px;
+}
+
+.deals-results-table {
+  min-width: 1420px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.deals-results-table th {
+  padding: 16px 12px;
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.deals-results-table td {
+  padding: 19px 12px;
+}
+
+.deals-results-table th:nth-child(2),
+.deals-results-table .deal-dealer-cell {
+  min-width: 130px;
+}
+
+.deals-results-table th:nth-child(3),
+.deals-results-table .deal-financier-cell {
+  min-width: 150px;
+}
+
+.deals-results-table th:nth-child(5),
+.deals-results-table .deal-vehicle-cell {
+  min-width: 210px;
+}
+
+.deals-results-table th:nth-child(7),
+.deals-results-table th:nth-child(8),
+.deals-results-table th:nth-child(9),
+.deals-results-table .deal-number-cell {
+  text-align: right;
+}
+
+.deals-results-table .deal-number-cell {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.deals-results-table .deal-date-cell,
+.deals-results-table .deal-vin-cell,
+.deals-results-table .deal-status-cell,
+.deals-results-table .deal-actions-cell {
+  white-space: nowrap;
+}
+
+.deals-results-table .deal-actions-cell .ghost-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.deals-results-table .small-text {
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
 .masters-table tbody tr {
   transition: background-color 0.15s var(--ease);
 }

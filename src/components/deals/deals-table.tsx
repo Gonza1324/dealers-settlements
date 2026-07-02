@@ -87,7 +87,7 @@ export function DealsTable({
   }
 
   return (
-    <section className="panel">
+    <section className="panel deals-results-panel">
       <div className="masters-section-header">
         <div>
           <p className="eyebrow">Consolidated deals</p>
@@ -99,6 +99,7 @@ export function DealsTable({
       </div>
 
       <DataTable
+        className="deals-results-table"
         columns={[
           sortableHeading(filters, "period", "Period"),
           sortableHeading(filters, "dealer", "Dealer"),
@@ -115,26 +116,26 @@ export function DealsTable({
       >
         {deals.map((deal) => (
           <tr key={deal.id}>
-            <td>{deal.period_month}</td>
-            <td>
+            <td className="deal-date-cell">{deal.period_month}</td>
+            <td className="deal-dealer-cell">
               {deal.dealer_name}
               <div className="muted small-text">Code {deal.dealer_code}</div>
             </td>
-            <td>{deal.financier_name ?? "-"}</td>
-            <td>{deal.vin_value}</td>
-            <td>
+            <td className="deal-financier-cell">{deal.financier_name ?? "-"}</td>
+            <td className="deal-vin-cell">{deal.vin_value}</td>
+            <td className="deal-vehicle-cell">
               {deal.year_value ?? "-"} {deal.make_value} {deal.model_value}
             </td>
-            <td>{deal.sale_value}</td>
-            <td>{deal.net_gross_value}</td>
-            <td>{deal.commission_amount}</td>
-            <td>{deal.deal_profit}</td>
-            <td>
+            <td className="deal-date-cell">{deal.sale_value}</td>
+            <td className="deal-number-cell">{deal.net_gross_value}</td>
+            <td className="deal-number-cell">{deal.commission_amount}</td>
+            <td className="deal-number-cell">{deal.deal_profit}</td>
+            <td className="deal-status-cell">
               <StatusPill tone={deal.is_manually_edited ? "warning" : "muted"}>
                 {deal.is_manually_edited ? "manual" : "original"}
               </StatusPill>
             </td>
-            <td>
+            <td className="deal-actions-cell">
               <Link className="ghost-button" href={`/deals/${deal.id}`}>
                 View detail
               </Link>
