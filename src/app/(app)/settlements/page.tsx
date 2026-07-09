@@ -37,7 +37,7 @@ export default async function SettlementsPage({
       {data.currentRun && <RunSummary run={data.currentRun} />}
       <SettlementsRunsTable runs={data.runs} />
       {data.currentRun && (
-        <div className="grid two" style={{ marginTop: 24 }}>
+        <div style={{ display: "grid", gap: 24, marginTop: 24 }}>
           <DealerResultsTable results={data.currentDealerResults} />
           <PartnerResultsTable
             canEditPayouts={canRun}
