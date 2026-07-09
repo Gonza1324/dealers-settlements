@@ -1,4 +1,5 @@
 import type { MonthlyCalculationRunRecord } from "@/features/settlements/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function RunSummary({
   run,
@@ -17,7 +18,7 @@ export function RunSummary({
       </article>
       <article className="stat-card">
         <p className="eyebrow">Net total</p>
-        <h2 style={{ margin: 0 }}>{run.summary_json.netTotal}</h2>
+        <h2 style={{ margin: 0 }}>{formatCurrency(run.summary_json.netTotal)}</h2>
       </article>
       <article className="stat-card">
         <p className="eyebrow">Errors</p>

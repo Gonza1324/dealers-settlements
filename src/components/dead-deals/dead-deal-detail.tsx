@@ -1,4 +1,5 @@
 import type { DeadDealListRecord } from "@/features/dead-deals/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function DeadDealDetail({
   deadDeal,
@@ -30,15 +31,15 @@ export function DeadDealDetail({
         </div>
         <div>
           <p className="eyebrow">Net gross</p>
-          <p style={{ margin: 0 }}>{deadDeal.net_gross_value}</p>
+          <p style={{ margin: 0 }}>{formatCurrency(deadDeal.net_gross_value)}</p>
         </div>
         <div>
           <p className="eyebrow">Commission</p>
-          <p style={{ margin: 0 }}>{deadDeal.commission_amount}</p>
+          <p style={{ margin: 0 }}>{formatCurrency(deadDeal.commission_amount)}</p>
         </div>
         <div>
           <p className="eyebrow">Dealer profit</p>
-          <p style={{ margin: 0 }}>{deadDeal.dealer_profit}</p>
+          <p style={{ margin: 0 }}>{formatCurrency(deadDeal.dealer_profit)}</p>
         </div>
       </div>
     </section>

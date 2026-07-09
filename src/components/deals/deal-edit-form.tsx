@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { saveDealManualEdit } from "@/features/deals/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { DealListRecord } from "@/features/deals/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function DealEditForm({
   deal,
@@ -93,8 +94,12 @@ export function DealEditForm({
         </label>
         <div className="inline-alert" style={{ gridColumn: "1 / -1" }}>
           <p className="eyebrow">Calculated by database</p>
-          <p style={{ margin: "0 0 6px" }}>Commission: {deal.commission_amount}</p>
-          <p style={{ margin: 0 }}>Deal profit: {deal.deal_profit}</p>
+          <p style={{ margin: "0 0 6px" }}>
+            Commission: {formatCurrency(deal.commission_amount)}
+          </p>
+          <p style={{ margin: 0 }}>
+            Deal profit: {formatCurrency(deal.deal_profit)}
+          </p>
         </div>
         {canEdit && (
           <button className="action-button" type="submit">

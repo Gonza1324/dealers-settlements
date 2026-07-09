@@ -1,12 +1,5 @@
 import type { DealerPerformanceRecord, ExpenseByDealerRecord } from "@/features/dashboard/types";
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  }).format(value);
-}
+import { formatCurrency } from "@/lib/utils/format";
 
 export function NetProfitByDealerTable({
   title,

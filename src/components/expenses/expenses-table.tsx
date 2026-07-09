@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
 import { archiveExpense } from "@/features/expenses/actions";
 import type { ExpenseListRecord } from "@/features/expenses/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function ExpensesTable({
   expenses,
@@ -63,7 +64,7 @@ export function ExpensesTable({
                 </div>
               )}
             </td>
-            <td>{expense.amount}</td>
+            <td>{formatCurrency(expense.amount)}</td>
             <td>
               <StatusPill tone="muted">{expense.scope_type}</StatusPill>
             </td>

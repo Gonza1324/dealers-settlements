@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
 import { PayoutForm } from "@/components/settlements/payout-form";
 import type { PartnerMonthlyResultRecord } from "@/features/settlements/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function PartnerResultsTable({
   canEditPayouts,
@@ -48,7 +49,7 @@ export function PartnerResultsTable({
               <div className="small-text muted">{result.partner_user_email ?? ""}</div>
             </td>
             <td>{result.share_percentage_snapshot}</td>
-            <td>{result.partner_amount}</td>
+            <td>{formatCurrency(result.partner_amount)}</td>
             <td>
               <StatusPill tone={result.payout_status === "paid" ? "success" : "warning"}>
                 {result.payout_status}

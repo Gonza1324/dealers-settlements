@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ExpenseListRecord } from "@/features/expenses/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function ExpenseDetail({
   expense,
@@ -25,7 +26,7 @@ export function ExpenseDetail({
         </div>
         <div>
           <p className="eyebrow">Amount</p>
-          <p>{expense.amount}</p>
+          <p>{formatCurrency(expense.amount)}</p>
         </div>
         <div>
           <p className="eyebrow">Scope</p>

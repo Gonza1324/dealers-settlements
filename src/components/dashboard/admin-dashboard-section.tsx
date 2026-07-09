@@ -9,14 +9,7 @@ import {
 import { PayoutSummaryCard } from "@/components/dashboard/payout-summary-card";
 import { TopFinanciersTable } from "@/components/dashboard/top-financiers-table";
 import type { DashboardPageData } from "@/features/dashboard/types";
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  }).format(value);
-}
+import { formatCurrency } from "@/lib/utils/format";
 
 export function AdminDashboardSection({
   data,

@@ -1,6 +1,7 @@
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { DealerMonthlyResultRecord } from "@/features/settlements/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function DealerResultsTable({
   results,
@@ -36,9 +37,9 @@ export function DealerResultsTable({
               {result.dealer_name}
               <div className="small-text muted">Code {result.dealer_code}</div>
             </td>
-            <td>{result.gross_profit_total}</td>
-            <td>{result.expense_total}</td>
-            <td>{result.net_profit_total}</td>
+            <td>{formatCurrency(result.gross_profit_total)}</td>
+            <td>{formatCurrency(result.expense_total)}</td>
+            <td>{formatCurrency(result.net_profit_total)}</td>
           </tr>
         ))}
       </DataTable>

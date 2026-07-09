@@ -3,6 +3,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
 import type { DealFilters, DealListRecord, DealSortKey } from "@/features/deals/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 function buildPageHref(filters: DealFilters, page: number) {
   const params = new URLSearchParams();
@@ -127,9 +128,9 @@ export function DealsTable({
               {deal.year_value ?? "-"} {deal.make_value} {deal.model_value}
             </td>
             <td className="deal-date-cell">{deal.sale_value}</td>
-            <td className="deal-number-cell">{deal.net_gross_value}</td>
-            <td className="deal-number-cell">{deal.commission_amount}</td>
-            <td className="deal-number-cell">{deal.deal_profit}</td>
+            <td className="deal-number-cell">{formatCurrency(deal.net_gross_value)}</td>
+            <td className="deal-number-cell">{formatCurrency(deal.commission_amount)}</td>
+            <td className="deal-number-cell">{formatCurrency(deal.deal_profit)}</td>
             <td className="deal-status-cell">
               <StatusPill tone={deal.is_manually_edited ? "warning" : "muted"}>
                 {deal.is_manually_edited ? "manual" : "original"}

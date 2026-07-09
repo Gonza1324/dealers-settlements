@@ -1,5 +1,6 @@
 import { DataTable } from "@/components/ui/data-table";
 import type { ExpenseAllocationRecord } from "@/features/expenses/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function ExpenseAllocationsTable({
   allocations,
@@ -21,7 +22,7 @@ export function ExpenseAllocationsTable({
           <tr key={allocation.id}>
             <td>{allocation.dealer_name}</td>
             <td>{allocation.dealer_code}</td>
-            <td>{allocation.allocated_amount}</td>
+            <td>{formatCurrency(allocation.allocated_amount)}</td>
           </tr>
         ))}
       </DataTable>

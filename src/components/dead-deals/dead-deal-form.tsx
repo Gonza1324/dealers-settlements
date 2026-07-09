@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { saveDeadDeal } from "@/features/dead-deals/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { DeadDealListRecord } from "@/features/dead-deals/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function DeadDealForm({
   canEdit,
@@ -82,10 +83,12 @@ export function DeadDealForm({
         <div className="inline-alert" style={{ gridColumn: "1 / -1" }}>
           <p className="eyebrow">Calculated by database</p>
           <p style={{ margin: "0 0 6px" }}>
-            Commission: {deadDeal?.commission_amount ?? "20% of net gross"}
+            Commission:{" "}
+            {deadDeal ? formatCurrency(deadDeal.commission_amount) : "20% of net gross"}
           </p>
           <p style={{ margin: 0 }}>
-            Dealer profit: {deadDeal?.dealer_profit ?? "Net gross minus commission"}
+            Dealer profit:{" "}
+            {deadDeal ? formatCurrency(deadDeal.dealer_profit) : "Net gross minus commission"}
           </p>
         </div>
         {canEdit && (

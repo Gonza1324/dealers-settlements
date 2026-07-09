@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { DeadDealListRecord } from "@/features/dead-deals/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function DeadDealsTable({
   deadDeals,
@@ -47,9 +48,9 @@ export function DeadDealsTable({
             </td>
             <td>{deadDeal.financier_name}</td>
             <td>{deadDeal.vin_value}</td>
-            <td>{deadDeal.net_gross_value}</td>
-            <td>{deadDeal.commission_amount}</td>
-            <td>{deadDeal.dealer_profit}</td>
+            <td>{formatCurrency(deadDeal.net_gross_value)}</td>
+            <td>{formatCurrency(deadDeal.commission_amount)}</td>
+            <td>{formatCurrency(deadDeal.dealer_profit)}</td>
             <td>
               <Link className="ghost-button" href={`/dead-deals/${deadDeal.id}`}>
                 View detail

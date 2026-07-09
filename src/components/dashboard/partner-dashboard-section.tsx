@@ -8,14 +8,7 @@ import {
 } from "@/components/dashboard/net-profit-by-dealer-table";
 import { PayoutSummaryCard } from "@/components/dashboard/payout-summary-card";
 import type { DashboardPageData } from "@/features/dashboard/types";
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  }).format(value);
-}
+import { formatCurrency } from "@/lib/utils/format";
 
 export function PartnerDashboardSection({
   data,

@@ -3,6 +3,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
 import type { MonthlyCalculationRunRecord } from "@/features/settlements/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function SettlementsRunsTable({
   runs,
@@ -49,7 +50,9 @@ export function SettlementsRunsTable({
             <td>
               <div className="small-text">Dealers: {run.summary_json.dealersCalculated}</div>
               <div className="small-text">Partners: {run.summary_json.partnersCalculated}</div>
-              <div className="small-text">Net total: {run.summary_json.netTotal}</div>
+              <div className="small-text">
+                Net total: {formatCurrency(run.summary_json.netTotal)}
+              </div>
               <div className="small-text">Errors: {run.summary_json.errorCount}</div>
             </td>
             <td>
