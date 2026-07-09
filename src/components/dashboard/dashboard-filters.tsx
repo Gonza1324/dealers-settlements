@@ -1,4 +1,5 @@
 import type { DashboardFilters, DashboardOption } from "@/features/dashboard/types";
+import { MonthFilterField } from "@/components/dashboard/month-filter-field";
 
 export function DashboardFiltersForm({
   filters,
@@ -31,7 +32,7 @@ export function DashboardFiltersForm({
       <form action="/dashboard" className="dashboard-filters-form" method="get">
         <label className="field compact">
           <span>Period</span>
-          <input defaultValue={filters.periodMonth} name="periodMonth" type="month" />
+          <MonthFilterField periodMonth={filters.periodMonth} />
         </label>
         <label className="field compact">
           <span>Dealer</span>
