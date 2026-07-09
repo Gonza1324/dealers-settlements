@@ -66,22 +66,6 @@ export function Sidebar({
 
   return (
     <aside className="sidebar">
-      <div className="panel" style={{ padding: 16, marginTop: 0 }}>
-        <p className="eyebrow" style={{ marginBottom: 4 }}>
-          Signed in
-        </p>
-        <h3 style={{ margin: "0 0 2px", fontSize: 18, lineHeight: 1.15 }}>
-          {profile.fullName}
-        </h3>
-        <p className="muted" style={{ margin: 0, lineHeight: 1.2 }}>
-          {profile.role}
-        </p>
-        <form action="/logout" method="post" style={{ marginTop: 12 }}>
-          <button className="ghost-button" style={{ width: "100%" }} type="submit">
-            Sign out
-          </button>
-        </form>
-      </div>
       <div className="sidebar-nav-groups">
         {sortedGroups.map(([group, items]) => (
           <section key={group}>
@@ -90,7 +74,15 @@ export function Sidebar({
           </section>
         ))}
       </div>
-      <p className="sidebar-footer-note">Dealers Settlements</p>
+      <div className="sidebar-account-card">
+        <h3>{profile.fullName}</h3>
+        <p>{profile.role}</p>
+        <form action="/logout" method="post">
+          <button className="ghost-button sidebar-sign-out-button" type="submit">
+            Sign out
+          </button>
+        </form>
+      </div>
     </aside>
   );
 }
