@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DashboardInsights } from "@/components/dashboard/dashboard-insights";
 import { DealerDetailReport } from "@/components/dashboard/dealer-detail-report";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { MonthlyComparisonCard } from "@/components/dashboard/monthly-comparison-card";
@@ -41,6 +42,8 @@ export function AdminDashboardSection({
           value={formatCurrency(data.summary.paidPayoutAmount)}
         />
       </section>
+
+      <DashboardInsights data={data} />
 
       <section className="dashboard-primary-row">
         <section className="panel dashboard-highlight-card">

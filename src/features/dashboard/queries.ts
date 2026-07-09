@@ -526,6 +526,8 @@ export async function getDashboardPageData(params: {
       totalNetProfit: summary.totalNetProfit,
       totalExpense: summary.totalExpense,
       totalGrossProfit: summary.totalGrossProfit,
+      dealCount: filteredDeals.length,
+      deadDealCount: filteredDeadDeals.length,
       visibleDealerCount: dealerPerformance.length,
       pendingPayoutCount: pendingPayoutRows.length,
       paidPayoutCount: paidPayoutRows.length,

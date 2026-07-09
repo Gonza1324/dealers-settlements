@@ -114,6 +114,8 @@ export type DashboardSummary = {
   totalNetProfit: number;
   totalExpense: number;
   totalGrossProfit: number;
+  dealCount: number;
+  deadDealCount: number;
   visibleDealerCount: number;
   pendingPayoutCount: number;
   paidPayoutCount: number;
