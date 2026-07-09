@@ -62,20 +62,6 @@ export default async function DashboardPage({
 
   return (
     <>
-      <section className="page-intro">
-        <div className="page-intro-copy">
-          <p className="eyebrow">Operations dashboard</p>
-          <h1 className="page-intro-title">
-            {profile.role === "super_admin" ? "Business overview" : "Partner overview"}
-          </h1>
-          <p className="page-intro-description">
-            {profile.role === "super_admin"
-              ? "Track monthly net profit, payout exposure, dealer performance and settlement readiness from one operational view."
-              : "Monitor your dealer performance, allocated expenses, payout status and the operating records behind them."}
-          </p>
-        </div>
-      </section>
-
       <DashboardFiltersForm
         dealers={data.dealerOptions}
         financiers={data.financierOptions}
