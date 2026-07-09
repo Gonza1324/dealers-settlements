@@ -109,6 +109,7 @@ export type SettlementPaymentFormValues = {
 
 export type SettlementPartnerScope = {
   dealerId: string;
+  partnerId: string;
   validFrom: string;
   validTo: string | null;
 };

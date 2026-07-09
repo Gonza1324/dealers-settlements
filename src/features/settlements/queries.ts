@@ -142,7 +142,7 @@ async function getPartnerShareScopes(profileId: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("dealer_partner_shares")
-    .select("dealer_id, valid_from, valid_to, partners!inner(user_id)")
+    .select("dealer_id, partner_id, valid_from, valid_to, partners!inner(user_id)")
     .is("deleted_at", null)
     .eq("partners.user_id", profileId);
 
@@ -152,6 +152,7 @@ async function getPartnerShareScopes(profileId: string) {
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
     dealerId: String(row.dealer_id),
+    partnerId: String(row.partner_id),
     validFrom: String(row.valid_from),
     validTo: row.valid_to ? String(row.valid_to) : null,
   })) satisfies SettlementPartnerScope[];
@@ -167,6 +168,19 @@ function dealerVisibleToPartner(
       scope.dealerId === dealerId &&
       periodMonth >= scope.validFrom &&
       (scope.validTo === null || periodMonth <= scope.validTo),
+  );
+}
+
+function partnerResultVisibleToPartner(
+  result: PartnerMonthlyResultRecord,
+  scopes: SettlementPartnerScope[],
+) {
+  return scopes.some(
+    (scope) =>
+      scope.dealerId === result.dealer_id &&
+      scope.partnerId === result.partner_id &&
+      result.period_month >= scope.validFrom &&
+      (scope.validTo === null || result.period_month <= scope.validTo),
   );
 }
 
@@ -258,7 +272,7 @@ export async function getSettlementsPageData(params: {
       dealerVisibleToPartner(result.dealer_id, result.period_month, scopes),
     );
     partnerResults = partnerResults.filter((result) =>
-      dealerVisibleToPartner(result.dealer_id, result.period_month, scopes),
+      partnerResultVisibleToPartner(result, scopes),
     );
     const visibleRunIds = new Set([
       ...dealerResults.map((result) => result.calculation_run_id),
@@ -359,7 +373,7 @@ export async function getSettlementRunDetailData(params: {
       dealerVisibleToPartner(result.dealer_id, result.period_month, scopes),
     );
     partnerResults = partnerResults.filter((result) =>
-      dealerVisibleToPartner(result.dealer_id, result.period_month, scopes),
+      partnerResultVisibleToPartner(result, scopes),
     );
   }
 
