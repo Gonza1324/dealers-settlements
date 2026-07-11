@@ -443,7 +443,7 @@ export async function saveAssignment(
 
   if (overlap) {
     return fail(
-      "This financier already has an overlapping dealer assignment for the selected date range.",
+      "This financista already has an overlapping dealer assignment for the selected date range.",
     );
   }
 

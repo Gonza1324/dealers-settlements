@@ -49,7 +49,7 @@ export function resolveAssignmentMatch(params: {
       warnings.push({
         code: "ambiguous_financier_name",
         message:
-          "Finance value matches multiple financiers by name. Pick the correct financier manually.",
+          "Finance value matches multiple financistas by name. Pick the correct financista manually.",
         field: "financeRaw",
         severity: "warning",
       });
@@ -60,7 +60,7 @@ export function resolveAssignmentMatch(params: {
     warnings.push({
       code: "unknown_financier_alias",
       message:
-        "Finance value was not matched to a configured financier alias or financier name.",
+        "Finance value was not matched to a configured financista alias or financista name.",
       field: "financeRaw",
       severity: "warning",
     });
@@ -91,7 +91,7 @@ export function resolveAssignmentMatch(params: {
     warnings.push({
       code: "missing_dealer_assignment",
       message:
-        "The financier was matched, but no dealer assignment is active for the selected month.",
+        "The financista was matched, but no dealer assignment is active for the selected month.",
       field: "financeRaw",
       severity: "warning",
     });
@@ -109,7 +109,7 @@ export function resolveAssignmentMatch(params: {
     warnings.push({
       code: "ambiguous_dealer_assignment",
       message:
-        "Multiple dealer assignments matched this financier for the selected month. Review it manually.",
+        "Multiple dealer assignments matched this financista for the selected month. Review it manually.",
       field: "financeRaw",
       severity: "warning",
     });

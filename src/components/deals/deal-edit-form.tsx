@@ -40,13 +40,13 @@ export function DealEditForm({
           </select>
         </label>
         <label className="field">
-          <span>Financier</span>
+          <span>Financista</span>
           <select
             defaultValue={deal.financier_id ?? ""}
             disabled={!canEdit}
             name="financierId"
           >
-            <option value="">No financier</option>
+            <option value="">No financista</option>
             {financiers.map((financier) => (
               <option key={financier.id} value={financier.id}>
                 {financier.name}

@@ -41,7 +41,7 @@ export function DealerDetailReport({
               <tr>
                 <th>Deals</th>
                 <th>Date</th>
-                <th>Financier</th>
+                <th>Financista</th>
                 <th>Net</th>
               </tr>
             </thead>

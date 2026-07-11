@@ -26,7 +26,7 @@ export function DeadDealForm({
         {deadDeal ? `Dead deal ${deadDeal.vin_value}` : "Create a dead deal"}
       </h2>
       <p className="muted" style={{ marginTop: 0 }}>
-        Commission is fixed at 20% for the financier. Dealer profit is net gross minus that commission.
+        Commission is fixed at 20% for the financista. Dealer profit is net gross minus that commission.
       </p>
 
       <form action={formAction} className="masters-form">
@@ -43,13 +43,13 @@ export function DeadDealForm({
           </select>
         </label>
         <label className="field">
-          <span>Financier</span>
+          <span>Financista</span>
           <select
             defaultValue={deadDeal?.financier_id ?? ""}
             disabled={!canEdit}
             name="financierId"
           >
-            <option value="">Select financier</option>
+            <option value="">Select financista</option>
             {financiers.map((financier) => (
               <option key={financier.id} value={financier.id}>
                 {financier.name}

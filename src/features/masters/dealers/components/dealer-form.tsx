@@ -81,7 +81,7 @@ function DealerEditor({
             description={
               showArchived
                 ? "Archived dealers will appear here."
-                : "Create the first dealer to start managing shares and financier assignments."
+                : "Create the first dealer to start managing shares and financista assignments."
             }
           />
         ) : (
@@ -398,14 +398,14 @@ function AssignmentsEditor({
       <article className="panel">
         <div className="masters-section-header">
           <div>
-            <p className="eyebrow">Financier assignments</p>
+            <p className="eyebrow">Financista assignments</p>
             <h2 style={{ marginTop: 0 }}>Dealer assignment ranges</h2>
           </div>
         </div>
         <DataTable
           columns={[
             { key: "dealer", label: "Dealer" },
-            { key: "financier", label: "Financier" },
+            { key: "financier", label: "Financista" },
             { key: "from", label: "Start date" },
             { key: "to", label: "End date" },
             { key: "actions", label: "Actions" },
@@ -434,7 +434,7 @@ function AssignmentsEditor({
                     >
                       <ConfirmSubmitButton
                         className="ghost-button danger"
-                        confirmMessage={`Remove the financier assignment ${assignment.financier_name} -> ${assignment.dealer_name}?`}
+                        confirmMessage={`Remove the financista assignment ${assignment.financier_name} -> ${assignment.dealer_name}?`}
                         pendingLabel="Removing..."
                       >
                         Remove
@@ -473,7 +473,7 @@ function AssignmentsEditor({
               </select>
             </label>
             <label className="field">
-              <span>Financier</span>
+              <span>Financista</span>
               <select
                 defaultValue={
                   selectedAssignment?.financier_id ?? financiers[0]?.id ?? ""

@@ -26,7 +26,7 @@ export async function saveFinancier(
   });
 
   if (!parsed.success) {
-    return fail(parsed.error.issues[0]?.message ?? "Invalid financier form.");
+    return fail(parsed.error.issues[0]?.message ?? "Invalid financista form.");
   }
 
   const supabase = createSupabaseAdminClient();
@@ -59,7 +59,7 @@ export async function saveFinancier(
   );
 
   if (duplicate) {
-    return fail("Financier name must be unique.");
+    return fail("Financista name must be unique.");
   }
 
   const operation = payload.id
@@ -107,7 +107,7 @@ export async function saveFinancier(
 
   return {
     success: true,
-    message: payload.id ? "Financier updated." : "Financier created.",
+    message: payload.id ? "Financista updated." : "Financista created.",
     error: null,
   };
 }
@@ -156,7 +156,7 @@ export async function saveFinancierAlias(
   );
 
   if (duplicate) {
-    return fail("This normalized alias is already assigned to another financier.");
+    return fail("This normalized alias is already assigned to another financista.");
   }
 
   const operation = parsed.data.id

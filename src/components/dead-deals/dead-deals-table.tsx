@@ -14,7 +14,7 @@ export function DeadDealsTable({
       <section className="panel">
         <EmptyState
           title="No dead deals found"
-          description="Try another month, dealer, financier, or VIN filter."
+          description="Try another month, dealer, financista, or VIN filter."
         />
       </section>
     );
@@ -29,7 +29,7 @@ export function DeadDealsTable({
         columns={[
           { key: "date", label: "Date" },
           { key: "dealer", label: "Dealer" },
-          { key: "financier", label: "Financier" },
+          { key: "financier", label: "Financista" },
           { key: "vin", label: "VIN" },
           { key: "netGross", label: "Net gross" },
           { key: "commission", label: "Commission" },

@@ -71,21 +71,21 @@ export function FinanciersPageContent({
         <article className="panel">
           <div className="masters-toolbar">
             <div>
-              <p className="eyebrow">Financiers</p>
-              <h2 style={{ marginTop: 0 }}>Financier registry</h2>
+              <p className="eyebrow">Financistas</p>
+              <h2 style={{ marginTop: 0 }}>Financista registry</h2>
             </div>
             <input
               className="masters-filter"
               onChange={(event) => setFilter(event.target.value)}
-              placeholder="Filter financiers"
+              placeholder="Filter financistas"
               value={filter}
             />
           </div>
 
           {filteredFinanciers.length === 0 ? (
             <EmptyState
-              title="No financiers yet"
-              description="Create the first financier before setting aliases or dealer assignments."
+              title="No financistas yet"
+              description="Create the first financista before setting aliases or dealer assignments."
             />
           ) : (
             <DataTable
@@ -120,7 +120,7 @@ export function FinanciersPageContent({
 
         <article className="panel">
           <p className="eyebrow">
-            {selectedFinancier ? "Edit financier" : "New financier"}
+            {selectedFinancier ? "Edit financista" : "New financista"}
           </p>
           <form action={financierAction} className="masters-form">
             <input name="id" type="hidden" value={selectedFinancier?.id ?? ""} />
@@ -139,7 +139,7 @@ export function FinanciersPageContent({
               </select>
             </label>
             <button className="action-button" type="submit">
-              {selectedFinancier ? "Save financier" : "Create financier"}
+              {selectedFinancier ? "Save financista" : "Create financista"}
             </button>
             {financierState.error && (
               <p className="error-text">{financierState.error}</p>
@@ -156,12 +156,12 @@ export function FinanciersPageContent({
           <div className="masters-section-header">
             <div>
               <p className="eyebrow">Aliases</p>
-              <h2 style={{ marginTop: 0 }}>Financier aliases</h2>
+              <h2 style={{ marginTop: 0 }}>Financista aliases</h2>
             </div>
           </div>
           <DataTable
             columns={[
-              { key: "financier", label: "Financier" },
+              { key: "financier", label: "Financista" },
               { key: "alias", label: "Alias" },
               { key: "normalized", label: "Normalized" },
               { key: "actions", label: "Actions" },
@@ -206,7 +206,7 @@ export function FinanciersPageContent({
           <form action={aliasAction} className="masters-form">
             <input name="id" type="hidden" value={selectedAlias?.id ?? ""} />
             <label className="field">
-              <span>Financier</span>
+              <span>Financista</span>
               <select
                 name="financier_id"
                 onChange={(event) => setSelectedAliasFinancierId(event.target.value)}

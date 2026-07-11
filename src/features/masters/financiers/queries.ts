@@ -19,7 +19,7 @@ export async function getFinanciersPageData() {
     ]);
 
   if (financiersError || aliasesError) {
-    throw new Error("Failed to load financiers page data.");
+    throw new Error("Failed to load financistas page data.");
   }
 
   return {

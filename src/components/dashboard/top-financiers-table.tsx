@@ -9,12 +9,12 @@ export function TopFinanciersTable({
   return (
     <section className="panel">
       <p className="eyebrow">Report</p>
-      <h2 style={{ marginTop: 0 }}>Top financiers</h2>
+      <h2 style={{ marginTop: 0 }}>Top financistas</h2>
       <div className="dashboard-table-wrapper registry-table-scroll">
         <table className="dashboard-table">
           <thead>
             <tr>
-              <th>Financier</th>
+              <th>Financista</th>
               <th>Deals</th>
               <th>Contribution</th>
             </tr>
@@ -30,7 +30,7 @@ export function TopFinanciersTable({
             {rows.length === 0 && (
               <tr>
                 <td className="muted" colSpan={3}>
-                  No financier activity available for the selected period.
+                  No financista activity available for the selected period.
                 </td>
               </tr>
             )}

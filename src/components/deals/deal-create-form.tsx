@@ -32,11 +32,11 @@ export function DealCreateForm({
                 </option>
               ))}
             </select>
-          </label>
-          <label className="field">
-            <span>Financier</span>
+        </label>
+        <label className="field">
+            <span>Financista</span>
             <select defaultValue="" disabled={!canCreate} name="financierId">
-              <option value="">Select financier</option>
+              <option value="">Select financista</option>
               {financiers.map((financier) => (
                 <option key={financier.id} value={financier.id}>
                   {financier.name}

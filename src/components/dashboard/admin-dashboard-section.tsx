@@ -66,7 +66,7 @@ export function AdminDashboardSection({
               <strong>{data.summary.pendingPayoutCount}</strong>
             </article>
             <article className="dashboard-highlight-stat">
-              <span className="small-text muted">Tracked financiers</span>
+              <span className="small-text muted">Tracked financistas</span>
               <strong>{data.topFinanciers.length}</strong>
             </article>
           </div>

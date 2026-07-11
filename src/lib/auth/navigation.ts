@@ -24,7 +24,7 @@ export const BACKOFFICE_NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/financiers",
-    label: "Financiers",
+    label: "Financistas",
     roles: ["super_admin"],
   },
   {

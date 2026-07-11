@@ -13,7 +13,7 @@ export function DashboardFiltersForm({
   const activeFilters = [
     filters.periodMonth && `Period ${filters.periodMonth}`,
     filters.dealerId && "Dealer filtered",
-    filters.financierId && "Financier filtered",
+    filters.financierId && "Financista filtered",
     filters.paymentStatus && `Payment ${filters.paymentStatus}`,
   ].filter(Boolean);
 
@@ -45,7 +45,7 @@ export function DashboardFiltersForm({
           </select>
         </label>
         <label className="field compact">
-          <span>Financier</span>
+          <span>Financista</span>
           <select defaultValue={filters.financierId} name="financierId">
             <option value="">All</option>
             {financiers.map((financier) => (

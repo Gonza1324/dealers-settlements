@@ -74,7 +74,7 @@ export function ImportWizard({ templates }: ImportWizardProps) {
         <h1 className="title">Stage monthly deals before consolidation</h1>
         <p className="subtitle" style={{ maxWidth: 780 }}>
           This flow uploads the source file to Storage, validates structure,
-          parses rows, normalizes financier aliases, detects duplicates and
+          parses rows, normalizes financista aliases, detects duplicates and
           stages everything in `raw_deal_rows` so approved rows can later be
           consolidated into `deals`.
         </p>

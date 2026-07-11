@@ -15,7 +15,7 @@ export const deadDealFiltersSchema = z.object({
 export const deadDealSchema = z.object({
   id: z.string().uuid().optional().or(z.literal("")).default(""),
   dealerId: z.string().uuid("Dealer is required."),
-  financierId: z.string().uuid("Financier is required."),
+  financierId: z.string().uuid("Financista is required."),
   deadDealDate: requiredDateField,
   vinValue: z.string().trim().min(1, "VIN is required."),
   netGrossValue: z.coerce.number().min(0, "Net gross must be zero or greater."),

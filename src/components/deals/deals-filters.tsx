@@ -13,7 +13,7 @@ export function DealsFilters({
   const activeFilters = [
     filters.periodMonth && `Period ${filters.periodMonth}`,
     filters.dealerId && "Dealer",
-    filters.financierId && "Financier",
+    filters.financierId && "Financista",
     filters.vin && "VIN",
     filters.make && "Make",
     filters.model && "Model",
@@ -48,9 +48,9 @@ export function DealsFilters({
           </select>
         </label>
         <label className="field">
-          <span>Financier</span>
+          <span>Financista</span>
           <select defaultValue={filters.financierId} name="financierId">
-            <option value="">All financiers</option>
+            <option value="">All financistas</option>
             {financiers.map((financier) => (
               <option key={financier.id} value={financier.id}>
                 {financier.name}

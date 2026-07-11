@@ -105,7 +105,7 @@ export function DealsTable({
         columns={[
           sortableHeading(filters, "period", "Period"),
           sortableHeading(filters, "dealer", "Dealer"),
-          sortableHeading(filters, "financier", "Financier"),
+          sortableHeading(filters, "financier", "Financista"),
           { key: "vin", label: "VIN" },
           sortableHeading(filters, "vehicle", "Vehicle"),
           sortableHeading(filters, "saleDate", "Sale date"),

@@ -13,7 +13,7 @@ export function DeadDealsFilters({
   const activeFilters = [
     filters.periodMonth && `Period ${filters.periodMonth}`,
     filters.dealerId && "Dealer",
-    filters.financierId && "Financier",
+    filters.financierId && "Financista",
     filters.vin && "VIN",
   ].filter(Boolean);
 
@@ -45,9 +45,9 @@ export function DeadDealsFilters({
           </select>
         </label>
         <label className="field compact">
-          <span>Financier</span>
+          <span>Financista</span>
           <select defaultValue={filters.financierId} name="financierId">
-            <option value="">All financiers</option>
+            <option value="">All financistas</option>
             {financiers.map((financier) => (
               <option key={financier.id} value={financier.id}>
                 {financier.name}

@@ -298,12 +298,12 @@ async function getLookups() {
     ]);
 
   if (aliasError) {
-    throw new Error(`Failed to load financier aliases: ${aliasError.message}`);
+    throw new Error(`Failed to load financista aliases: ${aliasError.message}`);
   }
 
   if (assignmentError) {
     throw new Error(
-      `Failed to load dealer-financier assignments: ${assignmentError.message}`,
+      `Failed to load dealer-financista assignments: ${assignmentError.message}`,
     );
   }
 

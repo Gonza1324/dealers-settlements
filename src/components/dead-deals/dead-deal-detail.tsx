@@ -18,7 +18,7 @@ export function DeadDealDetail({
           </p>
         </div>
         <div>
-          <p className="eyebrow">Financier</p>
+          <p className="eyebrow">Financista</p>
           <p style={{ margin: 0 }}>{deadDeal.financier_name}</p>
         </div>
         <div>
