@@ -17,6 +17,20 @@ const optionalIdField = z.string().uuid().optional().or(z.literal("")).default("
 const requiredDateField = z.preprocess((value) => {
   return typeof value === "string" ? value.trim() : value;
 }, z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date is required."));
+const requiredAmountField = z.preprocess((value) => {
+  if (typeof value === "string" && value.trim() === "") {
+    return null;
+  }
+
+  if (typeof value === "string") {
+    return Number(value);
+  }
+
+  return value;
+}, z.number({
+  error: (issue) =>
+    issue.input === null ? "Amount is required." : "Amount must be a number.",
+}).min(0, "Amount must be zero or greater."));
 
 export const expenseFiltersSchema = z.object({
   periodMonth: z.string().optional().default(""),
@@ -45,13 +59,10 @@ export const expenseRecurringTemplateSchema = z
     isActive: z.preprocess((value) => value === "true" || value === true, z.boolean()),
   })
   .superRefine((value, ctx) => {
-    if (
-      value.scopeType === "single_dealer" &&
-      value.selectedDealerIds.length !== 1
-    ) {
+    if (value.scopeType === "single_dealer" && value.selectedDealerIds.length > 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Select exactly one dealer for single dealer scope.",
+        message: "Select one dealer at most for single dealer scope.",
         path: ["selectedDealerIds"],
       });
     }
@@ -74,7 +85,7 @@ export const expenseSchema = z
     id: z.string().uuid().optional().or(z.literal("")).default(""),
     recurringTemplateId: optionalIdField,
     categoryId: optionalIdField,
-    amount: z.coerce.number().min(0, "Amount must be zero or greater."),
+    amount: requiredAmountField,
     expenseDate: requiredDateField,
     periodMonth: z.preprocess(normalizeMonthStart, requiredDateField),
     scopeType: z.enum(["single_dealer", "selected_dealers", "all_dealers"]),

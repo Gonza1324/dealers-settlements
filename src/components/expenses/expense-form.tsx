@@ -151,6 +151,7 @@ export function ExpenseForm({
               onChange={(event) =>
                 setValues((current) => ({ ...current, amount: event.target.value }))
               }
+              required
               step="0.01"
               type="number"
               value={values.amount}
