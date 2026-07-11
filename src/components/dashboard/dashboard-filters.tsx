@@ -23,7 +23,6 @@ export function DashboardFiltersForm({
         <div>
           <p className="eyebrow">Dashboard filters</p>
           <h2>Refine the visible business picture</h2>
-          <p>Use month, dealer, financier and payout status to focus the dashboard.</p>
         </div>
         <div className="filter-summary">
           {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing default scope"}

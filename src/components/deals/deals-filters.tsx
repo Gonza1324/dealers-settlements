@@ -26,7 +26,6 @@ export function DealsFilters({
         <div>
           <p className="eyebrow">Deals filters</p>
           <h2>Refine consolidated deal results</h2>
-          <p>Filter by month, dealer, financier and vehicle attributes.</p>
         </div>
         <div className="filter-summary">
           {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing all consolidated deals"}

@@ -12,9 +12,6 @@ export function MonthlyComparisonCard({
     <section className="panel">
       <p className="eyebrow">Monthly comparison</p>
       <h2 style={{ marginTop: 0 }}>Net evolution</h2>
-      <p className="muted">
-        Current-run monthly net profit trend for the visible dealers.
-      </p>
 
       {points.length === 0 ? (
         <p className="muted" style={{ marginBottom: 0 }}>

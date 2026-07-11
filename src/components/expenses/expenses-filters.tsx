@@ -23,7 +23,6 @@ export function ExpensesFilters({
         <div>
           <p className="eyebrow">Expenses filters</p>
           <h2>Focus the expense registry</h2>
-          <p>Slice monthly expenses by category, dealer and allocation scope.</p>
         </div>
         <div className="filter-summary">
           {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing all expenses"}

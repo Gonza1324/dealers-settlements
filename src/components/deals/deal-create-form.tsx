@@ -19,9 +19,6 @@ export function DealCreateForm({
     <section className="panel" style={{ marginBottom: 24 }}>
       <p className="eyebrow">Manual load</p>
       <h2 style={{ marginTop: 0 }}>Create a deal manually</h2>
-      <p className="muted" style={{ marginTop: 0 }}>
-        Use the same business fields required by CSV imports and create a consolidated deal directly.
-      </p>
 
       <form action={formAction} className="masters-form">
         <div className="grid two">

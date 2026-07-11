@@ -52,9 +52,6 @@ export function PartnerDashboardSection({
               <h2 className="dashboard-section-title">
                 {data.partnerName ? `${data.partnerName} overview` : "Partner overview"}
               </h2>
-              <p className="dashboard-section-copy">
-                Review dealer performance, related deals, allocated expenses and payout status.
-              </p>
             </div>
             <div className="table-actions">
               <Link className="ghost-button" href="/deals">

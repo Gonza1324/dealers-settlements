@@ -23,23 +23,16 @@ export default async function DashboardPage({
           <div className="page-intro-copy">
             <p className="eyebrow">Operations dashboard</p>
             <h1 className="page-intro-title">Expense operations workspace</h1>
-            <p className="page-intro-description">
-              Focus on recurring templates, categories, monthly expenses and dead deals without the executive overview.
-            </p>
           </div>
         </section>
         <section className="grid two">
           <article className="stat-card">
             <p className="eyebrow">Current role</p>
             <h2 style={{ marginTop: 0 }}>{profile.fullName}</h2>
-            <p className="muted" style={{ marginBottom: 0 }}>
-              Expense admin access is focused on operational spend management.
-            </p>
           </article>
           <article className="stat-card">
             <p className="eyebrow">Quick access</p>
             <h2 style={{ marginTop: 0 }}>Expense operations</h2>
-            <p className="muted">Open the modules you use most often.</p>
             <div className="table-actions">
               <Link className="action-button" href="/expenses">
                 Open expenses

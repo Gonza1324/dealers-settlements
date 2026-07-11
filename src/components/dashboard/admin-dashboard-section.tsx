@@ -51,9 +51,6 @@ export function AdminDashboardSection({
             <div>
               <p className="eyebrow">Quick action</p>
               <h2 className="dashboard-section-title">Current month settlement</h2>
-              <p className="dashboard-section-copy">
-                Jump straight into the settlement run and payout controls for the selected month.
-              </p>
             </div>
             <Link className="action-button" href={data.quickSettlementHref}>
               Open settlements

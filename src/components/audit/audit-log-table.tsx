@@ -30,7 +30,6 @@ export function AuditLogTable({ data }: { data: AuditPageData }) {
           <div>
             <p className="eyebrow">Audit filters</p>
             <h2>Trace sensitive changes faster</h2>
-            <p>Filter the audit trail by entity table and action type.</p>
           </div>
           <div className="filter-summary">
             {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing full audit trail"}

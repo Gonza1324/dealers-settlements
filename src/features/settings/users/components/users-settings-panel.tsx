@@ -111,10 +111,6 @@ export function UsersSettingsPanel({ users }: { users: SettingsUserRecord[] }) {
           <div>
             <p className="eyebrow">Users</p>
             <h2 style={{ marginTop: 0 }}>Access management</h2>
-            <p className="muted" style={{ marginBottom: 0 }}>
-              Manage backoffice users, roles, activation state, and password reset
-              emails.
-            </p>
           </div>
           <input
             className="masters-filter"

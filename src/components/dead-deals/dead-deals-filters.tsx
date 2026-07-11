@@ -23,7 +23,6 @@ export function DeadDealsFilters({
         <div>
           <p className="eyebrow">Dead deals filters</p>
           <h2>Narrow down manual dead deal records</h2>
-          <p>Review the manual registry by month, dealer, financier and VIN.</p>
         </div>
         <div className="filter-summary">
           {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing all dead deals"}
