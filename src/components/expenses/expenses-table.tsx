@@ -38,69 +38,72 @@ export function ExpensesTable({
         </div>
       </div>
 
-      <DataTable
-        columns={[
-          { key: "period", label: "Period" },
-          { key: "date", label: "Expense date" },
-          { key: "category", label: "Category" },
-          { key: "description", label: "Description" },
-          { key: "amount", label: "Amount" },
-          { key: "scope", label: "Scope" },
-          { key: "allocations", label: "Allocations" },
-          { key: "attachment", label: "Receipt" },
-          { key: "actions", label: "Actions" },
-        ]}
-      >
-        {expenses.map((expense) => (
-          <tr key={expense.id}>
-            <td>{expense.period_month}</td>
-            <td>{expense.expense_date}</td>
-            <td>{expense.category_name ?? "-"}</td>
-            <td>
-              <strong>{expense.description}</strong>
-              {expense.recurring_template_name && (
-                <div className="muted small-text">
-                  Template: {expense.recurring_template_name}
-                </div>
-              )}
-            </td>
-            <td>{formatCurrency(expense.amount)}</td>
-            <td>
-              <StatusPill tone="muted">{expense.scope_type}</StatusPill>
-            </td>
-            <td>
-              <div className="muted small-text">
-                {expense.allocations.length} dealers
-              </div>
-              <div className="muted small-text">
-                {expense.allocations
-                  .map((allocation) => allocation.dealer_name)
-                  .slice(0, 3)
-                  .join(", ") || "-"}
-              </div>
-            </td>
-            <td>{expense.has_attachment ? "Attached" : "-"}</td>
-            <td>
-              <div className="table-actions">
-                <Link className="ghost-button" href={`/expenses/${expense.id}`}>
-                  View detail
-                </Link>
-                {canManage && (
-                  <form action={archiveExpense.bind(null, expense.id)}>
-                    <ConfirmSubmitButton
-                      className="ghost-button danger"
-                      confirmMessage={`Delete expense "${expense.description}" from ${expense.period_month}? Its allocations will be archived as well.`}
-                      pendingLabel="Deleting..."
-                    >
-                      Delete
-                    </ConfirmSubmitButton>
-                  </form>
+      <div className="expense-registry-scroll">
+        <DataTable
+          className="expense-registry-table"
+          columns={[
+            { key: "period", label: "Period" },
+            { key: "date", label: "Expense date" },
+            { key: "category", label: "Category" },
+            { key: "description", label: "Description" },
+            { key: "amount", label: "Amount" },
+            { key: "scope", label: "Scope" },
+            { key: "allocations", label: "Allocations" },
+            { key: "attachment", label: "Receipt" },
+            { key: "actions", label: "Actions" },
+          ]}
+        >
+          {expenses.map((expense) => (
+            <tr key={expense.id}>
+              <td>{expense.period_month}</td>
+              <td>{expense.expense_date}</td>
+              <td>{expense.category_name ?? "-"}</td>
+              <td>
+                <strong>{expense.description}</strong>
+                {expense.recurring_template_name && (
+                  <div className="muted small-text">
+                    Template: {expense.recurring_template_name}
+                  </div>
                 )}
-              </div>
-            </td>
-          </tr>
-        ))}
-      </DataTable>
+              </td>
+              <td>{formatCurrency(expense.amount)}</td>
+              <td>
+                <StatusPill tone="muted">{expense.scope_type}</StatusPill>
+              </td>
+              <td>
+                <div className="muted small-text">
+                  {expense.allocations.length} dealers
+                </div>
+                <div className="muted small-text">
+                  {expense.allocations
+                    .map((allocation) => allocation.dealer_name)
+                    .slice(0, 3)
+                    .join(", ") || "-"}
+                </div>
+              </td>
+              <td>{expense.has_attachment ? "Attached" : "-"}</td>
+              <td>
+                <div className="table-actions">
+                  <Link className="ghost-button" href={`/expenses/${expense.id}`}>
+                    View detail
+                  </Link>
+                  {canManage && (
+                    <form action={archiveExpense.bind(null, expense.id)}>
+                      <ConfirmSubmitButton
+                        className="ghost-button danger"
+                        confirmMessage={`Delete expense "${expense.description}" from ${expense.period_month}? Its allocations will be archived as well.`}
+                        pendingLabel="Deleting..."
+                      >
+                        Delete
+                      </ConfirmSubmitButton>
+                    </form>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </DataTable>
+      </div>
     </section>
   );
 }

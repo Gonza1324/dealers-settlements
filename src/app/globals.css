@@ -747,6 +747,24 @@ textarea {
   gap: 24px;
 }
 
+.expense-registry-scroll {
+  max-height: clamp(520px, 62vh, 680px);
+  overflow: auto;
+  border-top: 1px solid var(--border-soft);
+}
+
+.expense-registry-scroll .masters-table-wrapper {
+  overflow: visible;
+}
+
+.expense-registry-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  box-shadow: 0 1px 0 var(--border-soft);
+}
+
 .expenses-categories-layout {
   grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr);
 }
