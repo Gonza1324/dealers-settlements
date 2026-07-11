@@ -99,7 +99,7 @@ export function FinanciersPageContent({
                 <tr key={financier.id}>
                   <td>{financier.name}</td>
                   <td>
-                    <StatusPill tone={financier.is_active ? "success" : "muted"}>
+                    <StatusPill tone={financier.is_active ? "success" : "danger"}>
                       {financier.is_active ? "active" : "inactive"}
                     </StatusPill>
                   </td>

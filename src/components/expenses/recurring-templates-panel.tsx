@@ -3,6 +3,8 @@
 import { useActionState, useEffect, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
+import { expenseScopeTone } from "@/components/expenses/scope-status";
+import { StatusPill } from "@/components/ui/status-pill";
 import {
   archiveExpenseRecurringTemplate,
   saveExpenseRecurringTemplate,
@@ -69,7 +71,11 @@ export function RecurringTemplatesPanel({
             <tr key={template.id}>
               <td>{template.name}</td>
               <td>{template.category_name ?? "-"}</td>
-              <td>{template.scope_type}</td>
+              <td>
+                <StatusPill tone={expenseScopeTone(template.scope_type)}>
+                  {template.scope_type}
+                </StatusPill>
+              </td>
               <td>
                 <div className="table-actions">
                   <button

@@ -152,7 +152,7 @@ export function UsersSettingsPanel({ users }: { users: SettingsUserRecord[] }) {
                   </StatusPill>
                 </td>
                 <td>
-                  <StatusPill tone={user.isActive ? "success" : "muted"}>
+                  <StatusPill tone={user.isActive ? "success" : "danger"}>
                     {user.isActive ? "active" : "inactive"}
                   </StatusPill>
                 </td>

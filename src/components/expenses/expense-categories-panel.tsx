@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
+import { StatusPill } from "@/components/ui/status-pill";
 import { archiveExpenseCategory, saveExpenseCategory } from "@/features/expenses/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { ExpenseCategoryRecord } from "@/features/expenses/types";
@@ -37,7 +38,11 @@ export function ExpenseCategoriesPanel({
           {categories.map((category) => (
             <tr key={category.id}>
               <td>{category.name}</td>
-              <td>{category.is_active ? "active" : "inactive"}</td>
+              <td>
+                <StatusPill tone={category.is_active ? "success" : "danger"}>
+                  {category.is_active ? "active" : "inactive"}
+                </StatusPill>
+              </td>
               <td>
                 <div className="table-actions">
                   <button

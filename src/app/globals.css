@@ -565,6 +565,7 @@ textarea {
 .status-pill {
   display: inline-flex;
   align-items: center;
+  gap: 7px;
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 11px;
@@ -574,6 +575,16 @@ textarea {
   background: var(--surface-muted);
   color: var(--muted);
   letter-spacing: 0.02em;
+}
+
+.status-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.78;
+  flex: 0 0 auto;
 }
 
 .status-pill.success,

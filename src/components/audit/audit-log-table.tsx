@@ -1,4 +1,21 @@
+import { StatusPill, type StatusPillTone } from "@/components/ui/status-pill";
 import type { AuditPageData } from "@/features/audit/types";
+
+function auditActionTone(action: string): StatusPillTone {
+  if (/(archived|deleted|removed|failed|rejected|deactivated)/i.test(action)) {
+    return "danger";
+  }
+
+  if (/(updated|manual|reset|executed|imported)/i.test(action)) {
+    return "warning";
+  }
+
+  if (/(created|restored|approved|paid|activated|consolidated)/i.test(action)) {
+    return "success";
+  }
+
+  return "muted";
+}
 
 export function AuditLogTable({ data }: { data: AuditPageData }) {
   const activeFilters = [
@@ -74,7 +91,11 @@ export function AuditLogTable({ data }: { data: AuditPageData }) {
                     <strong>{log.entityTable}</strong>
                     <div className="muted small-text">{log.entityId ?? "-"}</div>
                   </td>
-                  <td>{log.action}</td>
+                  <td>
+                    <StatusPill tone={auditActionTone(log.action)}>
+                      {log.action}
+                    </StatusPill>
+                  </td>
                   <td>
                     <details className="audit-metadata">
                       <summary className="audit-metadata-summary">

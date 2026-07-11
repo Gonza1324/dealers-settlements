@@ -105,7 +105,7 @@ function DealerEditor({
                         ? "success"
                         : dealer.status === "paused"
                           ? "warning"
-                          : "muted"
+                          : "danger"
                     }
                   >
                     {dealer.status}

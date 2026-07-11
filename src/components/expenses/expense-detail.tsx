@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { expenseScopeTone } from "@/components/expenses/scope-status";
+import { StatusPill } from "@/components/ui/status-pill";
 import type { ExpenseListRecord } from "@/features/expenses/types";
 import { formatCurrency } from "@/lib/utils/format";
 
@@ -30,7 +32,11 @@ export function ExpenseDetail({
         </div>
         <div>
           <p className="eyebrow">Scope</p>
-          <p>{expense.scope_type}</p>
+          <p>
+            <StatusPill tone={expenseScopeTone(expense.scope_type)}>
+              {expense.scope_type}
+            </StatusPill>
+          </p>
         </div>
         <div>
           <p className="eyebrow">Recurring template</p>

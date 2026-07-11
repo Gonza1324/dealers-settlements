@@ -76,7 +76,7 @@ export function PartnersPageContent({
                   <td>{partner.display_name}</td>
                   <td>{linkedProfile?.full_name ?? "Not linked"}</td>
                   <td>
-                    <StatusPill tone={partner.is_active ? "success" : "muted"}>
+                    <StatusPill tone={partner.is_active ? "success" : "danger"}>
                       {partner.is_active ? "active" : "inactive"}
                     </StatusPill>
                   </td>
