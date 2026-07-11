@@ -24,6 +24,7 @@ export function DealerResultsTable({
       <p className="eyebrow">Dealer view</p>
       <h2 style={{ marginTop: 0 }}>Dealer monthly results</h2>
       <DataTable
+        wrapperClassName="registry-table-scroll"
         columns={[
           { key: "dealer", label: "Dealer" },
           { key: "gross", label: "Gross profit" },

@@ -12,7 +12,7 @@ export function NetProfitByDealerTable({
     <section className="panel">
       <p className="eyebrow">Report</p>
       <h2 style={{ marginTop: 0 }}>{title}</h2>
-      <div className="dashboard-table-wrapper">
+      <div className="dashboard-table-wrapper registry-table-scroll">
         <table className="dashboard-table">
           <thead>
             <tr>
@@ -57,7 +57,7 @@ export function ExpenseByDealerTable({
     <section className="panel">
       <p className="eyebrow">Report</p>
       <h2 style={{ marginTop: 0 }}>Expenses by dealer</h2>
-      <div className="dashboard-table-wrapper">
+      <div className="dashboard-table-wrapper registry-table-scroll">
         <table className="dashboard-table">
           <thead>
             <tr>

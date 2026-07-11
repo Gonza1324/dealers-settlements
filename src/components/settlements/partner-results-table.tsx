@@ -29,6 +29,7 @@ export function PartnerResultsTable({
       <p className="eyebrow">Partner view</p>
       <h2 style={{ marginTop: 0 }}>Partner monthly results</h2>
       <DataTable
+        wrapperClassName="registry-table-scroll"
         columns={[
           { key: "dealer", label: "Dealer" },
           { key: "partner", label: "Partner" },

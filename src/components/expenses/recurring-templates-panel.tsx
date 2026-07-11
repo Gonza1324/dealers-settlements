@@ -57,6 +57,7 @@ export function RecurringTemplatesPanel({
         <p className="eyebrow">Recurring templates</p>
         <h2 style={{ marginTop: 0 }}>Templates</h2>
         <DataTable
+          wrapperClassName="registry-table-scroll"
           columns={[
             { key: "name", label: "Name" },
             { key: "category", label: "Category" },

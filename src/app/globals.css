@@ -747,17 +747,15 @@ textarea {
   gap: 24px;
 }
 
-.expense-registry-scroll {
+.registry-table-scroll {
   max-height: clamp(520px, 62vh, 680px);
   overflow: auto;
   border-top: 1px solid var(--border-soft);
 }
 
-.expense-registry-scroll .masters-table-wrapper {
-  overflow: visible;
-}
-
-.expense-registry-table th {
+.registry-table-scroll .masters-table th,
+.registry-table-scroll .dashboard-table th,
+.registry-table-scroll .imports-table th {
   position: sticky;
   top: 0;
   z-index: 1;

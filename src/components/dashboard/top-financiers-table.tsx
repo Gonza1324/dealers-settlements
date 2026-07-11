@@ -10,7 +10,7 @@ export function TopFinanciersTable({
     <section className="panel">
       <p className="eyebrow">Report</p>
       <h2 style={{ marginTop: 0 }}>Top financiers</h2>
-      <div className="dashboard-table-wrapper">
+      <div className="dashboard-table-wrapper registry-table-scroll">
         <table className="dashboard-table">
           <thead>
             <tr>

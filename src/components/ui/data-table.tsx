@@ -8,15 +8,21 @@ export interface DataTableColumn {
 
 export function DataTable({
   className,
+  wrapperClassName,
   columns,
   children,
 }: {
   className?: string;
+  wrapperClassName?: string;
   columns: DataTableColumn[];
   children: ReactNode;
 }) {
   return (
-    <div className="masters-table-wrapper">
+    <div
+      className={["masters-table-wrapper", wrapperClassName]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <table className={["masters-table", className].filter(Boolean).join(" ")}>
         <thead>
           <tr>

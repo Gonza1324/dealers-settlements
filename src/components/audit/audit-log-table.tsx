@@ -54,7 +54,7 @@ export function AuditLogTable({ data }: { data: AuditPageData }) {
       </section>
 
       <section className="panel">
-        <div className="dashboard-table-wrapper">
+        <div className="dashboard-table-wrapper registry-table-scroll">
           <table className="dashboard-table">
             <thead>
               <tr>

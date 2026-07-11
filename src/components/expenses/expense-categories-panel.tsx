@@ -27,6 +27,7 @@ export function ExpenseCategoriesPanel({
         <p className="eyebrow">Expense categories</p>
         <h2 style={{ marginTop: 0 }}>Categories</h2>
         <DataTable
+          wrapperClassName="registry-table-scroll"
           columns={[
             { key: "name", label: "Name" },
             { key: "status", label: "Status" },

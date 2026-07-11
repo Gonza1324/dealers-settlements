@@ -25,6 +25,7 @@ export function DeadDealsTable({
       <p className="eyebrow">Dead deals</p>
       <h2 style={{ marginTop: 0 }}>Manual dead deal records</h2>
       <DataTable
+        wrapperClassName="registry-table-scroll"
         columns={[
           { key: "date", label: "Date" },
           { key: "dealer", label: "Dealer" },

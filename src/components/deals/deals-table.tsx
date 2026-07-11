@@ -101,6 +101,7 @@ export function DealsTable({
 
       <DataTable
         className="deals-results-table"
+        wrapperClassName="registry-table-scroll"
         columns={[
           sortableHeading(filters, "period", "Period"),
           sortableHeading(filters, "dealer", "Dealer"),

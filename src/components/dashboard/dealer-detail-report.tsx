@@ -35,7 +35,7 @@ export function DealerDetailReport({
       </div>
 
       <div className="grid two">
-        <div className="dashboard-table-wrapper">
+        <div className="dashboard-table-wrapper registry-table-scroll">
           <table className="dashboard-table">
             <thead>
               <tr>
@@ -70,7 +70,7 @@ export function DealerDetailReport({
           </table>
         </div>
 
-        <div className="dashboard-table-wrapper">
+        <div className="dashboard-table-wrapper registry-table-scroll">
           <table className="dashboard-table">
             <thead>
               <tr>
@@ -101,7 +101,10 @@ export function DealerDetailReport({
         </div>
       </div>
 
-      <div className="dashboard-table-wrapper" style={{ marginTop: 20 }}>
+      <div
+        className="dashboard-table-wrapper registry-table-scroll"
+        style={{ marginTop: 20 }}
+      >
         <table className="dashboard-table">
           <thead>
             <tr>

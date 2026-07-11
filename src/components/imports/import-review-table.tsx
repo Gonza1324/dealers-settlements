@@ -400,7 +400,7 @@ export function ImportReviewTable({
         </div>
       )}
 
-      <div className="imports-table-wrapper">
+      <div className="imports-table-wrapper registry-table-scroll">
         <table className="imports-table">
           <thead>
             <tr>

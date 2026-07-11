@@ -26,6 +26,7 @@ export function SettlementsRunsTable({
       <p className="eyebrow">Calculation runs</p>
       <h2 style={{ marginTop: 0 }}>Run history</h2>
       <DataTable
+        wrapperClassName="registry-table-scroll"
         columns={[
           { key: "period", label: "Period" },
           { key: "status", label: "Status" },

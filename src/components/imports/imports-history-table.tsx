@@ -23,6 +23,7 @@ export function ImportsHistoryTable({
       <p className="eyebrow">Recent imports</p>
       <h2 style={{ marginTop: 0 }}>Imports pending review</h2>
       <DataTable
+        wrapperClassName="registry-table-scroll"
         columns={[
           { key: "month", label: "Source month" },
           { key: "file", label: "File" },

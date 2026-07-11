@@ -12,7 +12,7 @@ export function PayoutSummaryCard({
     <section className="panel">
       <p className="eyebrow">Payments</p>
       <h2 style={{ marginTop: 0 }}>{title}</h2>
-      <div className="dashboard-table-wrapper">
+      <div className="dashboard-table-wrapper registry-table-scroll">
         <table className="dashboard-table">
           <thead>
             <tr>
