@@ -938,6 +938,76 @@ textarea {
   gap: 8px;
 }
 
+.partner-results-table {
+  min-width: 1180px;
+}
+
+.partner-results-table td {
+  vertical-align: top;
+}
+
+.partner-results-table td:nth-child(3),
+.partner-results-table td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.payout-details {
+  min-width: 240px;
+}
+
+.payout-summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 0.15s var(--ease),
+    background-color 0.15s var(--ease),
+    color 0.15s var(--ease);
+}
+
+.payout-summary:hover {
+  background: var(--surface-sunken);
+  border-color: #cdbca4;
+}
+
+.payout-details[open] .payout-summary {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-color: rgba(31, 107, 92, 0.25);
+}
+
+.payout-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+  min-width: 520px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.payout-form .field {
+  margin: 0;
+}
+
+.payout-form > label:not(.field),
+.payout-form .secondary-button,
+.payout-form .error-text,
+.payout-form .success-text {
+  grid-column: 1 / -1;
+}
+
 .filter-panel {
   margin-bottom: 24px;
   background:

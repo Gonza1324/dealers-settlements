@@ -29,6 +29,7 @@ export function PartnerResultsTable({
       <p className="eyebrow">Partner view</p>
       <h2 style={{ marginTop: 0 }}>Partner monthly results</h2>
       <DataTable
+        className="partner-results-table"
         wrapperClassName="registry-table-scroll"
         columns={[
           { key: "dealer", label: "Dealer" },
@@ -36,7 +37,7 @@ export function PartnerResultsTable({
           { key: "share", label: "Share %" },
           { key: "amount", label: "Partner amount" },
           { key: "status", label: "Payment status" },
-          { key: "payment", label: "Payment management" },
+          { key: "payment", label: "Manage" },
         ]}
       >
         {results.map((result) => (
@@ -68,7 +69,12 @@ export function PartnerResultsTable({
               )}
             </td>
             <td>
-              <PayoutForm canEdit={canEditPayouts} result={result} />
+              <details className="payout-details">
+                <summary className="payout-summary">
+                  {canEditPayouts ? "Manage payment" : "View payment"}
+                </summary>
+                <PayoutForm canEdit={canEditPayouts} result={result} />
+              </details>
             </td>
           </tr>
         ))}

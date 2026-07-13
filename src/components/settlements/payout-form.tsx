@@ -15,7 +15,7 @@ export function PayoutForm({
   const [state, formAction] = useActionState(savePartnerPayout, initialFormState);
 
   return (
-    <form action={formAction} className="grid" style={{ gap: 10 }}>
+    <form action={formAction} className="payout-form">
       <input name="payoutId" type="hidden" value={result.payout_id ?? ""} />
       <input name="runId" type="hidden" value={result.calculation_run_id} />
       <input
