@@ -11,7 +11,7 @@ export function DealsFilters({
   filters: DealFilters;
 }) {
   const activeFilters = [
-    filters.periodMonth && `Period ${filters.periodMonth}`,
+    filters.periodMonth && `Period ${filters.periodMonth.slice(0, 7)}`,
     filters.dealerId && "Dealer",
     filters.financierId && "Financista",
     filters.vin && "VIN",
@@ -34,7 +34,7 @@ export function DealsFilters({
       <form className="filter-form-grid" method="get">
         <label className="field">
           <span>Period month</span>
-          <input defaultValue={filters.periodMonth} name="periodMonth" type="month" />
+          <input defaultValue={filters.periodMonth.slice(0, 7)} name="periodMonth" type="month" />
         </label>
         <label className="field">
           <span>Dealer</span>

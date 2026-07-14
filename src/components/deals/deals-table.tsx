@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/utils/format";
 function buildPageHref(filters: DealFilters, page: number) {
   const params = new URLSearchParams();
 
-  if (filters.periodMonth) params.set("periodMonth", filters.periodMonth);
+  if (filters.periodMonth) params.set("periodMonth", filters.periodMonth.slice(0, 7));
   if (filters.dealerId) params.set("dealerId", filters.dealerId);
   if (filters.financierId) params.set("financierId", filters.financierId);
   if (filters.vin) params.set("vin", filters.vin);

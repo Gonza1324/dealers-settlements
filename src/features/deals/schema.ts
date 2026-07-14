@@ -21,6 +21,27 @@ const requiredMonthField = z.preprocess((value) => {
   return trimmed;
 }, z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Period month is required."));
 
+const optionalMonthFilter = z.preprocess((value) => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  if (/^\d{4}-\d{2}$/.test(trimmed)) {
+    return `${trimmed}-01`;
+  }
+
+  return trimmed;
+}, z.string().regex(/^$|^\d{4}-\d{2}-\d{2}$/, "Invalid period month."));
+
 const requiredDateField = z.preprocess((value) => {
   return typeof value === "string" ? value.trim() : value;
 }, z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Sale date is required."));
@@ -39,7 +60,7 @@ const dealWriteShape = {
 };
 
 export const dealFiltersSchema = z.object({
-  periodMonth: z.string().optional().default(""),
+  periodMonth: optionalMonthFilter,
   dealerId: z.string().uuid().optional().or(z.literal("")).default(""),
   financierId: z.string().uuid().optional().or(z.literal("")).default(""),
   vin: z.string().optional().default(""),
