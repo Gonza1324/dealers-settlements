@@ -956,15 +956,18 @@ textarea {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 18px;
   margin-bottom: 18px;
 }
 
 .settlement-results-totals {
   display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  min-width: 440px;
+  flex: 1 1 420px;
+  max-width: 560px;
+  min-width: 0;
 }
 
 .settlement-results-totals article {
@@ -987,6 +990,22 @@ textarea {
 .settlement-results-totals strong {
   font-size: 16px;
   line-height: 1.15;
+}
+
+.settlement-results-filter-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface-sunken);
+}
+
+.settlement-results-filter-panel .filter-panel-actions {
+  margin-top: 0;
 }
 
 .partner-results-table td {
