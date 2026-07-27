@@ -1221,39 +1221,6 @@ textarea {
   gap: 8px;
 }
 
-.dashboard-metric-sparkline {
-  position: relative;
-  height: 34px;
-  margin-top: 14px;
-  overflow: hidden;
-}
-
-.dashboard-metric-sparkline::before {
-  content: "";
-  position: absolute;
-  inset: 18px 0 auto;
-  height: 1px;
-  background: var(--border-soft);
-}
-
-.dashboard-metric-sparkline span {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(150deg, transparent 0 15%, var(--brand) 16% 18%, transparent 19% 34%, var(--brand) 35% 37%, transparent 38% 52%, var(--brand) 53% 55%, transparent 56% 100%);
-  opacity: 0.72;
-}
-
-.dashboard-metric-card:nth-child(2n) .dashboard-metric-sparkline span {
-  background:
-    linear-gradient(160deg, transparent 0 18%, var(--accent) 19% 21%, transparent 22% 40%, var(--accent) 41% 43%, transparent 44% 60%, var(--accent) 61% 63%, transparent 64% 100%);
-}
-
-.dashboard-metric-card:nth-child(3n) .dashboard-metric-sparkline span {
-  background:
-    linear-gradient(150deg, transparent 0 20%, var(--warning) 21% 23%, transparent 24% 42%, var(--warning) 43% 45%, transparent 46% 65%, var(--warning) 66% 68%, transparent 69% 100%);
-}
-
 .dashboard-kpi-strip {
   margin-bottom: 16px;
 }

@@ -20,9 +20,6 @@ export function MetricCard({
       <p className="muted" style={{ margin: 0 }}>
         {helper}
       </p>
-      <div className="dashboard-metric-sparkline" aria-hidden="true">
-        <span />
-      </div>
     </article>
   );
 }
