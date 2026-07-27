@@ -106,10 +106,14 @@ textarea {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  max-width: 100%;
 }
 
 .page {
   padding: 28px 32px 48px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .page-intro {
@@ -188,6 +192,8 @@ textarea {
 .panel,
 .stat-card {
   padding: 20px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .panel:hover {
@@ -763,6 +769,7 @@ textarea {
   max-height: clamp(520px, 62vh, 680px);
   overflow: auto;
   border-top: 1px solid var(--border-soft);
+  max-width: 100%;
 }
 
 .registry-table-scroll .masters-table th,
@@ -817,6 +824,8 @@ textarea {
 
 .masters-table-wrapper {
   overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .masters-table {
