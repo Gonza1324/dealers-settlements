@@ -1,24 +1,28 @@
 :root {
-  color-scheme: light;
-  --background: #f4f1ea;
-  --surface: #fffdfa;
-  --surface-muted: #efe7d8;
-  --surface-sunken: #f8f4eb;
-  --foreground: #211d19;
-  --foreground-soft: #3a342d;
-  --muted: #6f665d;
-  --border: #d7cab5;
-  --border-soft: #e6dcc8;
-  --accent: #1f6b5c;
-  --accent-strong: #124e42;
-  --warning: #8b5e00;
-  --danger: #9c2f2f;
-  --accent-soft: rgba(31, 107, 92, 0.1);
-  --warning-soft: rgba(139, 94, 0, 0.12);
-  --danger-soft: rgba(156, 47, 47, 0.1);
-  --shadow-sm: 0 1px 2px rgba(25, 20, 16, 0.04);
-  --shadow-md: 0 6px 18px rgba(25, 20, 16, 0.06);
-  --shadow-lg: 0 18px 40px rgba(25, 20, 16, 0.08);
+  color-scheme: dark;
+  --background: #070807;
+  --surface: #151615;
+  --surface-muted: #20211f;
+  --surface-sunken: #101110;
+  --foreground: #f4f2ee;
+  --foreground-soft: #d5d1c9;
+  --muted: #9b968d;
+  --border: #2b2d2a;
+  --border-soft: #242622;
+  --accent: #00d18f;
+  --accent-strong: #35e8ad;
+  --brand: #e22d86;
+  --info: #2f7cff;
+  --warning: #f6aa16;
+  --danger: #ff5d63;
+  --accent-soft: rgba(0, 209, 143, 0.14);
+  --brand-soft: rgba(226, 45, 134, 0.16);
+  --info-soft: rgba(47, 124, 255, 0.15);
+  --warning-soft: rgba(246, 170, 22, 0.16);
+  --danger-soft: rgba(255, 93, 99, 0.15);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.34);
   --shadow: var(--shadow-lg);
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --font-sans:
@@ -39,9 +43,7 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background:
-    radial-gradient(circle at top left, rgba(215, 202, 181, 0.55), transparent 28%),
-    linear-gradient(180deg, #faf7f1 0%, var(--background) 100%);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -93,9 +95,8 @@ textarea {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
-  background: rgba(255, 253, 250, 0.82);
-  backdrop-filter: blur(10px);
-  padding: 28px 22px;
+  background: linear-gradient(180deg, #171817 0%, #111211 100%);
+  padding: 22px 16px;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -110,7 +111,7 @@ textarea {
 }
 
 .page {
-  padding: 28px 32px 48px;
+  padding: 24px 28px 48px;
   min-width: 0;
   max-width: 100%;
   overflow-x: clip;
@@ -150,7 +151,7 @@ textarea {
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 14px;
   box-shadow: var(--shadow-sm);
   transition:
     box-shadow 0.2s var(--ease),
@@ -159,16 +160,16 @@ textarea {
 }
 
 .hero-card {
-  padding: 28px;
+  padding: 22px;
   box-shadow: var(--shadow-lg);
   background:
-    radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 55%),
+    radial-gradient(80% 100% at 0% 0%, var(--brand-soft), transparent 55%),
     var(--surface);
 }
 
 .grid {
   display: grid;
-  gap: 20px;
+  gap: 16px;
 }
 
 .grid.two {
@@ -191,7 +192,7 @@ textarea {
 
 .panel,
 .stat-card {
-  padding: 20px;
+  padding: 18px;
   min-width: 0;
   max-width: 100%;
 }
@@ -207,7 +208,7 @@ textarea {
 
 .eyebrow {
   margin: 0 0 4px;
-  color: var(--accent);
+  color: var(--accent-strong);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 11px;
@@ -243,9 +244,9 @@ textarea {
 .nav-link {
   display: flex;
   align-items: center;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: 12px;
-  color: var(--foreground);
+  color: var(--foreground-soft);
   font-size: 14px;
   font-weight: 500;
   transition:
@@ -256,12 +257,13 @@ textarea {
 
 .nav-link:hover {
   background: var(--surface-muted);
+  color: var(--foreground);
 }
 
 .nav-link.active {
-  background: var(--accent);
+  background: var(--surface-muted);
   color: white;
-  box-shadow: 0 6px 16px rgba(31, 107, 92, 0.25);
+  box-shadow: inset 3px 0 0 var(--brand);
 }
 
 .sidebar-nav-groups {
@@ -285,11 +287,11 @@ textarea {
 .sidebar-account-card {
   display: grid;
   gap: 8px;
-  margin-top: 24px;
-  padding: 16px;
+  margin-top: 18px;
+  padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 20px;
-  background: var(--surface);
+  border-radius: 14px;
+  background: #1b1c1b;
   box-shadow: var(--shadow-sm);
 }
 
@@ -405,10 +407,11 @@ textarea {
 .field input,
 .field select,
 .field textarea {
-  height: 48px;
+  height: 44px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--surface-sunken);
+  color: var(--foreground);
   padding: 0 14px;
   transition:
     border-color 0.15s var(--ease),
@@ -426,7 +429,7 @@ textarea {
 .field select:hover,
 .field textarea:hover,
 .masters-filter:hover {
-  border-color: #c7b79f;
+  border-color: #3c403a;
 }
 
 .field input:focus,
@@ -439,15 +442,15 @@ textarea {
 }
 
 .action-button {
-  height: 48px;
+  height: 44px;
   border: 0;
   border-radius: 12px;
   padding: 0 18px;
-  background: var(--accent);
+  background: var(--brand);
   color: white;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(31, 107, 92, 0.18);
+  box-shadow: 0 12px 24px rgba(226, 45, 134, 0.22);
   transition:
     transform 0.15s var(--ease),
     box-shadow 0.15s var(--ease),
@@ -456,7 +459,7 @@ textarea {
 
 .action-button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 14px 24px rgba(31, 107, 92, 0.22);
+  box-shadow: 0 16px 30px rgba(226, 45, 134, 0.28);
 }
 
 .action-button:disabled {
@@ -474,7 +477,7 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0 14px;
-  background: var(--surface);
+  background: var(--surface-sunken);
   color: var(--foreground);
   font-weight: 700;
   cursor: pointer;
@@ -486,8 +489,8 @@ textarea {
 
 .secondary-button:hover:not(:disabled),
 .ghost-button:hover:not(:disabled) {
-  background: var(--surface-sunken);
-  border-color: #cdbca4;
+  background: var(--surface-muted);
+  border-color: #3c403a;
 }
 
 .secondary-button.danger {
@@ -561,7 +564,7 @@ textarea {
 }
 
 .imports-table tbody tr:hover {
-  background: rgba(248, 244, 235, 0.85);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .imports-status-stack {
@@ -598,20 +601,20 @@ textarea {
 .status-pill.valid {
   color: var(--accent-strong);
   background: var(--accent-soft);
-  border-color: rgba(31, 107, 92, 0.25);
+  border-color: rgba(0, 209, 143, 0.32);
 }
 
 .status-pill.warning {
   color: var(--warning);
   background: var(--warning-soft);
-  border-color: rgba(139, 94, 0, 0.24);
+  border-color: rgba(246, 170, 22, 0.3);
 }
 
 .status-pill.danger,
 .status-pill.invalid {
   color: var(--danger);
   background: var(--danger-soft);
-  border-color: rgba(156, 47, 47, 0.22);
+  border-color: rgba(255, 93, 99, 0.3);
 }
 
 .status-pill.muted {
@@ -652,7 +655,7 @@ textarea {
   padding: 6px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: white;
+  background: var(--surface-sunken);
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
@@ -708,7 +711,7 @@ textarea {
 .ghost-button {
   height: 40px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--surface-sunken);
   color: var(--foreground);
   border-radius: 12px;
   padding: 0 14px;
@@ -721,7 +724,7 @@ textarea {
 
 .filter-chip {
   border: 1px solid var(--border);
-  background: white;
+  background: var(--surface-sunken);
   color: var(--foreground);
   padding: 8px 12px;
   border-radius: 999px;
@@ -800,7 +803,8 @@ textarea {
   height: 46px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--surface-sunken);
+  color: var(--foreground);
   padding: 0 14px;
 }
 
@@ -813,7 +817,7 @@ textarea {
 .masters-form textarea {
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--surface-sunken);
   padding: 12px 14px;
   resize: vertical;
 }
@@ -948,7 +952,7 @@ textarea {
 }
 
 .masters-table tbody tr:hover {
-  background: rgba(248, 244, 235, 0.85);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .table-actions {
@@ -985,7 +989,7 @@ textarea {
   padding: 10px 12px;
   border: 1px solid var(--border-soft);
   border-radius: 12px;
-  background: var(--surface-sunken);
+  background: linear-gradient(180deg, #1b1c1a 0%, #121312 100%);
 }
 
 .settlement-results-totals span {
@@ -1039,7 +1043,7 @@ textarea {
   padding: 0 14px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--surface);
+  background: var(--surface-sunken);
   color: var(--foreground);
   font-weight: 700;
   cursor: pointer;
@@ -1051,14 +1055,14 @@ textarea {
 }
 
 .payout-summary:hover {
-  background: var(--surface-sunken);
-  border-color: #cdbca4;
+  background: var(--surface-muted);
+  border-color: #3c403a;
 }
 
 .payout-details[open] .payout-summary {
   color: var(--accent-strong);
   background: var(--accent-soft);
-  border-color: rgba(31, 107, 92, 0.25);
+  border-color: rgba(0, 209, 143, 0.32);
 }
 
 .payout-form {
@@ -1070,7 +1074,7 @@ textarea {
   padding: 14px;
   border: 1px solid var(--border-soft);
   border-radius: 12px;
-  background: var(--surface);
+  background: var(--surface-sunken);
 }
 
 .payout-form .field {
@@ -1086,8 +1090,7 @@ textarea {
 
 .filter-panel {
   margin-bottom: 24px;
-  background:
-    linear-gradient(180deg, rgba(255, 253, 250, 0.98) 0%, rgba(248, 244, 235, 0.96) 100%);
+  background: var(--surface);
 }
 
 .filter-panel-header {
@@ -1133,7 +1136,7 @@ textarea {
   padding: 0 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--surface-sunken);
   color: var(--foreground-soft);
   font-size: 12px;
   font-weight: 600;
@@ -1146,24 +1149,24 @@ textarea {
 
 .warning-panel {
   padding: 14px;
-  border: 1px solid rgba(139, 94, 0, 0.25);
-  border-radius: 16px;
-  background: rgba(139, 94, 0, 0.08);
+  border: 1px solid rgba(246, 170, 22, 0.3);
+  border-radius: 14px;
+  background: var(--warning-soft);
 }
 
 .ghost-button.danger {
-  border-color: #e4b8b8;
+  border-color: rgba(255, 93, 99, 0.36);
   color: var(--danger);
 }
 
 .ghost-button.danger:hover:not(:disabled) {
-  background: rgba(156, 47, 47, 0.06);
+  background: var(--danger-soft);
 }
 
 .empty-state {
   text-align: left;
   background:
-    radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 55%),
+    radial-gradient(100% 100% at 0% 0%, var(--brand-soft), transparent 55%),
     var(--surface);
 }
 
@@ -1177,13 +1180,13 @@ textarea {
   border-radius: 14px;
   padding: 12px 14px;
   border: 1px solid var(--border);
-  background: rgba(255, 253, 250, 0.72);
+  background: var(--surface-sunken);
 }
 
 .inline-alert.warning {
-  background: #fcf3d6;
-  color: #6e5310;
-  border-color: #f0d89c;
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-color: rgba(246, 170, 22, 0.3);
 }
 
 .dashboard-filters-form {
@@ -1201,21 +1204,54 @@ textarea {
 }
 
 .dashboard-metric-card h2 {
-  font-size: 30px;
+  font-size: 28px;
   line-height: 1;
 }
 
 .dashboard-metric-card.featured {
   background:
-    radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 60%),
+    radial-gradient(90% 120% at 0% 0%, var(--brand-soft), transparent 58%),
     var(--surface);
-  border-color: rgba(31, 107, 92, 0.18);
+  border-color: rgba(226, 45, 134, 0.3);
 }
 
 .dashboard-metric-card .dashboard-metric-value {
   display: inline-flex;
   align-items: baseline;
   gap: 8px;
+}
+
+.dashboard-metric-sparkline {
+  position: relative;
+  height: 34px;
+  margin-top: 14px;
+  overflow: hidden;
+}
+
+.dashboard-metric-sparkline::before {
+  content: "";
+  position: absolute;
+  inset: 18px 0 auto;
+  height: 1px;
+  background: var(--border-soft);
+}
+
+.dashboard-metric-sparkline span {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(150deg, transparent 0 15%, var(--brand) 16% 18%, transparent 19% 34%, var(--brand) 35% 37%, transparent 38% 52%, var(--brand) 53% 55%, transparent 56% 100%);
+  opacity: 0.72;
+}
+
+.dashboard-metric-card:nth-child(2n) .dashboard-metric-sparkline span {
+  background:
+    linear-gradient(160deg, transparent 0 18%, var(--accent) 19% 21%, transparent 22% 40%, var(--accent) 41% 43%, transparent 44% 60%, var(--accent) 61% 63%, transparent 64% 100%);
+}
+
+.dashboard-metric-card:nth-child(3n) .dashboard-metric-sparkline span {
+  background:
+    linear-gradient(150deg, transparent 0 20%, var(--warning) 21% 23%, transparent 24% 42%, var(--warning) 43% 45%, transparent 46% 65%, var(--warning) 66% 68%, transparent 69% 100%);
 }
 
 .dashboard-kpi-strip {
@@ -1235,13 +1271,13 @@ textarea {
   min-height: 118px;
   padding: 14px 16px;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.78);
+  border-radius: 14px;
+  background: var(--surface);
 }
 
 .dashboard-insight-card.warning {
   background: var(--warning-soft);
-  border-color: rgba(139, 94, 0, 0.2);
+  border-color: rgba(246, 170, 22, 0.3);
 }
 
 .dashboard-insight-card strong {
@@ -1306,8 +1342,8 @@ textarea {
   gap: 6px;
   padding: 14px 16px;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.72);
+  border-radius: 14px;
+  background: var(--surface-sunken);
 }
 
 .dashboard-highlight-stat strong {
@@ -1358,7 +1394,7 @@ textarea {
 }
 
 .dashboard-table tbody tr:hover {
-  background: rgba(248, 244, 235, 0.85);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .payout-total-strip {
@@ -1393,7 +1429,7 @@ textarea {
   min-width: 0;
   border: 1px solid var(--border-soft);
   border-radius: 12px;
-  background: rgba(255, 253, 250, 0.72);
+  background: var(--surface-sunken);
   overflow: hidden;
 }
 
@@ -1444,11 +1480,11 @@ textarea {
 }
 
 .comparison-bar.positive {
-  background: linear-gradient(90deg, #79b6a2 0%, #2f7d69 100%);
+  background: linear-gradient(90deg, var(--accent) 0%, #35e8ad 100%);
 }
 
 .comparison-bar.negative {
-  background: linear-gradient(90deg, #d49494 0%, #9c2f2f 100%);
+  background: linear-gradient(90deg, var(--danger) 0%, var(--brand) 100%);
 }
 
 .dashboard-mini-card {
@@ -1456,8 +1492,8 @@ textarea {
   gap: 8px;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  background: #faf7f0;
+  border-radius: 14px;
+  background: var(--surface-sunken);
 }
 
 @media (max-width: 1440px) {
