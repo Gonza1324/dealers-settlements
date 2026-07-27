@@ -1295,6 +1295,57 @@ textarea {
   background: rgba(248, 244, 235, 0.85);
 }
 
+.payout-total-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+
+.payout-total-strip article {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface-sunken);
+}
+
+.payout-total-strip strong {
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.payout-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.payout-breakdown-card {
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: rgba(255, 253, 250, 0.72);
+  overflow: hidden;
+}
+
+.payout-breakdown-card h3 {
+  margin: 0;
+  padding: 12px 14px 0;
+  font-size: 15px;
+}
+
+.payout-breakdown-table th,
+.payout-breakdown-table td {
+  padding: 10px 12px;
+}
+
+.payout-breakdown-table th {
+  font-size: 10px;
+}
+
 .comparison-chart {
   display: grid;
   gap: 14px;
