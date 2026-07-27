@@ -6,6 +6,18 @@ import { PayoutForm } from "@/components/settlements/payout-form";
 import type { PartnerMonthlyResultRecord } from "@/features/settlements/types";
 import { formatCurrency } from "@/lib/utils/format";
 
+function formatPeriodLabel(results: PartnerMonthlyResultRecord[]) {
+  const periods = [...new Set(results.map((result) => result.period_month.slice(0, 7)))]
+    .sort()
+    .reverse();
+
+  if (periods.length === 1) {
+    return periods[0];
+  }
+
+  return periods.join(", ");
+}
+
 export function PartnerResultsTable({
   canEditPayouts,
   results,
@@ -24,10 +36,43 @@ export function PartnerResultsTable({
     );
   }
 
+  const periodLabel = formatPeriodLabel(results);
+  const totalAmount = results.reduce(
+    (sum, result) => sum + Number(result.partner_amount),
+    0,
+  );
+  const pendingAmount = results
+    .filter((result) => result.payout_status === "pending")
+    .reduce((sum, result) => sum + Number(result.partner_amount), 0);
+  const paidAmount = results
+    .filter((result) => result.payout_status === "paid")
+    .reduce((sum, result) => sum + Number(result.paid_amount ?? result.partner_amount), 0);
+
   return (
     <section className="panel">
       <p className="eyebrow">Partner view</p>
-      <h2 style={{ marginTop: 0 }}>Partner monthly results</h2>
+      <div className="settlement-results-header">
+        <div>
+          <h2 style={{ marginTop: 0 }}>Partner monthly results</h2>
+          <p className="muted" style={{ margin: 0 }}>
+            Totals shown for period {periodLabel} in this settlement run.
+          </p>
+        </div>
+        <div className="settlement-results-totals">
+          <article>
+            <span>Total</span>
+            <strong>{formatCurrency(totalAmount)}</strong>
+          </article>
+          <article>
+            <span>Pending</span>
+            <strong>{formatCurrency(pendingAmount)}</strong>
+          </article>
+          <article>
+            <span>Paid</span>
+            <strong>{formatCurrency(paidAmount)}</strong>
+          </article>
+        </div>
+      </div>
       <DataTable
         className="partner-results-table"
         wrapperClassName="registry-table-scroll"
