@@ -68,6 +68,7 @@ export interface SettlementPageData {
   currentRun: MonthlyCalculationRunRecord | null;
   currentDealerResults: DealerMonthlyResultRecord[];
   currentPartnerResults: PartnerMonthlyResultRecord[];
+  allPartnerResults: PartnerMonthlyResultRecord[];
   filters: SettlementFilters;
 }
 

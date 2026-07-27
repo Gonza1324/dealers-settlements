@@ -21,20 +21,20 @@ const emptyFilters: PartnerResultFilters = {
   periodMonth: "",
 };
 
-function formatPeriodLabel(results: PartnerMonthlyResultRecord[]) {
+function formatTotalsScope(results: PartnerMonthlyResultRecord[]) {
   const periods = [...new Set(results.map((result) => result.period_month.slice(0, 7)))]
     .sort()
     .reverse();
 
   if (periods.length === 0) {
-    return "selected filters";
+    return "for selected filters";
   }
 
   if (periods.length === 1) {
-    return periods[0];
+    return `for period ${periods[0]}`;
   }
 
-  return periods.join(", ");
+  return `across periods ${periods.join(", ")}`;
 }
 
 function countActiveFilters(filters: PartnerResultFilters) {
@@ -109,7 +109,7 @@ export function PartnerResultsTable({
     );
   }
 
-  const periodLabel = formatPeriodLabel(filteredResults);
+  const totalsScope = formatTotalsScope(filteredResults);
   const totalAmount = filteredResults.reduce(
     (sum, result) => sum + Number(result.partner_amount),
     0,
@@ -128,7 +128,7 @@ export function PartnerResultsTable({
         <div>
           <h2 style={{ marginTop: 0 }}>Partner monthly results</h2>
           <p className="muted" style={{ margin: 0 }}>
-            Totals shown for period {periodLabel} in this settlement run.
+            Totals shown {totalsScope}.
           </p>
           <div className="table-actions" style={{ marginTop: 12 }}>
             <button
@@ -244,6 +244,7 @@ export function PartnerResultsTable({
         wrapperClassName="registry-table-scroll"
         columns={[
           { key: "dealer", label: "Dealer" },
+          { key: "month", label: "Month" },
           { key: "partner", label: "Partner" },
           { key: "share", label: "Share %" },
           { key: "amount", label: "Partner amount" },
@@ -257,6 +258,7 @@ export function PartnerResultsTable({
               {result.dealer_name}
               <div className="small-text muted">Code {result.dealer_code}</div>
             </td>
+            <td>{result.period_month.slice(0, 7)}</td>
             <td>
               {result.partner_name}
               <div className="small-text muted">{result.partner_user_email ?? ""}</div>
@@ -291,7 +293,7 @@ export function PartnerResultsTable({
         ))}
         {filteredResults.length === 0 && (
           <tr>
-            <td className="muted" colSpan={6}>
+            <td className="muted" colSpan={7}>
               No partner rows match these filters.
             </td>
           </tr>

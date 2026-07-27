@@ -949,7 +949,7 @@ textarea {
 }
 
 .partner-results-table {
-  min-width: 1180px;
+  min-width: 1260px;
 }
 
 .settlement-results-header {
@@ -1012,8 +1012,9 @@ textarea {
   vertical-align: top;
 }
 
-.partner-results-table td:nth-child(3),
-.partner-results-table td:nth-child(4) {
+.partner-results-table td:nth-child(2),
+.partner-results-table td:nth-child(4),
+.partner-results-table td:nth-child(5) {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }

@@ -41,7 +41,7 @@ export default async function SettlementsPage({
           <DealerResultsTable results={data.currentDealerResults} />
           <PartnerResultsTable
             canEditPayouts={canRun}
-            results={data.currentPartnerResults}
+            results={data.allPartnerResults}
           />
         </div>
       )}

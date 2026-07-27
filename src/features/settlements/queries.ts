@@ -215,8 +215,7 @@ export async function getSettlementsPageData(params: {
       .order("created_at", { ascending: false }),
     supabase
       .from("dealer_monthly_results")
-      .select("*, dealers!inner(name, code), monthly_calculation_runs!inner(is_current)")
-      .eq("monthly_calculation_runs.is_current", true)
+      .select("*, dealers!inner(name, code)")
       .order("period_month", { ascending: false }),
     supabase
       .from("partner_monthly_results")
@@ -288,12 +287,14 @@ export async function getSettlementsPageData(params: {
     partnerResults = partnerResults.filter((result) => result.period_month === month);
   }
 
-  const currentRun = runs.find((run) => run.is_current) ?? null;
+  const currentRun = params.filters.periodMonth
+    ? (runs[0] ?? null)
+    : (runs.find((run) => run.is_current) ?? null);
   const currentPartnerResults = currentRun
     ? partnerResults.filter((result) => result.calculation_run_id === currentRun.id)
     : [];
 
-  for (const result of currentPartnerResults) {
+  for (const result of partnerResults) {
     result.payment_attachment_url = await maybeCreateAttachmentUrl(
       result.payment_attachment_path,
     );
@@ -306,6 +307,7 @@ export async function getSettlementsPageData(params: {
       ? dealerResults.filter((result) => result.calculation_run_id === currentRun.id)
       : [],
     currentPartnerResults,
+    allPartnerResults: partnerResults,
     filters: params.filters,
   };
 }
