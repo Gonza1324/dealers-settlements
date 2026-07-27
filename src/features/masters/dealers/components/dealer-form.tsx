@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import {
   archiveAssignment,
   archiveDealer,
@@ -21,6 +21,53 @@ import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
+
+type ShareSortKey = "dealer" | "partner";
+type ShareSortDirection = "asc" | "desc";
+type ShareSortState = {
+  key: ShareSortKey;
+  direction: ShareSortDirection;
+} | null;
+
+function nextShareSort(
+  current: ShareSortState,
+  key: ShareSortKey,
+): ShareSortState {
+  if (current?.key === key) {
+    return {
+      key,
+      direction: current.direction === "asc" ? "desc" : "asc",
+    };
+  }
+
+  return { key, direction: "asc" };
+}
+
+function shareSortHeading(
+  label: string,
+  key: ShareSortKey,
+  sort: ShareSortState,
+  onSort: (key: ShareSortKey) => void,
+) {
+  const isActive = sort?.key === key;
+  const direction = isActive ? sort.direction : null;
+
+  return (
+    <button
+      aria-label={`${label}, ${
+        isActive ? `${direction === "asc" ? "ascending" : "descending"}` : "not sorted"
+      }. Click to sort ${isActive && direction === "asc" ? "descending" : "ascending"}.`}
+      className="table-sort-link table-sort-button"
+      onClick={() => onSort(key)}
+      type="button"
+    >
+      {label}
+      <span aria-hidden="true" className="table-sort-indicator">
+        {isActive ? (direction === "asc" ? "▲" : "▼") : "↕"}
+      </span>
+    </button>
+  );
+}
 
 function DealerEditor({
   archivedDealers,
@@ -221,7 +268,33 @@ function SharesEditor({
   canEdit: boolean;
 }) {
   const [selectedShare, setSelectedShare] = useState<DealerShareRecord | null>(null);
+  const [shareSort, setShareSort] = useState<ShareSortState>(null);
   const [state, formAction] = useActionState(saveShare, initialFormState);
+  const sortedShares = useMemo(() => {
+    if (!shareSort) {
+      return shares;
+    }
+
+    const collator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
+    const direction = shareSort.direction === "asc" ? 1 : -1;
+
+    return shares
+      .map((share, index) => ({ share, index }))
+      .sort((left, right) => {
+        const leftValue =
+          shareSort.key === "dealer" ? left.share.dealer_name : left.share.partner_name;
+        const rightValue =
+          shareSort.key === "dealer" ? right.share.dealer_name : right.share.partner_name;
+        const comparison = collator.compare(leftValue, rightValue);
+
+        return comparison === 0 ? left.index - right.index : comparison * direction;
+      })
+      .map(({ share }) => share);
+  }, [shareSort, shares]);
+
+  function handleShareSort(key: ShareSortKey) {
+    setShareSort((current) => nextShareSort(current, key));
+  }
 
   useEffect(() => {
     if (state.success) {
@@ -250,15 +323,33 @@ function SharesEditor({
         </div>
         <DataTable
           columns={[
-            { key: "dealer", label: "Dealer" },
-            { key: "partner", label: "Partner" },
+            {
+              key: "dealer",
+              label: shareSortHeading("Dealer", "dealer", shareSort, handleShareSort),
+              ariaSort:
+                shareSort?.key === "dealer"
+                  ? shareSort.direction === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none",
+            },
+            {
+              key: "partner",
+              label: shareSortHeading("Partner", "partner", shareSort, handleShareSort),
+              ariaSort:
+                shareSort?.key === "partner"
+                  ? shareSort.direction === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none",
+            },
             { key: "share", label: "Share %" },
             { key: "from", label: "Valid from" },
             { key: "to", label: "Valid to" },
             { key: "actions", label: "Actions" },
           ]}
         >
-          {shares.map((share) => (
+          {sortedShares.map((share) => (
             <tr key={share.id}>
               <td>{share.dealer_name}</td>
               <td>{share.partner_name}</td>

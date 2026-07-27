@@ -847,6 +847,16 @@ textarea {
   text-decoration: none;
 }
 
+.table-sort-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
 .table-sort-link:hover,
 .table-sort-link:focus-visible {
   color: var(--accent);
