@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
 import { PayoutForm } from "@/components/settlements/payout-form";
@@ -15,10 +15,22 @@ type PartnerResultFilters = {
   periodMonth: string;
 };
 
+type PartnerResultSortKey = "dealer" | "month" | "partner" | "paymentStatus";
+
+type PartnerResultSort = {
+  key: PartnerResultSortKey;
+  direction: "asc" | "desc";
+};
+
 const emptyFilters: PartnerResultFilters = {
   dealerId: "",
   partnerId: "",
   periodMonth: "",
+};
+
+const defaultSort: PartnerResultSort = {
+  key: "month",
+  direction: "desc",
 };
 
 function formatTotalsScope(results: PartnerMonthlyResultRecord[]) {
@@ -41,6 +53,88 @@ function countActiveFilters(filters: PartnerResultFilters) {
   return [filters.dealerId, filters.partnerId, filters.periodMonth].filter(Boolean).length;
 }
 
+function nextSort(
+  currentSort: PartnerResultSort,
+  key: PartnerResultSortKey,
+): PartnerResultSort {
+  if (currentSort.key === key) {
+    return {
+      key,
+      direction: currentSort.direction === "asc" ? "desc" : "asc",
+    };
+  }
+
+  return { key, direction: "asc" };
+}
+
+function getSortValue(result: PartnerMonthlyResultRecord, key: PartnerResultSortKey) {
+  switch (key) {
+    case "dealer":
+      return `${result.dealer_name} ${result.dealer_code}`;
+    case "month":
+      return result.period_month;
+    case "partner":
+      return result.partner_name;
+    case "paymentStatus":
+      return result.payout_status;
+  }
+}
+
+function sortableHeading({
+  label,
+  sort,
+  sortKey,
+  onSort,
+}: {
+  label: string;
+  sort: PartnerResultSort;
+  sortKey: PartnerResultSortKey;
+  onSort: (key: PartnerResultSortKey) => void;
+}) {
+  const isActive = sort.key === sortKey;
+  const directionLabel = isActive
+    ? sort.direction === "asc"
+      ? "ascending"
+      : "descending"
+    : "not sorted";
+
+  return (
+    <button
+      aria-label={`${label}, ${directionLabel}. Click to sort ${
+        isActive && sort.direction === "asc" ? "descending" : "ascending"
+      }.`}
+      className="table-sort-link table-sort-button"
+      onClick={() => onSort(sortKey)}
+      type="button"
+    >
+      {label}
+      <span aria-hidden="true" className="table-sort-indicator">
+        {isActive ? (sort.direction === "asc" ? "▲" : "▼") : "↕"}
+      </span>
+    </button>
+  );
+}
+
+function sortableColumn({
+  label,
+  sort,
+  sortKey,
+  onSort,
+}: {
+  label: string;
+  sort: PartnerResultSort;
+  sortKey: PartnerResultSortKey;
+  onSort: (key: PartnerResultSortKey) => void;
+}): DataTableColumn {
+  const isActive = sort.key === sortKey;
+
+  return {
+    key: sortKey,
+    ariaSort: isActive ? (sort.direction === "asc" ? "ascending" : "descending") : "none",
+    label: sortableHeading({ label, sort, sortKey, onSort }),
+  };
+}
+
 export function PartnerResultsTable({
   canEditPayouts,
   results,
@@ -52,6 +146,7 @@ export function PartnerResultsTable({
   const [draftFilters, setDraftFilters] = useState<PartnerResultFilters>(emptyFilters);
   const [appliedFilters, setAppliedFilters] =
     useState<PartnerResultFilters>(emptyFilters);
+  const [sort, setSort] = useState<PartnerResultSort>(defaultSort);
 
   const filterOptions = useMemo(() => {
     const dealers = new Map<string, { id: string; label: string }>();
@@ -96,6 +191,19 @@ export function PartnerResultsTable({
       }),
     [appliedFilters, results],
   );
+  const sortedResults = useMemo(
+    () =>
+      [...filteredResults].sort((left, right) => {
+        const comparison = getSortValue(left, sort.key).localeCompare(
+          getSortValue(right, sort.key),
+          "en",
+          { numeric: true },
+        );
+
+        return sort.direction === "asc" ? comparison : -comparison;
+      }),
+    [filteredResults, sort],
+  );
   const activeFilterCount = countActiveFilters(appliedFilters);
 
   if (results.length === 0) {
@@ -120,6 +228,9 @@ export function PartnerResultsTable({
   const paidAmount = filteredResults
     .filter((result) => result.payout_status === "paid")
     .reduce((sum, result) => sum + Number(result.paid_amount ?? result.partner_amount), 0);
+  const updateSort = (sortKey: PartnerResultSortKey) => {
+    setSort((current) => nextSort(current, sortKey));
+  };
 
   return (
     <section className="panel">
@@ -243,16 +354,21 @@ export function PartnerResultsTable({
         className="partner-results-table"
         wrapperClassName="registry-table-scroll"
         columns={[
-          { key: "dealer", label: "Dealer" },
-          { key: "month", label: "Month" },
-          { key: "partner", label: "Partner" },
+          sortableColumn({ label: "Dealer", sort, sortKey: "dealer", onSort: updateSort }),
+          sortableColumn({ label: "Month", sort, sortKey: "month", onSort: updateSort }),
+          sortableColumn({ label: "Partner", sort, sortKey: "partner", onSort: updateSort }),
           { key: "share", label: "Share %" },
           { key: "amount", label: "Partner amount" },
-          { key: "status", label: "Payment status" },
+          sortableColumn({
+            label: "Payment status",
+            sort,
+            sortKey: "paymentStatus",
+            onSort: updateSort,
+          }),
           { key: "payment", label: "Manage" },
         ]}
       >
-        {filteredResults.map((result) => (
+        {sortedResults.map((result) => (
           <tr key={result.id}>
             <td>
               {result.dealer_name}
