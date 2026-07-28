@@ -17,9 +17,9 @@ export function NetProfitByDealerTable({
           <thead>
             <tr>
               <th>Dealer</th>
-              <th>Gross</th>
-              <th>Expenses</th>
-              <th>Net</th>
+              <th className="numeric">Gross</th>
+              <th className="numeric">Expenses</th>
+              <th className="numeric">Net</th>
             </tr>
           </thead>
           <tbody>
@@ -29,9 +29,9 @@ export function NetProfitByDealerTable({
                   <strong>{row.dealerName}</strong>
                   <div className="muted small-text">#{row.dealerCode}</div>
                 </td>
-                <td>{formatCurrency(row.grossProfitTotal)}</td>
-                <td>{formatCurrency(row.expenseTotal)}</td>
-                <td>{formatCurrency(row.netProfitTotal)}</td>
+                <td className="numeric">{formatCurrency(row.grossProfitTotal)}</td>
+                <td className="numeric">{formatCurrency(row.expenseTotal)}</td>
+                <td className="strong-numeric">{formatCurrency(row.netProfitTotal)}</td>
               </tr>
             ))}
             {rows.length === 0 && (
@@ -62,7 +62,7 @@ export function ExpenseByDealerTable({
           <thead>
             <tr>
               <th>Dealer</th>
-              <th>Expense total</th>
+              <th className="numeric">Expense total</th>
             </tr>
           </thead>
           <tbody>
@@ -72,7 +72,7 @@ export function ExpenseByDealerTable({
                   <strong>{row.dealerName}</strong>
                   <div className="muted small-text">#{row.dealerCode}</div>
                 </td>
-                <td>{formatCurrency(row.expenseTotal)}</td>
+                <td className="strong-numeric">{formatCurrency(row.expenseTotal)}</td>
               </tr>
             ))}
             {rows.length === 0 && (

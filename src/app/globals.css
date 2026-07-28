@@ -1416,6 +1416,18 @@ textarea {
   border-color: rgba(226, 45, 134, 0.3);
 }
 
+.dashboard-kpi-strip .dashboard-metric-card:nth-child(2) {
+  border-color: rgba(0, 209, 143, 0.18);
+}
+
+.dashboard-kpi-strip .dashboard-metric-card:nth-child(3) {
+  border-color: rgba(246, 170, 22, 0.24);
+}
+
+.dashboard-kpi-strip .dashboard-metric-card:nth-child(4) {
+  border-color: rgba(0, 209, 143, 0.24);
+}
+
 .dashboard-metric-card .dashboard-metric-value {
   display: inline-flex;
   align-items: baseline;
@@ -1574,6 +1586,7 @@ textarea {
 .dashboard-table {
   width: 100%;
   border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
 }
 
 .dashboard-table th,
@@ -1612,12 +1625,52 @@ textarea {
 }
 
 .payout-total-strip article {
+  position: relative;
   display: grid;
   gap: 4px;
+  overflow: hidden;
   padding: 12px 14px;
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   background: var(--surface-sunken);
+}
+
+.payout-total-strip article::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--muted);
+}
+
+.payout-total-strip article.total {
+  background:
+    linear-gradient(180deg, rgba(47, 124, 255, 0.08) 0%, rgba(16, 17, 16, 0.96) 100%),
+    var(--surface-sunken);
+}
+
+.payout-total-strip article.total::before {
+  background: var(--info);
+}
+
+.payout-total-strip article.pending {
+  background:
+    linear-gradient(180deg, rgba(246, 170, 22, 0.12) 0%, rgba(16, 17, 16, 0.96) 100%),
+    var(--surface-sunken);
+}
+
+.payout-total-strip article.pending::before {
+  background: var(--warning);
+}
+
+.payout-total-strip article.paid {
+  background:
+    linear-gradient(180deg, rgba(0, 209, 143, 0.1) 0%, rgba(16, 17, 16, 0.96) 100%),
+    var(--surface-sunken);
+}
+
+.payout-total-strip article.paid::before {
+  background: var(--accent);
 }
 
 .payout-total-strip strong {
@@ -1658,6 +1711,30 @@ textarea {
 
 .payout-breakdown-table th {
   font-size: 10px;
+}
+
+.payout-mix-track {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  height: 5px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.payout-mix-segment {
+  display: block;
+  min-width: 0;
+  height: 100%;
+}
+
+.payout-mix-segment.paid {
+  background: var(--accent);
+}
+
+.payout-mix-segment.pending {
+  background: var(--warning);
 }
 
 .comparison-chart {

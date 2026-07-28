@@ -93,20 +93,44 @@ function BreakdownTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.key}>
-                <td>
-                  <strong>{row.label}</strong>
-                  <div className="muted small-text">
-                    {row.helper ? `${row.helper} · ` : ""}
-                    {row.payoutCount} payouts
-                  </div>
-                </td>
-                <td className="strong-numeric">{formatCurrency(row.totalAmount)}</td>
-                <td className="numeric">{formatCurrency(row.pendingAmount)}</td>
-                <td className="numeric">{formatCurrency(row.paidAmount)}</td>
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const paidPercent =
+                row.totalAmount > 0
+                  ? Math.round((row.paidAmount / row.totalAmount) * 100)
+                  : 0;
+              const pendingPercent =
+                row.totalAmount > 0
+                  ? Math.max(0, 100 - paidPercent)
+                  : 0;
+
+              return (
+                <tr key={row.key}>
+                  <td>
+                    <strong>{row.label}</strong>
+                    <div className="muted small-text">
+                      {row.helper ? `${row.helper} · ` : ""}
+                      {row.payoutCount} payouts
+                    </div>
+                    <div
+                      aria-label={`${paidPercent}% paid and ${pendingPercent}% pending`}
+                      className="payout-mix-track"
+                    >
+                      <span
+                        className="payout-mix-segment paid"
+                        style={{ width: `${paidPercent}%` }}
+                      />
+                      <span
+                        className="payout-mix-segment pending"
+                        style={{ width: `${pendingPercent}%` }}
+                      />
+                    </div>
+                  </td>
+                  <td className="strong-numeric">{formatCurrency(row.totalAmount)}</td>
+                  <td className="numeric">{formatCurrency(row.pendingAmount)}</td>
+                  <td className="numeric">{formatCurrency(row.paidAmount)}</td>
+                </tr>
+              );
+            })}
             {rows.length === 0 && (
               <tr>
                 <td className="muted" colSpan={4}>
@@ -143,15 +167,15 @@ export function PayoutSummaryCard({
       <h2 style={{ marginTop: 0 }}>{title}</h2>
 
       <div className="payout-total-strip">
-        <article>
+        <article className="total">
           <span className="muted small-text">Total</span>
           <strong>{formatCurrency(totalAmount)}</strong>
         </article>
-        <article>
+        <article className="pending">
           <span className="muted small-text">Pending</span>
           <strong>{formatCurrency(pendingAmount)}</strong>
         </article>
-        <article>
+        <article className="paid">
           <span className="muted small-text">Paid</span>
           <strong>{formatCurrency(paidAmount)}</strong>
         </article>
@@ -168,8 +192,9 @@ export function PayoutSummaryCard({
           <thead>
             <tr>
               <th>Dealer</th>
+              <th>Month</th>
               <th>Partner</th>
-              <th>Amount</th>
+              <th className="numeric">Amount</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -180,8 +205,9 @@ export function PayoutSummaryCard({
                   <strong>{row.dealerName}</strong>
                   <div className="muted small-text">#{row.dealerCode}</div>
                 </td>
+                <td>{row.periodMonth.slice(0, 7)}</td>
                 <td>{row.partnerName}</td>
-                <td>{formatCurrency(row.partnerAmount)}</td>
+                <td className="strong-numeric">{formatCurrency(row.partnerAmount)}</td>
                 <td>
                   <span
                     className={`status-pill ${
@@ -195,7 +221,7 @@ export function PayoutSummaryCard({
             ))}
             {rows.length === 0 && (
               <tr>
-                <td className="muted" colSpan={4}>
+                <td className="muted" colSpan={5}>
                   No payout rows available for this filter set.
                 </td>
               </tr>
