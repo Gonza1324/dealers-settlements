@@ -543,6 +543,9 @@ textarea {
 
 .imports-table-wrapper {
   overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-sunken);
 }
 
 .imports-table {
@@ -552,14 +555,15 @@ textarea {
 
 .imports-table th,
 .imports-table td {
-  padding: 14px 12px;
+  padding: 12px 14px;
   border-top: 1px solid var(--border-soft);
   vertical-align: top;
   text-align: left;
 }
 
 .imports-table th {
-  font-size: 12px;
+  background: var(--surface);
+  font-size: 11px;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -777,7 +781,9 @@ textarea {
 .registry-table-scroll {
   max-height: clamp(520px, 62vh, 680px);
   overflow: auto;
-  border-top: 1px solid var(--border-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-sunken);
   max-width: 100%;
 }
 
@@ -836,6 +842,9 @@ textarea {
   overflow-x: auto;
   max-width: 100%;
   min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-sunken);
 }
 
 .masters-table {
@@ -845,14 +854,15 @@ textarea {
 
 .masters-table th,
 .masters-table td {
-  padding: 14px 10px;
+  padding: 12px 14px;
   border-top: 1px solid var(--border-soft);
   text-align: left;
   vertical-align: top;
 }
 
 .masters-table th {
-  font-size: 12px;
+  background: var(--surface);
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
@@ -897,14 +907,14 @@ textarea {
 }
 
 .deals-results-table th {
-  padding: 16px 12px;
+  padding: 12px 14px;
   font-size: 11px;
   line-height: 1.35;
   white-space: nowrap;
 }
 
 .deals-results-table td {
-  padding: 19px 12px;
+  padding: 14px;
 }
 
 .deals-results-table th:nth-child(2),
@@ -1376,6 +1386,9 @@ textarea {
 
 .dashboard-table-wrapper {
   overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-sunken);
 }
 
 .dashboard-table {
@@ -1385,14 +1398,15 @@ textarea {
 
 .dashboard-table th,
 .dashboard-table td {
-  padding: 14px 12px;
+  padding: 12px 14px;
   border-top: 1px solid var(--border-soft);
   text-align: left;
   vertical-align: top;
 }
 
 .dashboard-table th {
-  font-size: 12px;
+  background: var(--surface);
+  font-size: 11px;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1444,6 +1458,11 @@ textarea {
   border-radius: 12px;
   background: var(--surface-sunken);
   overflow: hidden;
+}
+
+.payout-breakdown-card .dashboard-table-wrapper {
+  border: 0;
+  border-radius: 0;
 }
 
 .payout-breakdown-card h3 {
