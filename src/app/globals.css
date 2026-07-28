@@ -54,7 +54,8 @@ body {
 }
 
 body {
-  min-width: 1280px;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 a {
@@ -89,6 +90,7 @@ textarea {
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
+  min-width: 0;
 }
 
 .sidebar {
@@ -129,6 +131,7 @@ textarea {
   display: grid;
   gap: 10px;
   min-width: 0;
+  max-width: 100%;
 }
 
 .page-intro-title {
@@ -144,6 +147,7 @@ textarea {
   gap: 10px;
   align-items: center;
   justify-content: flex-end;
+  min-width: 0;
 }
 
 .hero-card,
@@ -386,7 +390,7 @@ textarea {
 }
 
 .login-card {
-  width: 480px;
+  width: min(480px, calc(100vw - 32px));
   margin: 96px auto;
   padding: 32px;
 }
@@ -901,7 +905,7 @@ textarea {
 }
 
 .masters-filter {
-  width: 320px;
+  width: min(320px, 100%);
   height: 40px;
   border-radius: 10px;
   border: 1px solid var(--border);
@@ -1791,12 +1795,68 @@ textarea {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .dashboard-kpi-strip.grid.four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .dashboard-insight-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .payout-breakdown-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: relative;
+    height: auto;
+    max-height: none;
+  }
+
+  .content,
+  .page {
+    width: 100%;
+  }
+
+  .page {
+    padding: 18px 14px 36px;
+  }
+
+  .page-intro,
+  .masters-toolbar,
+  .masters-section-header,
+  .dashboard-card-header,
+  .dashboard-quick-actions,
+  .settlement-results-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-intro-actions,
+  .dashboard-card-header .action-button,
+  .dashboard-card-header .ghost-button {
+    justify-content: flex-start;
+  }
+
+  .grid.two,
+  .grid.three,
+  .grid.four,
+  .masters-form,
+  .filter-form-grid,
+  .filter-form-grid.compact,
+  .dashboard-filters-form,
+  .settlement-results-filter-panel,
+  .settlement-results-totals,
+  .payout-total-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .expenses-categories-layout {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1804,6 +1864,28 @@ textarea {
   .dashboard-insight-grid,
   .dashboard-primary-row {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-highlight-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .filter-panel-actions,
+  .dashboard-filters-form .filter-panel-actions,
+  .settlement-results-filter-panel .filter-panel-actions {
+    flex-wrap: wrap;
+  }
+
+  .masters-form .action-button,
+  .action-button,
+  .secondary-button,
+  .ghost-button {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .payout-form {
+    min-width: min(460px, calc(100vw - 64px));
   }
 }
 
