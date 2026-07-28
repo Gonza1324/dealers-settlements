@@ -66,15 +66,6 @@ export function Sidebar({
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-brand">
-        <span aria-hidden="true" className="sidebar-brand-mark">
-          DS
-        </span>
-        <div>
-          <strong>Dealers</strong>
-          <span>Settlements</span>
-        </div>
-      </div>
       <div className="sidebar-nav-groups">
         {sortedGroups.map(([group, items]) => (
           <section key={group}>
