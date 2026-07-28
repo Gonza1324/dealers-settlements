@@ -233,7 +233,7 @@ export function PartnerResultsTable({
   };
 
   return (
-    <section className="panel">
+    <section className="panel settlement-partner-panel">
       <p className="eyebrow">Partner view</p>
       <div className="settlement-results-header">
         <div>
@@ -253,15 +253,15 @@ export function PartnerResultsTable({
           </div>
         </div>
         <div className="settlement-results-totals">
-          <article>
+          <article className="settlement-total-card total">
             <span>Total</span>
             <strong>{formatCurrency(totalAmount)}</strong>
           </article>
-          <article>
+          <article className="settlement-total-card warning">
             <span>Pending</span>
             <strong>{formatCurrency(pendingAmount)}</strong>
           </article>
-          <article>
+          <article className="settlement-total-card success">
             <span>Paid</span>
             <strong>{formatCurrency(paidAmount)}</strong>
           </article>
