@@ -1,5 +1,6 @@
 import type { DealerDetailReport as DealerDetailReportData } from "@/features/dashboard/types";
 import { formatCurrency } from "@/lib/utils/format";
+import { payoutStatusTone } from "@/lib/utils/payout-status";
 
 export function DealerDetailReport({
   report,
@@ -122,9 +123,7 @@ export function DealerDetailReport({
                 <td>{formatCurrency(partner.amount)}</td>
                 <td>
                   <span
-                    className={`status-pill ${
-                      partner.paymentStatus === "paid" ? "success" : "warning"
-                    }`}
+                    className={`status-pill ${payoutStatusTone(partner.paymentStatus)}`}
                   >
                     {partner.paymentStatus}
                   </span>

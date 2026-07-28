@@ -1,5 +1,6 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { AppRole } from "@/types/database";
+import type { AppRole, PaymentStatus } from "@/types/database";
+import { resolvePayoutStatusFromAmounts } from "@/lib/utils/payout-status";
 import type {
   DashboardFilters,
   DashboardOption,
@@ -32,6 +33,16 @@ type DealerLookup = {
 type FinancierLookup = {
   id: string;
   name: string;
+};
+
+type DashboardPayoutRow = {
+  dealer_id: string;
+  id?: string;
+  paid_amount: unknown;
+  paid_at?: unknown;
+  partner_id: string;
+  payment_status: PaymentStatus;
+  period_month: string;
 };
 
 function toMonthStart(periodMonth: string) {
@@ -124,7 +135,7 @@ function summarizeDealerResults(
 }
 
 function buildPayoutMap(
-  payouts: Array<Record<string, unknown>>,
+  payouts: DashboardPayoutRow[],
 ) {
   return new Map(
     payouts.map((row) => [
@@ -267,7 +278,7 @@ export async function getDashboardPageData(params: {
       partnerAmount: toNumber(row.partner_amount),
     }));
 
-  let payouts = (payoutResponse.data ?? []) as Array<Record<string, unknown>>;
+  let payouts = (payoutResponse.data ?? []) as DashboardPayoutRow[];
 
   if (visibleDealerIds) {
     dealerPerformance = dealerPerformance.filter((row) =>
@@ -301,8 +312,13 @@ export async function getDashboardPageData(params: {
 
   let payoutRows = partnerResults.map((row) => {
     const payout = payoutMap.get(`${row.dealerId}::${row.partnerId}::${row.periodMonth}`);
-    const paymentStatus =
-      payout?.payment_status === "paid" ? "paid" : "pending";
+    const paidAmount =
+      payout && payout.paid_amount !== null ? toNumber(payout.paid_amount) : null;
+    const paymentStatus = resolvePayoutStatusFromAmounts({
+      storedStatus: payout?.payment_status ?? null,
+      paidAmount,
+      totalAmount: row.partnerAmount,
+    });
 
     return {
       payoutId: payout?.id ? String(payout.id) : null,
@@ -314,8 +330,7 @@ export async function getDashboardPageData(params: {
       periodMonth: row.periodMonth,
       partnerAmount: row.partnerAmount,
       paymentStatus,
-      paidAmount:
-        payout && payout.paid_amount !== null ? toNumber(payout.paid_amount) : null,
+      paidAmount,
       paidAt: payout?.paid_at ? String(payout.paid_at).slice(0, 10) : null,
     };
   }) satisfies DashboardPayoutRecord[];
@@ -498,7 +513,7 @@ export async function getDashboardPageData(params: {
     expenseTotal: row.expenseTotal,
   })) satisfies PartnerDealerSnapshot[];
 
-  const pendingPayoutRows = payoutRows.filter((row) => row.paymentStatus === "pending");
+  const openPayoutRows = payoutRows.filter((row) => row.paymentStatus !== "paid");
   const paidPayoutRows = payoutRows.filter((row) => row.paymentStatus === "paid");
   const partnerName =
     params.role === "partner_viewer" && partnerRecordResponse.data
@@ -529,14 +544,18 @@ export async function getDashboardPageData(params: {
       dealCount: filteredDeals.length,
       deadDealCount: filteredDeadDeals.length,
       visibleDealerCount: dealerPerformance.length,
-      pendingPayoutCount: pendingPayoutRows.length,
+      pendingPayoutCount: openPayoutRows.length,
       paidPayoutCount: paidPayoutRows.length,
-      pendingPayoutAmount: pendingPayoutRows.reduce(
-        (sum, row) => sum + row.partnerAmount,
+      pendingPayoutAmount: openPayoutRows.reduce(
+        (sum, row) => sum + Math.max(0, row.partnerAmount - (row.paidAmount ?? 0)),
         0,
       ),
-      paidPayoutAmount: paidPayoutRows.reduce(
-        (sum, row) => sum + (row.paidAmount ?? row.partnerAmount),
+      paidPayoutAmount: payoutRows.reduce(
+        (sum, row) =>
+          sum +
+          (row.paymentStatus === "paid"
+            ? row.paidAmount ?? row.partnerAmount
+            : row.paidAmount ?? 0),
         0,
       ),
     },

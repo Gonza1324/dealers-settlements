@@ -60,6 +60,7 @@ export function DashboardFiltersForm({
           <select defaultValue={filters.paymentStatus} name="paymentStatus">
             <option value="">All</option>
             <option value="pending">Pending</option>
+            <option value="partial">Partial</option>
             <option value="paid">Paid</option>
           </select>
         </label>

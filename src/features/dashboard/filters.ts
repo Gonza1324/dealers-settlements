@@ -25,7 +25,9 @@ export function parseDashboardFilters(
     dealerId: readString(searchParams.dealerId),
     financierId: readString(searchParams.financierId),
     paymentStatus:
-      paymentStatus === "pending" || paymentStatus === "paid"
+      paymentStatus === "pending" ||
+      paymentStatus === "partial" ||
+      paymentStatus === "paid"
         ? paymentStatus
         : "",
   };

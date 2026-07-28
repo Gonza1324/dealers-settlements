@@ -26,7 +26,7 @@ export const settlementPayoutSchema = z
   .object({
     payoutId: z.string().uuid(),
     runId: z.string().uuid().optional(),
-    paymentStatus: z.enum(["pending", "paid"]),
+    paymentStatus: z.enum(["pending", "partial", "paid"]),
     paidAmount: z.preprocess((value) => {
       if (value === "" || value === null || value === undefined) {
         return null;
@@ -50,11 +50,17 @@ export const settlementPayoutSchema = z
     ),
   })
   .superRefine((value, ctx) => {
-    if (value.paymentStatus === "paid") {
+    if (value.paymentStatus === "paid" || value.paymentStatus === "partial") {
       if (value.paidAmount === null) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Paid amount is required when status is paid.",
+          message: "Paid amount is required when status is paid or partial.",
+          path: ["paidAmount"],
+        });
+      } else if (value.paidAmount <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Paid amount must be greater than 0 when status is paid or partial.",
           path: ["paidAmount"],
         });
       }
@@ -62,8 +68,16 @@ export const settlementPayoutSchema = z
       if (value.paidAt === null) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Paid date is required when status is paid.",
+          message: "Paid date is required when status is paid or partial.",
           path: ["paidAt"],
+        });
+      }
+
+      if (!value.paymentMethod) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Payment method is required when status is paid or partial.",
+          path: ["paymentMethod"],
         });
       }
     }

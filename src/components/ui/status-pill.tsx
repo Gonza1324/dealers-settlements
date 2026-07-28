@@ -1,4 +1,4 @@
-export type StatusPillTone = "success" | "warning" | "danger" | "muted";
+export type StatusPillTone = "success" | "warning" | "danger" | "info" | "muted";
 
 export function StatusPill({
   children,

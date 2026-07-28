@@ -14,6 +14,7 @@ import {
   removeSettlementAttachment,
   uploadSettlementAttachment,
 } from "@/features/settlements/storage";
+import type { PaymentStatus } from "@/types/database";
 
 async function fail(message: string): Promise<FormActionState> {
   return { ...initialFormState, error: message };
@@ -110,7 +111,9 @@ export async function savePartnerPayout(
   let attachmentPath = payload.existingAttachmentPath || null;
   const incomingAttachment = formData.get("paymentAttachment");
   const attachmentFile =
-    incomingAttachment instanceof File && incomingAttachment.size > 0
+    payload.paymentStatus !== "pending" &&
+    incomingAttachment instanceof File &&
+    incomingAttachment.size > 0
       ? incomingAttachment
       : null;
 
@@ -142,16 +145,42 @@ export async function savePartnerPayout(
     .select("*")
     .eq("id", payload.payoutId)
     .maybeSingle();
+
+  if (!before) {
+    return fail("Payout not found.");
+  }
+
+  const { data: selectedResult, error: selectedResultError } = before.selected_result_id
+    ? await supabase
+        .from("partner_monthly_results")
+        .select("partner_amount")
+        .eq("id", before.selected_result_id)
+        .maybeSingle()
+    : { data: null, error: null };
+
+  if (selectedResultError) {
+    return fail(selectedResultError.message);
+  }
+
+  const totalAmount = Number(selectedResult?.partner_amount ?? 0);
+  const paidAmount = payload.paidAmount ?? 0;
+  const resolvedPaymentStatus: PaymentStatus =
+    payload.paymentStatus === "pending" || paidAmount <= 0
+      ? "pending"
+      : totalAmount > 0 && paidAmount < totalAmount
+        ? "partial"
+        : "paid";
+  const hasPaymentDetails = resolvedPaymentStatus !== "pending";
+
   const { error } = await supabase
     .from("partner_monthly_payouts")
     .update({
-      payment_status: payload.paymentStatus,
-      paid_amount: payload.paymentStatus === "paid" ? payload.paidAmount : null,
-      paid_at: payload.paymentStatus === "paid" ? payload.paidAt : null,
-      payment_method: payload.paymentStatus === "paid" ? payload.paymentMethod || null : null,
-      payment_note: payload.paymentStatus === "paid" ? payload.paymentNote || null : null,
-      payment_attachment_path:
-        payload.paymentStatus === "paid" ? attachmentPath : null,
+      payment_status: resolvedPaymentStatus,
+      paid_amount: hasPaymentDetails ? paidAmount : null,
+      paid_at: hasPaymentDetails ? payload.paidAt : null,
+      payment_method: hasPaymentDetails ? payload.paymentMethod || null : null,
+      payment_note: hasPaymentDetails ? payload.paymentNote || null : null,
+      payment_attachment_path: hasPaymentDetails ? attachmentPath : null,
     })
     .eq("id", payload.payoutId);
 
@@ -175,7 +204,7 @@ export async function savePartnerPayout(
     metadata: {
       module: "settlements",
       runId: payload.runId,
-      paymentStatus: payload.paymentStatus,
+      paymentStatus: resolvedPaymentStatus,
     },
   });
 

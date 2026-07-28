@@ -1,5 +1,6 @@
 import type { DashboardPayoutRecord } from "@/features/dashboard/types";
 import { formatCurrency } from "@/lib/utils/format";
+import { payoutStatusTone } from "@/lib/utils/payout-status";
 
 type PayoutBreakdownRow = {
   key: string;
@@ -29,16 +30,16 @@ function addToBreakdown(
       paidAmount: 0,
       payoutCount: 0,
     } satisfies PayoutBreakdownRow);
-  const paidAmount = row.paidAmount ?? row.partnerAmount;
+  const paidAmount =
+    row.paymentStatus === "paid"
+      ? row.paidAmount ?? row.partnerAmount
+      : row.paidAmount ?? 0;
+  const pendingAmount = Math.max(0, row.partnerAmount - paidAmount);
 
   current.totalAmount += row.partnerAmount;
   current.payoutCount += 1;
-
-  if (row.paymentStatus === "paid") {
-    current.paidAmount += paidAmount;
-  } else {
-    current.pendingAmount += row.partnerAmount;
-  }
+  current.paidAmount += paidAmount;
+  current.pendingAmount += pendingAmount;
 
   groups.set(key, current);
 }
@@ -155,11 +156,16 @@ export function PayoutSummaryCard({
   const breakdowns = buildBreakdowns(rows);
   const totalAmount = rows.reduce((sum, row) => sum + row.partnerAmount, 0);
   const pendingAmount = rows
-    .filter((row) => row.paymentStatus === "pending")
-    .reduce((sum, row) => sum + row.partnerAmount, 0);
+    .reduce((sum, row) => sum + Math.max(0, row.partnerAmount - (row.paidAmount ?? 0)), 0);
   const paidAmount = rows
-    .filter((row) => row.paymentStatus === "paid")
-    .reduce((sum, row) => sum + (row.paidAmount ?? row.partnerAmount), 0);
+    .reduce(
+      (sum, row) =>
+        sum +
+        (row.paymentStatus === "paid"
+          ? row.paidAmount ?? row.partnerAmount
+          : row.paidAmount ?? 0),
+      0,
+    );
 
   return (
     <section className="panel payout-summary-panel">
@@ -210,9 +216,7 @@ export function PayoutSummaryCard({
                 <td className="strong-numeric">{formatCurrency(row.partnerAmount)}</td>
                 <td>
                   <span
-                    className={`status-pill ${
-                      row.paymentStatus === "paid" ? "success" : "warning"
-                    }`}
+                    className={`status-pill ${payoutStatusTone(row.paymentStatus)}`}
                   >
                     {row.paymentStatus}
                   </span>

@@ -70,7 +70,7 @@ end $$;
 do $$
 begin
   if not exists (select 1 from pg_type where typname = 'payment_status') then
-    create type public.payment_status as enum ('pending', 'paid');
+    create type public.payment_status as enum ('pending', 'partial', 'paid');
   end if;
 end $$;
 
@@ -1324,9 +1324,9 @@ create table if not exists public.partner_monthly_payouts (
         and payment_method is null
       )
       or (
-        payment_status = 'paid'
+        payment_status in ('paid', 'partial')
         and paid_amount is not null
-        and paid_amount >= 0
+        and paid_amount > 0
         and paid_at is not null
         and payment_method is not null
         and btrim(payment_method) <> ''

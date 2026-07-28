@@ -17,6 +17,7 @@ import type {
   SettlementPartnerScope,
   SettlementRunDetailData,
 } from "@/features/settlements/types";
+import { resolvePayoutStatusFromAmounts } from "@/lib/utils/payout-status";
 
 function mapRunRecord(
   row: Record<string, unknown> & {
@@ -122,8 +123,13 @@ function applyPayoutsToPartnerResults(params: {
         periodMonth: result.period_month,
       }),
     );
-    const payoutStatus: PaymentStatus =
-      payout?.payment_status === "paid" ? "paid" : "pending";
+    const payoutStatus = resolvePayoutStatusFromAmounts({
+      storedStatus: payout?.payment_status ?? null,
+      paidAmount: payout?.paid_amount === null || payout?.paid_amount === undefined
+        ? null
+        : Number(payout.paid_amount),
+      totalAmount: Number(result.partner_amount),
+    });
 
     return {
       ...result,

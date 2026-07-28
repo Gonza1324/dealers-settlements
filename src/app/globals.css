@@ -808,6 +808,12 @@ textarea {
   border-color: rgba(246, 170, 22, 0.3);
 }
 
+.status-pill.info {
+  color: #73a7ff;
+  background: var(--info-soft);
+  border-color: rgba(47, 124, 255, 0.34);
+}
+
 .status-pill.danger,
 .status-pill.invalid {
   color: var(--danger);

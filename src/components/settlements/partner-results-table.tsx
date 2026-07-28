@@ -8,6 +8,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { PayoutForm } from "@/components/settlements/payout-form";
 import type { PartnerMonthlyResultRecord } from "@/features/settlements/types";
 import { formatCurrency } from "@/lib/utils/format";
+import { payoutStatusTone } from "@/lib/utils/payout-status";
 
 type PartnerResultFilters = {
   dealerId: string;
@@ -223,11 +224,23 @@ export function PartnerResultsTable({
     0,
   );
   const pendingAmount = filteredResults
-    .filter((result) => result.payout_status === "pending")
-    .reduce((sum, result) => sum + Number(result.partner_amount), 0);
+    .reduce(
+      (sum, result) =>
+        sum +
+        (result.payout_status === "paid"
+          ? 0
+          : Math.max(0, Number(result.partner_amount) - Number(result.paid_amount ?? 0))),
+      0,
+    );
   const paidAmount = filteredResults
-    .filter((result) => result.payout_status === "paid")
-    .reduce((sum, result) => sum + Number(result.paid_amount ?? result.partner_amount), 0);
+    .reduce(
+      (sum, result) =>
+        sum +
+        (result.payout_status === "paid"
+          ? Number(result.paid_amount ?? result.partner_amount)
+          : Number(result.paid_amount ?? 0)),
+      0,
+    );
   const updateSort = (sortKey: PartnerResultSortKey) => {
     setSort((current) => nextSort(current, sortKey));
   };
@@ -382,7 +395,7 @@ export function PartnerResultsTable({
             <td>{result.share_percentage_snapshot}</td>
             <td>{formatCurrency(result.partner_amount)}</td>
             <td>
-              <StatusPill tone={result.payout_status === "paid" ? "success" : "warning"}>
+              <StatusPill tone={payoutStatusTone(result.payout_status)}>
                 {result.payout_status}
               </StatusPill>
               {result.payment_attachment_url && (

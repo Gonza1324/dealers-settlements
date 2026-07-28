@@ -1024,7 +1024,7 @@ export interface Database {
         | "selected_dealers"
         | "all_dealers";
       import_file_status: "uploaded" | "validated" | "consolidated" | "error";
-      payment_status: "pending" | "paid";
+      payment_status: "pending" | "partial" | "paid";
       row_duplicate_status:
         | "not_checked"
         | "unique"

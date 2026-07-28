@@ -31,6 +31,7 @@ export function PayoutForm({
           name="paymentStatus"
         >
           <option value="pending">pending</option>
+          <option value="partial">partial</option>
           <option value="paid">paid</option>
         </select>
       </label>

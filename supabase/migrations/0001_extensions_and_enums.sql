@@ -60,6 +60,6 @@ end $$;
 do $$
 begin
   if not exists (select 1 from pg_type where typname = 'payment_status') then
-    create type public.payment_status as enum ('pending', 'paid');
+    create type public.payment_status as enum ('pending', 'partial', 'paid');
   end if;
 end $$;
