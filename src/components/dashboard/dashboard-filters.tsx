@@ -21,8 +21,8 @@ export function DashboardFiltersForm({
     <section className="panel filter-panel">
       <div className="filter-panel-header">
         <div>
-          <p className="eyebrow">Dashboard filters</p>
-          <h2>Refine the visible business picture</h2>
+          <p className="eyebrow">Dashboard</p>
+          <h2>Business control view</h2>
         </div>
         <div className="filter-summary">
           {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing default scope"}

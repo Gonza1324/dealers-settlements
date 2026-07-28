@@ -1098,12 +1098,12 @@ textarea {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .filter-panel-header h2 {
   margin: 0 0 4px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .filter-panel-header p {
@@ -1191,9 +1191,14 @@ textarea {
 
 .dashboard-filters-form {
   display: grid;
-  grid-template-columns: repeat(4, minmax(180px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(4, minmax(160px, 1fr)) auto;
+  gap: 10px;
   align-items: end;
+}
+
+.dashboard-filters-form .filter-panel-actions {
+  flex-wrap: nowrap;
+  margin-top: 0;
 }
 
 .dashboard-quick-actions {
@@ -1234,12 +1239,16 @@ textarea {
 
 .dashboard-insight-card {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   min-height: 118px;
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--surface);
+}
+
+.dashboard-insight-card.positive {
+  border-color: rgba(0, 209, 143, 0.18);
 }
 
 .dashboard-insight-card.warning {
@@ -1257,6 +1266,33 @@ textarea {
   color: var(--muted);
   font-size: 12px;
   line-height: 1.35;
+}
+
+.dashboard-progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.dashboard-progress-bar {
+  display: block;
+  height: 100%;
+  min-width: 6px;
+  border-radius: inherit;
+}
+
+.dashboard-progress-bar.positive {
+  background: linear-gradient(90deg, var(--accent) 0%, #35e8ad 100%);
+}
+
+.dashboard-progress-bar.warning {
+  background: linear-gradient(90deg, var(--warning) 0%, #ffd36c 100%);
+}
+
+.dashboard-progress-bar.info {
+  background: linear-gradient(90deg, var(--info) 0%, var(--brand) 100%);
 }
 
 .dashboard-primary-row {
