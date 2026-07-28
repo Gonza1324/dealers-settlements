@@ -430,18 +430,18 @@ textarea {
 .import-form {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
   align-items: end;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .field span {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
@@ -451,12 +451,12 @@ textarea {
 .field input,
 .field select,
 .field textarea {
-  height: 44px;
-  border-radius: 12px;
+  height: 40px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface-sunken);
   color: var(--foreground);
-  padding: 0 14px;
+  padding: 0 12px;
   transition:
     border-color 0.15s var(--ease),
     box-shadow 0.15s var(--ease),
@@ -466,7 +466,7 @@ textarea {
 .field textarea {
   height: auto;
   min-height: 120px;
-  padding: 12px 14px;
+  padding: 10px 12px;
 }
 
 .field input:hover,
@@ -490,10 +490,10 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
+  height: 40px;
   border: 0;
-  border-radius: 12px;
-  padding: 0 18px;
+  border-radius: 10px;
+  padding: 0 16px;
   background: var(--brand);
   color: white;
   font-weight: 700;
@@ -523,10 +523,10 @@ textarea {
 }
 
 .secondary-button {
-  height: 40px;
+  height: 38px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0 14px;
+  border-radius: 10px;
+  padding: 0 12px;
   background: var(--surface-sunken);
   color: var(--foreground);
   font-weight: 700;
@@ -763,12 +763,12 @@ textarea {
 }
 
 .ghost-button {
-  height: 40px;
+  height: 38px;
   border: 1px solid var(--border);
   background: var(--surface-sunken);
   color: var(--foreground);
-  border-radius: 12px;
-  padding: 0 14px;
+  border-radius: 10px;
+  padding: 0 12px;
   cursor: pointer;
   transition:
     border-color 0.15s var(--ease),
@@ -856,8 +856,8 @@ textarea {
 
 .masters-filter {
   width: 320px;
-  height: 46px;
-  border-radius: 12px;
+  height: 40px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface-sunken);
   color: var(--foreground);
@@ -867,11 +867,11 @@ textarea {
 .masters-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .masters-form textarea {
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface-sunken);
   padding: 12px 14px;
@@ -1068,10 +1068,10 @@ textarea {
 .settlement-results-filter-panel {
   display: grid;
   grid-template-columns: repeat(3, minmax(180px, 1fr));
-  gap: 12px;
+  gap: 10px;
   align-items: end;
   margin-bottom: 18px;
-  padding: 14px;
+  padding: 12px;
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   background: var(--surface-sunken);
@@ -1149,7 +1149,8 @@ textarea {
 }
 
 .filter-panel {
-  margin-bottom: 24px;
+  margin-bottom: 18px;
+  padding: 14px;
   background: var(--surface);
 }
 
@@ -1173,27 +1174,27 @@ textarea {
 .filter-form-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
 }
 
 .filter-form-grid.compact {
-  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  grid-template-columns: repeat(4, minmax(160px, 1fr)) auto;
 }
 
 .filter-panel-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .filter-summary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
-  padding: 0 12px;
+  min-height: 34px;
+  padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface-sunken);
