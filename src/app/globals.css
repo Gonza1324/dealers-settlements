@@ -187,7 +187,28 @@ textarea {
 .selected-dealers-list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
+  gap: 8px;
+}
+
+.selected-dealers-list .field span,
+.field .grid > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  color: var(--foreground-soft);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field .grid > label {
+  width: 100%;
 }
 
 .panel,
@@ -438,6 +459,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .field span {
@@ -454,7 +476,9 @@ textarea {
   height: 40px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: var(--surface-sunken);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, rgba(255, 255, 255, 0) 100%),
+    var(--surface-sunken);
   color: var(--foreground);
   padding: 0 12px;
   transition:
@@ -465,8 +489,30 @@ textarea {
 
 .field textarea {
   height: auto;
-  min-height: 120px;
+  min-height: 96px;
   padding: 10px 12px;
+}
+
+.field input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+.field > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  color: var(--foreground-soft);
+  line-height: 1.2;
 }
 
 .field input:hover,
@@ -867,7 +913,17 @@ textarea {
 .masters-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  background:
+    radial-gradient(90% 120% at 0% 0%, rgba(226, 45, 134, 0.08), transparent 52%),
+    var(--surface-sunken);
+}
+
+.masters-form > .grid {
+  grid-column: 1 / -1;
 }
 
 .masters-form textarea {
@@ -880,6 +936,18 @@ textarea {
 
 .masters-form-wide {
   grid-column: 1 / -1;
+}
+
+.masters-form .action-button,
+.masters-form .secondary-button,
+.masters-form .error-text,
+.masters-form .success-text {
+  grid-column: 1 / -1;
+}
+
+.masters-form .action-button {
+  width: fit-content;
+  min-width: 160px;
 }
 
 .masters-table-wrapper {
