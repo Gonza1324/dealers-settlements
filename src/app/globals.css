@@ -1503,7 +1503,9 @@ textarea {
 }
 
 .dashboard-metric-card h2 {
-  font-size: 28px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(24px, 2.4vw, 28px);
   line-height: 1;
 }
 
@@ -1982,6 +1984,7 @@ textarea {
   .grid.two,
   .grid.three,
   .grid.four,
+  .dashboard-kpi-strip.grid.four,
   .masters-form,
   .filter-form-grid,
   .filter-form-grid.compact,
@@ -2021,6 +2024,19 @@ textarea {
 
   .payout-form {
     min-width: min(460px, calc(100vw - 64px));
+  }
+
+  .dashboard-metric-card {
+    padding: 16px;
+  }
+
+  .dashboard-metric-card h2 {
+    font-size: clamp(26px, 12vw, 44px);
+  }
+
+  .dashboard-metric-card .muted {
+    font-size: 14px;
+    line-height: 1.35;
   }
 }
 
