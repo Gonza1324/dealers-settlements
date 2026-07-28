@@ -4,6 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { NavItem } from "@/lib/auth/navigation";
 
+const NAV_ICONS: Record<string, string> = {
+  "/audit": "◷",
+  "/dashboard": "▦",
+  "/dead-deals": "×",
+  "/dealers": "▣",
+  "/deals": "↗",
+  "/expenses": "$",
+  "/financiers": "◉",
+  "/imports": "⇣",
+  "/partners": "◇",
+  "/settings": "⚙",
+  "/settlements": "✓",
+};
+
 export function NavSection({
   items,
 }: {
@@ -23,6 +37,9 @@ export function NavSection({
             className={isActive ? "nav-link active" : "nav-link"}
             href={item.href}
           >
+            <span aria-hidden="true" className="nav-link-icon">
+              {NAV_ICONS[item.href] ?? "•"}
+            </span>
             {item.label}
           </Link>
         );

@@ -66,6 +66,15 @@ export function Sidebar({
 
   return (
     <aside className="sidebar">
+      <div className="sidebar-brand">
+        <span aria-hidden="true" className="sidebar-brand-mark">
+          DS
+        </span>
+        <div>
+          <strong>Dealers</strong>
+          <span>Settlements</span>
+        </div>
+      </div>
       <div className="sidebar-nav-groups">
         {sortedGroups.map(([group, items]) => (
           <section key={group}>
@@ -75,6 +84,9 @@ export function Sidebar({
         ))}
       </div>
       <div className="sidebar-account-card">
+        <span className="sidebar-account-avatar" aria-hidden="true">
+          {profile.fullName.slice(0, 1).toUpperCase()}
+        </span>
         <h3>{profile.fullName}</h3>
         <p>{profile.role}</p>
         <form action="/logout" method="post">

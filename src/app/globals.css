@@ -103,6 +103,49 @@ textarea {
   overflow-y: auto;
 }
 
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-bottom: 22px;
+  padding: 0 8px;
+}
+
+.sidebar-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--brand);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 12px 24px rgba(226, 45, 134, 0.22);
+}
+
+.sidebar-brand strong,
+.sidebar-brand span {
+  display: block;
+  line-height: 1.08;
+}
+
+.sidebar-brand strong {
+  font-size: 15px;
+}
+
+.sidebar-brand span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .content {
   display: flex;
   flex-direction: column;
@@ -244,6 +287,7 @@ textarea {
 .nav-link {
   display: flex;
   align-items: center;
+  gap: 10px;
   padding: 10px 12px;
   border-radius: 12px;
   color: var(--foreground-soft);
@@ -255,8 +299,26 @@ textarea {
     transform 0.15s var(--ease);
 }
 
+.nav-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
 .nav-link:hover {
   background: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.nav-link:hover .nav-link-icon {
   color: var(--foreground);
 }
 
@@ -264,6 +326,11 @@ textarea {
   background: var(--surface-muted);
   color: white;
   box-shadow: inset 3px 0 0 var(--brand);
+}
+
+.nav-link.active .nav-link-icon {
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .sidebar-nav-groups {
@@ -286,7 +353,8 @@ textarea {
 
 .sidebar-account-card {
   display: grid;
-  gap: 8px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 8px 10px;
   margin-top: 18px;
   padding: 14px;
   border: 1px solid var(--border);
@@ -295,19 +363,38 @@ textarea {
   box-shadow: var(--shadow-sm);
 }
 
+.sidebar-account-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 800;
+  grid-row: span 2;
+}
+
 .sidebar-account-card h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 14px;
   line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-account-card p {
   margin: 0;
   color: var(--muted);
   line-height: 1.2;
+  font-size: 12px;
 }
 
 .sidebar-account-card form {
+  grid-column: 1 / -1;
   margin-top: 4px;
 }
 
