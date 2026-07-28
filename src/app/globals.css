@@ -93,6 +93,15 @@ textarea {
   min-width: 0;
 }
 
+.app-shell > #app-sidebar {
+  min-width: 0;
+}
+
+.mobile-app-header,
+.sidebar-backdrop {
+  display: none;
+}
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -387,6 +396,91 @@ textarea {
   padding: 0 12px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.mobile-app-header {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(17, 18, 17, 0.94);
+  backdrop-filter: blur(14px);
+}
+
+.mobile-menu-button {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.mobile-menu-button span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: currentColor;
+  transition:
+    transform 0.18s var(--ease),
+    opacity 0.18s var(--ease);
+}
+
+.nav-open .mobile-menu-button span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.nav-open .mobile-menu-button span:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-open .mobile-menu-button span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.mobile-app-title {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.mobile-app-title strong {
+  font-size: 15px;
+  line-height: 1.05;
+}
+
+.mobile-app-title span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mobile-account-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(226, 45, 134, 0.24);
 }
 
 .login-card {
@@ -1809,14 +1903,55 @@ textarea {
 }
 
 @media (max-width: 900px) {
+  body.mobile-nav-open {
+    overflow: hidden;
+  }
+
   .app-shell {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .mobile-app-header {
+    display: flex;
+  }
+
+  .app-shell > #app-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 90;
+    width: min(288px, calc(100vw - 56px));
+    transform: translateX(-100%);
+    transition: transform 0.22s var(--ease);
+  }
+
+  .app-shell.nav-open > #app-sidebar {
+    transform: translateX(0);
+  }
+
   .sidebar {
-    position: relative;
-    height: auto;
-    max-height: none;
+    position: static;
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    padding-top: 16px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: block;
+    border: 0;
+    background: rgba(0, 0, 0, 0.52);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s var(--ease);
+  }
+
+  .app-shell.nav-open .sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .content,

@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/sidebar";
+import { MobileNavigationShell } from "@/components/layout/mobile-navigation-shell";
 import type { ProfileSummary } from "@/features/auth/types";
 import type { NavItem } from "@/lib/auth/navigation";
 
@@ -12,11 +13,11 @@ export function AuthenticatedShell({
   navigation: NavItem[];
 }) {
   return (
-    <div className="app-shell">
-      <Sidebar navigation={navigation} profile={profile} />
-      <div className="content">
-        <main className="page">{children}</main>
-      </div>
-    </div>
+    <MobileNavigationShell
+      profile={profile}
+      sidebar={<Sidebar navigation={navigation} profile={profile} />}
+    >
+      {children}
+    </MobileNavigationShell>
   );
 }
