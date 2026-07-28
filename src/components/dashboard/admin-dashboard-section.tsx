@@ -96,8 +96,11 @@ export function AdminDashboardSection({
 
       <section className="grid two" style={{ marginBottom: 24 }}>
         <ExpenseByDealerTable rows={data.expenseByDealer} />
-        <PayoutSummaryCard rows={data.payoutRows} title="Partner payouts by month" />
       </section>
+
+      <div style={{ marginBottom: 24 }}>
+        <PayoutSummaryCard rows={data.payoutRows} title="Partner payouts by month" />
+      </div>
 
       <div style={{ marginTop: 24 }}>
         <DealerDetailReport report={data.dealerDetail} role="super_admin" />

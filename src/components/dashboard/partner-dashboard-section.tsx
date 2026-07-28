@@ -89,8 +89,11 @@ export function PartnerDashboardSection({
           rows={data.dealerPerformance}
           title="Net profit by dealer"
         />
-        <PayoutSummaryCard rows={data.payoutRows} title="Your payouts by month" />
       </section>
+
+      <div style={{ marginBottom: 24 }}>
+        <PayoutSummaryCard rows={data.payoutRows} title="Your payouts by month" />
+      </div>
 
       <section className="grid two" style={{ marginBottom: 24 }}>
         <ExpenseByDealerTable rows={data.expenseByDealer} />

@@ -1407,6 +1407,10 @@ textarea {
   margin: 12px 0 16px;
 }
 
+.payout-summary-panel {
+  overflow: hidden;
+}
+
 .payout-total-strip article {
   display: grid;
   gap: 4px;
@@ -1423,7 +1427,7 @@ textarea {
 
 .payout-breakdown-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
   gap: 14px;
   margin-bottom: 16px;
 }

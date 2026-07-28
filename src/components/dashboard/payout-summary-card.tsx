@@ -138,7 +138,7 @@ export function PayoutSummaryCard({
     .reduce((sum, row) => sum + (row.paidAmount ?? row.partnerAmount), 0);
 
   return (
-    <section className="panel">
+    <section className="panel payout-summary-panel">
       <p className="eyebrow">Payments</p>
       <h2 style={{ marginTop: 0 }}>{title}</h2>
 
