@@ -54,6 +54,7 @@ export function AdminDashboardSection({
             </div>
             <Link className="action-button" href={data.quickSettlementHref}>
               Open settlements
+              <span aria-hidden="true">↗</span>
             </Link>
           </div>
           <div className="dashboard-highlight-stats">
