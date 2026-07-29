@@ -17,7 +17,7 @@ export function PartnerDashboardSection({
 }: {
   data: DashboardPageData;
 }) {
-  const scopedLabel = data.filters.periodMonth ? "selected month" : "historical";
+  const scopeLabel = data.filters.periodMonth ? "selected month" : "historical scope";
 
   return (
     <>
@@ -30,7 +30,7 @@ export function PartnerDashboardSection({
         />
         <MetricCard
           eyebrow="Visible net"
-          helper={`Net profit across your visible dealers in the ${scopedLabel} scope.`}
+          helper={`Net profit across your visible dealers for the ${scopeLabel}.`}
           value={formatCurrency(data.summary.totalNetProfit)}
         />
         <MetricCard

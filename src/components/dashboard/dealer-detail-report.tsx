@@ -63,7 +63,7 @@ export function DealerDetailReport({
               {report.deals.length === 0 && (
                 <tr>
                   <td className="muted" colSpan={4}>
-                    No deals registered for this dealer in the selected month.
+                    No deals registered for this dealer in the current dashboard scope.
                   </td>
                 </tr>
               )}
@@ -93,7 +93,7 @@ export function DealerDetailReport({
               {report.expenses.length === 0 && (
                 <tr>
                   <td className="muted" colSpan={4}>
-                    No expenses allocated to this dealer in the selected month.
+                    No expenses allocated to this dealer in the current dashboard scope.
                   </td>
                 </tr>
               )}

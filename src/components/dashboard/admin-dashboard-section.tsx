@@ -18,7 +18,7 @@ export function AdminDashboardSection({
 }: {
   data: DashboardPageData;
 }) {
-  const scopedLabel = data.filters.periodMonth ? "selected month" : "historical";
+  const scopeLabel = data.filters.periodMonth ? "selected month" : "historical scope";
   const settlementTitle = data.filters.periodMonth
     ? "Selected month settlement"
     : "Settlement workspace";
@@ -28,7 +28,7 @@ export function AdminDashboardSection({
       <section className="dashboard-kpi-strip grid four">
         <MetricCard
           eyebrow="Net profit"
-          helper={`Total ${scopedLabel} net profit across visible dealers.`}
+          helper={`Total net profit across visible dealers for the ${scopeLabel}.`}
           value={formatCurrency(data.summary.totalNetProfit)}
           featured
         />
@@ -39,7 +39,7 @@ export function AdminDashboardSection({
         />
         <MetricCard
           eyebrow="Expenses"
-          helper={`Allocated ${scopedLabel} expense total.`}
+          helper={`Allocated expenses for the ${scopeLabel}.`}
           value={formatCurrency(data.summary.totalExpense)}
         />
         <MetricCard

@@ -1538,6 +1538,8 @@ textarea {
   display: inline-flex;
   align-items: baseline;
   gap: 8px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .dashboard-kpi-strip {
@@ -2112,7 +2114,8 @@ textarea {
   }
 
   .dashboard-metric-card h2 {
-    font-size: clamp(26px, 12vw, 44px);
+    font-size: clamp(24px, 8.5vw, 34px);
+    line-height: 0.98;
   }
 
   .dashboard-metric-card .muted {

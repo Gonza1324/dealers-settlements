@@ -30,7 +30,7 @@ export function TopFinanciersTable({
             {rows.length === 0 && (
               <tr>
                 <td className="muted" colSpan={3}>
-                  No financista activity available for the selected period.
+                  No financista activity available for the current dashboard scope.
                 </td>
               </tr>
             )}

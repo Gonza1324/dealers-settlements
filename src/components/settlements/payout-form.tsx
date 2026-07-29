@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { savePartnerPayout } from "@/features/settlements/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { PartnerMonthlyResultRecord } from "@/features/settlements/types";
+import { formatCurrency } from "@/lib/utils/format";
 
 export function PayoutForm({
   result,
@@ -13,6 +14,10 @@ export function PayoutForm({
   canEdit: boolean;
 }) {
   const [state, formAction] = useActionState(savePartnerPayout, initialFormState);
+  const defaultPaidAmount =
+    result.payout_status === "pending"
+      ? (result.paid_amount ?? "")
+      : (result.paid_amount ?? result.partner_amount);
 
   return (
     <form action={formAction} className="payout-form">
@@ -38,12 +43,13 @@ export function PayoutForm({
       <label className="field">
         <span>Paid amount</span>
         <input
-          defaultValue={result.paid_amount ?? result.partner_amount}
+          defaultValue={defaultPaidAmount}
           disabled={!canEdit || !result.payout_id}
           name="paidAmount"
           step="0.01"
           type="number"
         />
+        <small className="muted">Total due: {formatCurrency(result.partner_amount)}</small>
       </label>
       <label className="field">
         <span>Paid at</span>

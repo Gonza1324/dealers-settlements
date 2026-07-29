@@ -28,12 +28,14 @@ export function DealsFilters({
           <h2>Refine consolidated deal results</h2>
         </div>
         <div className="filter-summary">
-          {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing all consolidated deals"}
+          {activeFilters.length > 0
+            ? `${activeFilters.length} active filters`
+            : "Historical consolidated deals"}
         </div>
       </div>
       <form className="filter-form-grid" method="get">
         <label className="field">
-          <span>Period month</span>
+          <span>Period month optional</span>
           <input defaultValue={filters.periodMonth.slice(0, 7)} name="periodMonth" type="month" />
         </label>
         <label className="field">
