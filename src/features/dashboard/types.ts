@@ -41,6 +41,17 @@ export type TopFinancierRecord = {
   dealCount: number;
 };
 
+export type VehicleSalesRankRecord = {
+  label: string;
+  count: number;
+};
+
+export type VehicleSalesRankings = {
+  byMake: VehicleSalesRankRecord[];
+  byModel: VehicleSalesRankRecord[];
+  byYear: VehicleSalesRankRecord[];
+};
+
 export type DashboardPayoutRecord = {
   payoutId: string | null;
   dealerId: string;
@@ -133,6 +144,7 @@ export type DashboardPageData = {
   expenseByDealer: ExpenseByDealerRecord[];
   payoutRows: DashboardPayoutRecord[];
   topFinanciers: TopFinancierRecord[];
+  vehicleSalesRankings: VehicleSalesRankings;
   comparison: MonthlyComparisonPoint[];
   bestDealers: DealerPerformanceRecord[];
   worstDealers: DealerPerformanceRecord[];

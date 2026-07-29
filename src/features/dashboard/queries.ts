@@ -6,6 +6,8 @@ import type {
   DashboardOption,
   DashboardPageData,
   DashboardPayoutRecord,
+  VehicleSalesRankRecord,
+  VehicleSalesRankings,
   DealerDetailDealRecord,
   DealerDetailExpenseRecord,
   DealerDetailPartnerRecord,
@@ -145,6 +147,41 @@ function buildPayoutMap(
   );
 }
 
+function buildVehicleRank(rows: string[]) {
+  const counts = new Map<string, number>();
+
+  for (const label of rows) {
+    const normalized = label.trim();
+
+    if (!normalized) {
+      continue;
+    }
+
+    counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([label, count]) => ({ label, count }) satisfies VehicleSalesRankRecord)
+    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
+    .slice(0, 10);
+}
+
+function buildVehicleSalesRankings(
+  deals: Array<{
+    makeValue: string | null;
+    modelValue: string | null;
+    yearValue: number | null;
+  }>,
+): VehicleSalesRankings {
+  return {
+    byMake: buildVehicleRank(deals.map((deal) => deal.makeValue ?? "")),
+    byModel: buildVehicleRank(deals.map((deal) => deal.modelValue ?? "")),
+    byYear: buildVehicleRank(
+      deals.map((deal) => (deal.yearValue === null ? "" : String(deal.yearValue))),
+    ),
+  };
+}
+
 export async function getDashboardPageData(params: {
   filters: DashboardFilters;
   role: AppRole;
@@ -212,7 +249,7 @@ export async function getDashboardPageData(params: {
       .is("deleted_at", null),
     supabase
       .from("deals")
-      .select("id, dealer_id, financier_id, vin_value, sale_value, deal_profit, financiers(name)")
+      .select("id, dealer_id, financier_id, vin_value, sale_value, deal_profit, year_value, make_value, model_value, financiers(name)")
       .eq("period_month", periodMonthDate)
       .is("deleted_at", null),
     supabase
@@ -380,6 +417,9 @@ export async function getDashboardPageData(params: {
         ? ((row.financiers as { name?: string }).name ?? null)
         : null,
     vinValue: String(row.vin_value ?? ""),
+    yearValue: row.year_value === null ? null : toNumber(row.year_value),
+    makeValue: typeof row.make_value === "string" ? row.make_value : null,
+    modelValue: typeof row.model_value === "string" ? row.model_value : null,
     date: String(row.sale_value),
     dealerProfit: toNumber(row.deal_profit),
   }));
@@ -417,6 +457,7 @@ export async function getDashboardPageData(params: {
       dealerFilter(row.dealerId) &&
       financierFilter(row.financierId),
   );
+  const vehicleSalesRankings = buildVehicleSalesRankings(filteredDeals);
   const filteredDeadDeals = deadDeals.filter(
     (row) =>
       visibleByDealer(row.dealerId) &&
@@ -563,6 +604,7 @@ export async function getDashboardPageData(params: {
     expenseByDealer,
     payoutRows,
     topFinanciers,
+    vehicleSalesRankings,
     comparison,
     bestDealers: dealerPerformanceSorted.slice(0, 5),
     worstDealers: [...dealerPerformanceSorted].reverse().slice(0, 5),

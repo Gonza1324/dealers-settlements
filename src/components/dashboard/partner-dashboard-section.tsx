@@ -8,6 +8,7 @@ import {
   NetProfitByDealerTable,
 } from "@/components/dashboard/net-profit-by-dealer-table";
 import { PayoutSummaryCard } from "@/components/dashboard/payout-summary-card";
+import { VehicleSalesRankingsPanel } from "@/components/dashboard/vehicle-sales-rankings";
 import type { DashboardPageData } from "@/features/dashboard/types";
 import { formatCurrency } from "@/lib/utils/format";
 
@@ -102,6 +103,10 @@ export function PartnerDashboardSection({
           title="Most relevant dealers"
         />
       </section>
+
+      <div style={{ marginBottom: 24 }}>
+        <VehicleSalesRankingsPanel rankings={data.vehicleSalesRankings} />
+      </div>
 
       <div style={{ marginBottom: 24 }}>
         <DealerDetailReport report={data.dealerDetail} role="partner_viewer" />

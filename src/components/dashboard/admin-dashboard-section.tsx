@@ -9,6 +9,7 @@ import {
 } from "@/components/dashboard/net-profit-by-dealer-table";
 import { PayoutSummaryCard } from "@/components/dashboard/payout-summary-card";
 import { TopFinanciersTable } from "@/components/dashboard/top-financiers-table";
+import { VehicleSalesRankingsPanel } from "@/components/dashboard/vehicle-sales-rankings";
 import type { DashboardPageData } from "@/features/dashboard/types";
 import { formatCurrency } from "@/lib/utils/format";
 
@@ -98,6 +99,10 @@ export function AdminDashboardSection({
       <section className="grid two" style={{ marginBottom: 24 }}>
         <ExpenseByDealerTable rows={data.expenseByDealer} />
       </section>
+
+      <div style={{ marginBottom: 24 }}>
+        <VehicleSalesRankingsPanel rankings={data.vehicleSalesRankings} />
+      </div>
 
       <div style={{ marginBottom: 24 }}>
         <PayoutSummaryCard rows={data.payoutRows} title="Partner payouts by month" />
