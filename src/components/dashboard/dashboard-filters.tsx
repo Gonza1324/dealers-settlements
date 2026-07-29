@@ -25,7 +25,9 @@ export function DashboardFiltersForm({
           <h2>Business control view</h2>
         </div>
         <div className="filter-summary">
-          {activeFilters.length > 0 ? `${activeFilters.length} active filters` : "Showing default scope"}
+          {activeFilters.length > 0
+            ? `${activeFilters.length} active filters`
+            : "Historical totals"}
         </div>
       </div>
       <form action="/dashboard" className="dashboard-filters-form" method="get">

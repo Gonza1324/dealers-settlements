@@ -136,6 +136,34 @@ function summarizeDealerResults(
   };
 }
 
+function aggregateDealerPerformance(
+  rows: DealerPerformanceRecord[],
+) {
+  const byDealer = new Map<string, DealerPerformanceRecord>();
+
+  for (const row of rows) {
+    const current = byDealer.get(row.dealerId) ?? {
+      dealerId: row.dealerId,
+      dealerName: row.dealerName,
+      dealerCode: row.dealerCode,
+      grossProfitTotal: 0,
+      expenseTotal: 0,
+      netProfitTotal: 0,
+    };
+
+    current.grossProfitTotal += row.grossProfitTotal;
+    current.expenseTotal += row.expenseTotal;
+    current.netProfitTotal += row.netProfitTotal;
+    byDealer.set(row.dealerId, current);
+  }
+
+  return Array.from(byDealer.values()).sort(
+    (left, right) =>
+      left.dealerName.localeCompare(right.dealerName) ||
+      left.dealerCode - right.dealerCode,
+  );
+}
+
 function buildPayoutMap(
   payouts: DashboardPayoutRow[],
 ) {
@@ -188,7 +216,9 @@ export async function getDashboardPageData(params: {
   profileId: string;
 }): Promise<DashboardPageData> {
   const supabase = createSupabaseAdminClient();
-  const periodMonthDate = toMonthStart(params.filters.periodMonth);
+  const periodMonthDate = params.filters.periodMonth
+    ? toMonthStart(params.filters.periodMonth)
+    : null;
   const scopes =
     params.role === "partner_viewer"
       ? await getPartnerScopes(params.profileId)
@@ -204,6 +234,7 @@ export async function getDashboardPageData(params: {
       ? new Set(
           scopes
             .filter((scope) =>
+              !periodMonthDate ||
               dealerVisibleForMonth(scope.dealerId, periodMonthDate, scopes),
             )
             .map((scope) => scope.dealerId),
@@ -213,6 +244,43 @@ export async function getDashboardPageData(params: {
     params.role === "partner_viewer"
       ? new Set(scopes.map((scope) => scope.partnerId))
       : null;
+
+  let dealerResultQuery = supabase
+    .from("dealer_monthly_results")
+    .select("*, dealers!inner(name, code), monthly_calculation_runs!inner(is_current)")
+    .eq("monthly_calculation_runs.is_current", true);
+  let partnerResultQuery = supabase
+    .from("partner_monthly_results")
+    .select(
+      "*, dealers!inner(name, code), partners!inner(display_name, user_id), monthly_calculation_runs!inner(is_current)",
+    )
+    .eq("monthly_calculation_runs.is_current", true);
+  let payoutQuery = supabase.from("partner_monthly_payouts").select("*");
+  let expenseQuery = supabase
+    .from("expenses")
+    .select(
+      "id, period_month, expense_date, description, expense_allocations!inner(allocated_amount, dealer_id, dealers!inner(name, code)), expense_categories(name)",
+    )
+    .is("deleted_at", null);
+  let dealQuery = supabase
+    .from("deals")
+    .select("id, dealer_id, financier_id, vin_value, sale_value, deal_profit, year_value, make_value, model_value, financiers(name)")
+    .is("deleted_at", null);
+  let deadDealQuery = supabase
+    .from("dead_deals")
+    .select(
+      "id, dealer_id, financier_id, vin_value, dead_deal_date, dealer_profit, financiers(name)",
+    )
+    .is("deleted_at", null);
+
+  if (periodMonthDate) {
+    dealerResultQuery = dealerResultQuery.eq("period_month", periodMonthDate);
+    partnerResultQuery = partnerResultQuery.eq("period_month", periodMonthDate);
+    payoutQuery = payoutQuery.eq("period_month", periodMonthDate);
+    expenseQuery = expenseQuery.eq("period_month", periodMonthDate);
+    dealQuery = dealQuery.eq("period_month", periodMonthDate);
+    deadDealQuery = deadDealQuery.eq("period_month", periodMonthDate);
+  }
 
   const [
     dealerResultResponse,
@@ -224,41 +292,12 @@ export async function getDashboardPageData(params: {
     comparisonResponse,
     partnerRecordResponse,
   ] = await Promise.all([
-    supabase
-      .from("dealer_monthly_results")
-      .select("*, dealers!inner(name, code), monthly_calculation_runs!inner(is_current)")
-      .eq("monthly_calculation_runs.is_current", true)
-      .eq("period_month", periodMonthDate),
-    supabase
-      .from("partner_monthly_results")
-      .select(
-        "*, dealers!inner(name, code), partners!inner(display_name, user_id), monthly_calculation_runs!inner(is_current)",
-      )
-      .eq("monthly_calculation_runs.is_current", true)
-      .eq("period_month", periodMonthDate),
-    supabase
-      .from("partner_monthly_payouts")
-      .select("*")
-      .eq("period_month", periodMonthDate),
-    supabase
-      .from("expenses")
-      .select(
-        "id, period_month, expense_date, description, expense_allocations!inner(allocated_amount, dealer_id, dealers!inner(name, code)), expense_categories(name)",
-      )
-      .eq("period_month", periodMonthDate)
-      .is("deleted_at", null),
-    supabase
-      .from("deals")
-      .select("id, dealer_id, financier_id, vin_value, sale_value, deal_profit, year_value, make_value, model_value, financiers(name)")
-      .eq("period_month", periodMonthDate)
-      .is("deleted_at", null),
-    supabase
-      .from("dead_deals")
-      .select(
-        "id, dealer_id, financier_id, vin_value, dead_deal_date, dealer_profit, financiers(name)",
-      )
-      .eq("period_month", periodMonthDate)
-      .is("deleted_at", null),
+    dealerResultQuery,
+    partnerResultQuery,
+    payoutQuery,
+    expenseQuery,
+    dealQuery,
+    deadDealQuery,
     supabase
       .from("dealer_monthly_results")
       .select("period_month, dealer_id, gross_profit_total, expense_total, net_profit_total, monthly_calculation_runs!inner(is_current)")
@@ -344,6 +383,8 @@ export async function getDashboardPageData(params: {
       (row) => String(row.dealer_id) === params.filters.dealerId,
     );
   }
+
+  dealerPerformance = aggregateDealerPerformance(dealerPerformance);
 
   const payoutMap = buildPayoutMap(payouts);
 
@@ -608,7 +649,9 @@ export async function getDashboardPageData(params: {
     comparison,
     bestDealers: dealerPerformanceSorted.slice(0, 5),
     worstDealers: [...dealerPerformanceSorted].reverse().slice(0, 5),
-    quickSettlementHref: `/settlements?periodMonth=${params.filters.periodMonth}`,
+    quickSettlementHref: params.filters.periodMonth
+      ? `/settlements?periodMonth=${params.filters.periodMonth}`
+      : "/settlements",
     dealerDetail,
     partnerDealers,
     partnerName,
@@ -647,6 +690,7 @@ function buildDealerDetailReport(params: {
     dealerId: string;
     partnerId: string;
     partnerName: string;
+    periodMonth: string;
     sharePercentage: number;
     partnerAmount: number;
   }>;
@@ -710,22 +754,53 @@ function buildDealerDetailReport(params: {
   const payoutMap = new Map(
     params.payoutRows
       .filter((row) => row.dealerId === params.dealerId)
-      .map((row) => [row.partnerId, row]),
+      .map((row) => [`${row.partnerId}::${row.periodMonth}`, row]),
   );
+  const partnerDistributionMap = new Map<
+    string,
+    DealerDetailPartnerRecord & { shareCount: number; shareTotal: number }
+  >();
 
-  let partnerDistribution = params.partnerResults
-    .filter((row) => row.dealerId === params.dealerId)
-    .map(
-      (row) =>
-        ({
-          partnerId: row.partnerId,
-          partnerName: row.partnerName,
-          sharePercentage: row.sharePercentage,
-          amount: row.partnerAmount,
-          paymentStatus: payoutMap.get(row.partnerId)?.paymentStatus ?? "pending",
-          paidAmount: payoutMap.get(row.partnerId)?.paidAmount ?? null,
-        }) satisfies DealerDetailPartnerRecord,
-    );
+  for (const row of params.partnerResults.filter(
+    (partnerResult) => partnerResult.dealerId === params.dealerId,
+  )) {
+    const payout = payoutMap.get(`${row.partnerId}::${row.periodMonth}`);
+    const current = partnerDistributionMap.get(row.partnerId) ?? {
+      partnerId: row.partnerId,
+      partnerName: row.partnerName,
+      sharePercentage: 0,
+      shareCount: 0,
+      shareTotal: 0,
+      amount: 0,
+      paymentStatus: "pending" as PaymentStatus,
+      paidAmount: null,
+    };
+    const paidAmount = payout?.paidAmount ?? 0;
+
+    current.shareCount += 1;
+    current.shareTotal += row.sharePercentage;
+    current.sharePercentage = current.shareTotal / current.shareCount;
+    current.amount += row.partnerAmount;
+    current.paidAmount = (current.paidAmount ?? 0) + paidAmount;
+    current.paymentStatus = resolvePayoutStatusFromAmounts({
+      storedStatus: null,
+      paidAmount: current.paidAmount,
+      totalAmount: current.amount,
+    });
+    partnerDistributionMap.set(row.partnerId, current);
+  }
+
+  let partnerDistribution = Array.from(partnerDistributionMap.values()).map(
+    (row) =>
+      ({
+        partnerId: row.partnerId,
+        partnerName: row.partnerName,
+        sharePercentage: row.sharePercentage,
+        amount: row.amount,
+        paymentStatus: row.paymentStatus,
+        paidAmount: row.paidAmount,
+      }) satisfies DealerDetailPartnerRecord,
+  );
 
   if (params.role === "partner_viewer") {
     partnerDistribution = partnerDistribution.slice(0, 1);

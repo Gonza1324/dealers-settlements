@@ -85,7 +85,9 @@ export function DashboardInsights({ data }: { data: DashboardPageData }) {
         </p>
       </article>
       <article className="dashboard-insight-card">
-        <span className="small-text muted">Month activity</span>
+        <span className="small-text muted">
+          {data.filters.periodMonth ? "Month activity" : "Historical activity"}
+        </span>
         <strong>{activityCount}</strong>
         <div className="dashboard-progress-track">
           <span

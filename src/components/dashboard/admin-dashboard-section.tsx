@@ -18,23 +18,28 @@ export function AdminDashboardSection({
 }: {
   data: DashboardPageData;
 }) {
+  const scopedLabel = data.filters.periodMonth ? "selected month" : "historical";
+  const settlementTitle = data.filters.periodMonth
+    ? "Selected month settlement"
+    : "Settlement workspace";
+
   return (
     <>
       <section className="dashboard-kpi-strip grid four">
         <MetricCard
           eyebrow="Net profit"
-          helper="Total monthly net profit across visible dealers."
+          helper={`Total ${scopedLabel} net profit across visible dealers.`}
           value={formatCurrency(data.summary.totalNetProfit)}
           featured
         />
         <MetricCard
           eyebrow="Partners to pay"
-          helper={`${data.summary.pendingPayoutCount} pending payouts this month.`}
+          helper={`${data.summary.pendingPayoutCount} pending payouts in this scope.`}
           value={formatCurrency(data.summary.pendingPayoutAmount)}
         />
         <MetricCard
           eyebrow="Expenses"
-          helper="Allocated monthly expense total."
+          helper={`Allocated ${scopedLabel} expense total.`}
           value={formatCurrency(data.summary.totalExpense)}
         />
         <MetricCard
@@ -51,7 +56,7 @@ export function AdminDashboardSection({
           <div className="dashboard-card-header">
             <div>
               <p className="eyebrow">Quick action</p>
-              <h2 className="dashboard-section-title">Current month settlement</h2>
+              <h2 className="dashboard-section-title">{settlementTitle}</h2>
             </div>
             <Link className="action-button" href={data.quickSettlementHref}>
               Open settlements
@@ -88,11 +93,11 @@ export function AdminDashboardSection({
       <section className="grid two" style={{ marginBottom: 24 }}>
         <NetProfitByDealerTable
           rows={data.bestDealers}
-          title="Best dealers this month"
+          title={data.filters.periodMonth ? "Best dealers this month" : "Best dealers"}
         />
         <NetProfitByDealerTable
           rows={data.worstDealers}
-          title="Worst dealers this month"
+          title={data.filters.periodMonth ? "Worst dealers this month" : "Worst dealers"}
         />
       </section>
 

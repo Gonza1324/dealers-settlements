@@ -11,17 +11,13 @@ function readString(
   return value ?? fallback;
 }
 
-function currentMonth() {
-  return new Date().toISOString().slice(0, 7);
-}
-
 export function parseDashboardFilters(
   searchParams: Record<string, string | string[] | undefined>,
 ): DashboardFilters {
   const paymentStatus = readString(searchParams.paymentStatus);
 
   return {
-    periodMonth: readString(searchParams.periodMonth, currentMonth()),
+    periodMonth: readString(searchParams.periodMonth),
     dealerId: readString(searchParams.dealerId),
     financierId: readString(searchParams.financierId),
     paymentStatus:
