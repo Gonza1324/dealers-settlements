@@ -4,6 +4,7 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { StatusPill } from "@/components/ui/status-pill";
 import { archiveFinancierAlias, saveFinancier, saveFinancierAlias } from "@/features/masters/financiers/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
@@ -141,12 +142,8 @@ export function FinanciersPageContent({
             <button className="action-button" type="submit">
               {selectedFinancier ? "Save financista" : "Create financista"}
             </button>
-            {financierState.error && (
-              <p className="error-text">{financierState.error}</p>
-            )}
-            {financierState.message && (
-              <p className="success-text">{financierState.message}</p>
-            )}
+            <FormFeedback message={financierState.error} tone="error" />
+            <FormFeedback message={financierState.message} tone="success" />
           </form>
         </article>
       </section>
@@ -238,10 +235,8 @@ export function FinanciersPageContent({
             <button className="action-button" type="submit">
               {selectedAlias ? "Save alias" : "Create alias"}
             </button>
-            {aliasState.error && <p className="error-text">{aliasState.error}</p>}
-            {aliasState.message && (
-              <p className="success-text">{aliasState.message}</p>
-            )}
+            <FormFeedback message={aliasState.error} tone="error" />
+            <FormFeedback message={aliasState.message} tone="success" />
           </form>
         </article>
       </section>

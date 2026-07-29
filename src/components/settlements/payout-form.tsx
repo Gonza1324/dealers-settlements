@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { savePartnerPayout } from "@/features/settlements/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { PartnerMonthlyResultRecord } from "@/features/settlements/types";
@@ -111,8 +112,8 @@ export function PayoutForm({
           Save payment
         </button>
       )}
-      {state.error && <p className="error-text">{state.error}</p>}
-      {state.message && <p className="success-text">{state.message}</p>}
+      <FormFeedback message={state.error} tone="error" />
+      <FormFeedback message={state.message} tone="success" />
     </form>
   );
 }

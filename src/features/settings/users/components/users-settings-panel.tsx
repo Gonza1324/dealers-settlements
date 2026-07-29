@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { StatusPill } from "@/components/ui/status-pill";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import {
@@ -207,11 +208,11 @@ export function UsersSettingsPanel({ users }: { users: SettingsUserRecord[] }) {
         )}
 
         {(resetState.message || resetState.error || statusState.message || statusState.error) && (
-          <div className="inline-stack" style={{ marginTop: 16 }}>
-            {resetState.message && <p className="success-text">{resetState.message}</p>}
-            {resetState.error && <p className="error-text">{resetState.error}</p>}
-            {statusState.message && <p className="success-text">{statusState.message}</p>}
-            {statusState.error && <p className="error-text">{statusState.error}</p>}
+          <div className="inline-stack settings-feedback-stack" style={{ marginTop: 16 }}>
+            <FormFeedback message={resetState.message} tone="success" />
+            <FormFeedback message={resetState.error} tone="error" />
+            <FormFeedback message={statusState.message} tone="success" />
+            <FormFeedback message={statusState.error} tone="error" />
           </div>
         )}
       </article>
@@ -289,10 +290,8 @@ export function UsersSettingsPanel({ users }: { users: SettingsUserRecord[] }) {
             )}
           </div>
 
-          {saveState.error && <p className="error-text masters-form-wide">{saveState.error}</p>}
-          {saveState.message && (
-            <p className="success-text masters-form-wide">{saveState.message}</p>
-          )}
+          <FormFeedback message={saveState.error} tone="error" />
+          <FormFeedback message={saveState.message} tone="success" />
         </form>
       </article>
     </section>

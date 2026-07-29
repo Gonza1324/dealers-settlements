@@ -19,6 +19,8 @@ export function ExpensesTable({
     return (
       <section className="panel">
         <EmptyState
+          actionHref="/expenses"
+          actionLabel="Clear filters"
           title="No expenses match these filters"
           description="Try a different month, category or dealer to find recorded expenses."
         />

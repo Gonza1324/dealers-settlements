@@ -19,6 +19,7 @@ import type {
 import type { FinancierRow, PartnerRow } from "@/types/database";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { StatusPill } from "@/components/ui/status-pill";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 
@@ -247,8 +248,8 @@ function DealerEditor({
             <button className="action-button" type="submit">
               {selectedDealer ? "Save dealer" : "Create dealer"}
             </button>
-            {state.error && <p className="error-text">{state.error}</p>}
-            {state.message && <p className="success-text">{state.message}</p>}
+            <FormFeedback message={state.error} tone="error" />
+            <FormFeedback message={state.message} tone="success" />
           </form>
         </article>
       )}
@@ -454,8 +455,8 @@ function SharesEditor({
             <button className="action-button" type="submit">
               {selectedShare ? "Save share" : "Create share"}
             </button>
-            {state.error && <p className="error-text">{state.error}</p>}
-            {state.message && <p className="success-text">{state.message}</p>}
+            <FormFeedback message={state.error} tone="error" />
+            <FormFeedback message={state.message} tone="success" />
           </form>
         </article>
       )}
@@ -605,8 +606,8 @@ function AssignmentsEditor({
             <button className="action-button" type="submit">
               {selectedAssignment ? "Save assignment" : "Create assignment"}
             </button>
-            {state.error && <p className="error-text">{state.error}</p>}
-            {state.message && <p className="success-text">{state.message}</p>}
+            <FormFeedback message={state.error} tone="error" />
+            <FormFeedback message={state.message} tone="success" />
           </form>
         </article>
       )}

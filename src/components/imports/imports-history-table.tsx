@@ -11,10 +11,14 @@ export function ImportsHistoryTable({
 }) {
   if (imports.length === 0) {
     return (
-      <EmptyState
-        title="No imports yet"
-        description="Upload the first file to start the staging and approval flow."
-      />
+      <section className="panel" style={{ marginTop: 24 }}>
+        <EmptyState
+          actionHref="/imports"
+          actionLabel="Upload import"
+          title="No imports yet"
+          description="Upload the first file to start the staging and approval flow."
+        />
+      </section>
     );
   }
 

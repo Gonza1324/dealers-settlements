@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { saveDeadDeal } from "@/features/dead-deals/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { DeadDealListRecord } from "@/features/dead-deals/types";
@@ -96,8 +97,8 @@ export function DeadDealForm({
             {deadDeal ? "Save dead deal" : "Create dead deal"}
           </button>
         )}
-        {state.error && <p className="error-text">{state.error}</p>}
-        {state.message && <p className="success-text">{state.message}</p>}
+        <FormFeedback message={state.error} tone="error" />
+        <FormFeedback message={state.message} tone="success" />
       </form>
     </section>
   );

@@ -700,6 +700,57 @@ textarea {
   font-weight: 700;
 }
 
+.form-feedback {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-sunken);
+}
+
+.form-feedback p {
+  margin: 0;
+}
+
+.form-feedback ul {
+  margin: 2px 0 0;
+  padding-left: 18px;
+}
+
+.form-feedback.success {
+  border-color: rgba(0, 209, 143, 0.3);
+  background:
+    linear-gradient(90deg, rgba(0, 209, 143, 0.1), transparent 60%),
+    var(--surface-sunken);
+  color: var(--accent-strong);
+}
+
+.form-feedback.error {
+  border-color: rgba(255, 93, 99, 0.32);
+  background:
+    linear-gradient(90deg, rgba(255, 93, 99, 0.1), transparent 60%),
+    var(--surface-sunken);
+  color: var(--danger);
+}
+
+.form-feedback.warning {
+  border-color: rgba(246, 170, 22, 0.32);
+  background:
+    linear-gradient(90deg, rgba(246, 170, 22, 0.1), transparent 60%),
+    var(--surface-sunken);
+  color: var(--warning);
+}
+
+.form-feedback.info {
+  border-color: rgba(47, 124, 255, 0.32);
+  background:
+    linear-gradient(90deg, rgba(47, 124, 255, 0.08), transparent 60%),
+    var(--surface-sunken);
+  color: #73a7ff;
+}
+
 .secondary-button {
   height: 38px;
   border: 1px solid var(--border);
@@ -1575,9 +1626,16 @@ textarea {
 
 .empty-state {
   text-align: left;
+  padding: 18px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
   background:
     radial-gradient(100% 100% at 0% 0%, var(--brand-soft), transparent 55%),
     var(--surface);
+}
+
+.empty-state-action {
+  margin-top: 16px;
 }
 
 .alert-stack {

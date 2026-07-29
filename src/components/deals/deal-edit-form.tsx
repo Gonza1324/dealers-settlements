@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { saveDealManualEdit } from "@/features/deals/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { DealListRecord } from "@/features/deals/types";
@@ -106,8 +107,8 @@ export function DealEditForm({
             Save manual changes
           </button>
         )}
-        {state.error && <p className="error-text">{state.error}</p>}
-        {state.message && <p className="success-text">{state.message}</p>}
+        <FormFeedback message={state.error} tone="error" />
+        <FormFeedback message={state.message} tone="success" />
       </form>
 
       <div className="grid two" style={{ marginTop: 20 }}>

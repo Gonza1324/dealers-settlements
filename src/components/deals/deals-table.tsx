@@ -80,6 +80,8 @@ export function DealsTable({
     return (
       <section className="panel">
         <EmptyState
+          actionHref="/deals"
+          actionLabel="Clear filters"
           title="No deals match these filters"
           description="Try a different period, dealer or VIN to find consolidated deals."
         />

@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { StatusPill } from "@/components/ui/status-pill";
 import { archiveExpenseCategory, saveExpenseCategory } from "@/features/expenses/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
@@ -92,8 +93,8 @@ export function ExpenseCategoriesPanel({
           <button className="action-button" type="submit">
             {selectedCategory ? "Save category" : "Create category"}
           </button>
-          {state.error && <p className="error-text">{state.error}</p>}
-          {state.message && <p className="success-text">{state.message}</p>}
+          <FormFeedback message={state.error} tone="error" />
+          <FormFeedback message={state.message} tone="success" />
         </form>
       </article>
     </section>

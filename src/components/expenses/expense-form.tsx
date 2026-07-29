@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { saveExpense } from "@/features/expenses/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type {
@@ -309,8 +310,8 @@ export function ExpenseForm({
             {expense ? "Save expense" : "Create expense"}
           </button>
         )}
-        {state.error && <p className="error-text">{state.error}</p>}
-        {state.message && <p className="success-text">{state.message}</p>}
+        <FormFeedback message={state.error} tone="error" />
+        <FormFeedback message={state.message} tone="success" />
       </form>
     </section>
   );

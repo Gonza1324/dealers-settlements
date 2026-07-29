@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { createManualDeal } from "@/features/deals/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 
@@ -87,8 +88,8 @@ export function DealCreateForm({
             Create manual deal
           </button>
         </div>
-        {state.error && <p className="error-text">{state.error}</p>}
-        {state.message && <p className="success-text">{state.message}</p>}
+        <FormFeedback message={state.error} tone="error" />
+        <FormFeedback message={state.message} tone="success" />
       </form>
     </section>
   );

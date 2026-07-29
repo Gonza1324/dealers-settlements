@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { ImportRowEditForm } from "@/components/imports/import-row-edit-form";
 import type { ImportReviewPayload, ImportRowReview } from "@/features/imports/types";
 import type { ConsolidationSummary } from "@/features/deals/types";
@@ -379,8 +380,8 @@ export function ImportReviewTable({
         </div>
       </div>
 
-      {error && <p className="error-text">{error}</p>}
-      {successMessage && <p className="success-text">{successMessage}</p>}
+      <FormFeedback message={error} tone="error" />
+      <FormFeedback message={successMessage} tone="success" />
       {consolidationSummary && (
         <div className="inline-alert" style={{ marginBottom: 18 }}>
           <p className="eyebrow">Consolidation summary</p>

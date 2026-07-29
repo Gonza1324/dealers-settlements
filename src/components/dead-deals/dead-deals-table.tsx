@@ -13,6 +13,8 @@ export function DeadDealsTable({
     return (
       <section className="panel">
         <EmptyState
+          actionHref="/dead-deals"
+          actionLabel="Clear filters"
           title="No dead deals found"
           description="Try another month, dealer, financista, or VIN filter."
         />

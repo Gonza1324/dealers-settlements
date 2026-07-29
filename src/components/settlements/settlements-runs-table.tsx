@@ -14,6 +14,8 @@ export function SettlementsRunsTable({
     return (
       <section className="panel">
         <EmptyState
+          actionHref="/readiness"
+          actionLabel="Check readiness"
           title="No calculation runs yet"
           description="Pick a month and execute the first monthly settlement run."
         />

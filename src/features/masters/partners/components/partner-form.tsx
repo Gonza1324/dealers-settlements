@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormFeedback } from "@/components/ui/form-feedback";
 import { StatusPill } from "@/components/ui/status-pill";
 import { savePartner } from "@/features/masters/partners/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
@@ -136,8 +137,8 @@ export function PartnersPageContent({
           <button className="action-button" type="submit">
             {selectedPartner ? "Save partner" : "Create partner"}
           </button>
-          {state.error && <p className="error-text">{state.error}</p>}
-          {state.message && <p className="success-text">{state.message}</p>}
+          <FormFeedback message={state.error} tone="error" />
+          <FormFeedback message={state.message} tone="success" />
         </form>
       </article>
     </section>
