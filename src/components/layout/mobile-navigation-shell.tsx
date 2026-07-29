@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { ProfileSummary } from "@/features/auth/types";
+import { BACKOFFICE_NAV_ITEMS } from "@/lib/auth/navigation";
 
 export function MobileNavigationShell({
   children,
@@ -15,6 +16,10 @@ export function MobileNavigationShell({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const activeItem =
+    BACKOFFICE_NAV_ITEMS.find(
+      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+    ) ?? null;
 
   useEffect(() => {
     setIsOpen(false);
@@ -44,8 +49,8 @@ export function MobileNavigationShell({
           <span aria-hidden="true" />
         </button>
         <div className="mobile-app-title">
-          <strong>Dealers</strong>
-          <span>Settlements</span>
+          <strong>{activeItem?.label ?? "Dealers"}</strong>
+          <span>Dealers Settlements</span>
         </div>
         <span className="mobile-account-pill" title={profile.fullName}>
           {profile.fullName.slice(0, 1).toUpperCase()}

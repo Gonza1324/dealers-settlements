@@ -203,6 +203,40 @@ textarea {
   gap: 8px;
 }
 
+.selected-dealers-list.compact {
+  max-height: 240px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.selected-dealers-list.compact > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  color: var(--foreground-soft);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.inline-choice-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.inline-choice-button[data-selected="true"] {
+  color: var(--accent-strong);
+}
+
 .selected-dealers-list .field span,
 .field .grid > label {
   display: inline-flex;
@@ -973,11 +1007,13 @@ textarea {
 }
 
 .registry-table-scroll {
+  position: relative;
   max-height: clamp(520px, 62vh, 680px);
   overflow: auto;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface-sunken);
+  box-shadow: inset -18px 0 18px -18px rgba(255, 255, 255, 0.18);
   max-width: 100%;
 }
 
@@ -1061,6 +1097,10 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface-sunken);
+}
+
+.recurring-dealers-field {
+  grid-column: 1 / -1;
 }
 
 .masters-table {

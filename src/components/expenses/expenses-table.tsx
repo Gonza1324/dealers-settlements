@@ -3,7 +3,7 @@ import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
-import { expenseScopeTone } from "@/components/expenses/scope-status";
+import { expenseScopeTone, formatExpenseScope } from "@/components/expenses/scope-status";
 import { archiveExpense } from "@/features/expenses/actions";
 import type { ExpenseListRecord } from "@/features/expenses/types";
 import { formatCurrency } from "@/lib/utils/format";
@@ -69,7 +69,7 @@ export function ExpensesTable({
             <td>{formatCurrency(expense.amount)}</td>
             <td>
               <StatusPill tone={expenseScopeTone(expense.scope_type)}>
-                {expense.scope_type}
+                {formatExpenseScope(expense.scope_type)}
               </StatusPill>
             </td>
             <td>

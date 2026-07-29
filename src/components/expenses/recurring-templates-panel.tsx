@@ -3,7 +3,10 @@
 import { useActionState, useEffect, useState } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
-import { expenseScopeTone } from "@/components/expenses/scope-status";
+import {
+  expenseScopeTone,
+  formatExpenseScope,
+} from "@/components/expenses/scope-status";
 import { StatusPill } from "@/components/ui/status-pill";
 import {
   archiveExpenseRecurringTemplate,
@@ -14,6 +17,7 @@ import type {
   ExpenseCategoryRecord,
   ExpenseRecurringTemplateRecord,
 } from "@/features/expenses/types";
+import type { ExpenseScopeType } from "@/types/database";
 
 export function RecurringTemplatesPanel({
   categories,
@@ -31,6 +35,9 @@ export function RecurringTemplatesPanel({
     initialFormState,
   );
   const [selectedDealerIds, setSelectedDealerIds] = useState<string[]>([]);
+  const [scopeType, setScopeType] = useState(
+    selectedTemplate?.scope_type ?? "single_dealer",
+  );
 
   useEffect(() => {
     setSelectedDealerIds(
@@ -38,19 +45,41 @@ export function RecurringTemplatesPanel({
         ? (selectedTemplate?.selected_dealer_ids as string[])
         : [],
     );
+    setScopeType(selectedTemplate?.scope_type ?? "single_dealer");
   }, [selectedTemplate]);
 
   useEffect(() => {
     if (state.success) {
       setSelectedTemplate(null);
       setSelectedDealerIds([]);
+      setScopeType("single_dealer");
     }
   }, [state.success]);
 
   function toggleDealer(dealerId: string, checked: boolean) {
+    if (scopeType === "single_dealer") {
+      setSelectedDealerIds(checked && dealerId ? [dealerId] : []);
+      return;
+    }
+
     setSelectedDealerIds((current) =>
       checked ? [...new Set([...current, dealerId])] : current.filter((id) => id !== dealerId),
     );
+  }
+
+  function updateScope(nextScopeType: ExpenseScopeType) {
+    setScopeType(nextScopeType);
+    setSelectedDealerIds((current) => {
+      if (nextScopeType === "all_dealers") {
+        return [];
+      }
+
+      if (nextScopeType === "single_dealer") {
+        return current.slice(0, 1);
+      }
+
+      return current;
+    });
   }
 
   return (
@@ -73,8 +102,14 @@ export function RecurringTemplatesPanel({
               <td>{template.category_name ?? "-"}</td>
               <td>
                 <StatusPill tone={expenseScopeTone(template.scope_type)}>
-                  {template.scope_type}
+                  {formatExpenseScope(template.scope_type)}
                 </StatusPill>
+                {Array.isArray(template.selected_dealer_ids) &&
+                  template.selected_dealer_ids.length > 0 && (
+                    <div className="muted small-text">
+                      {template.selected_dealer_ids.length} dealers
+                    </div>
+                  )}
               </td>
               <td>
                 <div className="table-actions">
@@ -147,29 +182,54 @@ export function RecurringTemplatesPanel({
             <select
               defaultValue={selectedTemplate?.scope_type ?? "single_dealer"}
               name="scopeType"
+              onChange={(event) => updateScope(event.target.value as ExpenseScopeType)}
             >
-              <option value="single_dealer">single_dealer</option>
-              <option value="selected_dealers">selected_dealers</option>
-              <option value="all_dealers">all_dealers</option>
+              <option value="single_dealer">Single dealer</option>
+              <option value="selected_dealers">Selected dealers</option>
+              <option value="all_dealers">All dealers</option>
             </select>
           </label>
-          <label className="field">
-            <span>Selected dealers</span>
-            <div className="grid two">
-              {dealers.map((dealer) => (
-                <label key={dealer.id}>
-                  <input
-                    checked={selectedDealerIds.includes(dealer.id)}
-                    name="selectedDealerIds"
-                    onChange={(event) => toggleDealer(dealer.id, event.target.checked)}
-                    type="checkbox"
-                    value={dealer.id}
-                  />{" "}
-                  {dealer.name} ({dealer.code})
-                </label>
-              ))}
+          {scopeType !== "all_dealers" && (
+            <label className="field recurring-dealers-field">
+              <span>
+                {scopeType === "single_dealer" ? "Dealer optional" : "Selected dealers"}
+              </span>
+              <div className="selected-dealers-list compact">
+                {scopeType === "single_dealer" && (
+                  <label>
+                    <button
+                      className="inline-choice-button"
+                      data-selected={selectedDealerIds.length === 0}
+                      onClick={() => setSelectedDealerIds([])}
+                      type="button"
+                    >
+                      No dealer selected
+                    </button>
+                  </label>
+                )}
+                {dealers.map((dealer) => (
+                  <label key={dealer.id}>
+                    <input
+                      checked={selectedDealerIds.includes(dealer.id)}
+                      name="selectedDealerIds"
+                      onChange={(event) => toggleDealer(dealer.id, event.target.checked)}
+                      type={scopeType === "single_dealer" ? "radio" : "checkbox"}
+                      value={dealer.id}
+                    />{" "}
+                    {dealer.name} ({dealer.code})
+                  </label>
+                ))}
+              </div>
+            </label>
+          )}
+          {scopeType === "all_dealers" && (
+            <div className="inline-alert">
+              <p className="eyebrow">Scope preview</p>
+              <p style={{ margin: 0 }}>
+                Expenses created from this template will apply to all active dealers.
+              </p>
             </div>
-          </label>
+          )}
           <label className="field">
             <span>Status</span>
             <select defaultValue={selectedTemplate?.is_active ? "true" : "false"} name="isActive">
