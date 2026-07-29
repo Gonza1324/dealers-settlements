@@ -94,7 +94,7 @@ export async function savePartnerPayout(
   const parsed = settlementPayoutSchema.safeParse({
     payoutId: formData.get("payoutId"),
     runId: formData.get("runId"),
-    paymentStatus: formData.get("paymentStatus"),
+    paymentStatus: formData.get("paymentStatus") ?? undefined,
     paidAmount: formData.get("paidAmount"),
     paidAt: formData.get("paidAt"),
     paymentMethod: formData.get("paymentMethod") ?? "",
@@ -108,10 +108,11 @@ export async function savePartnerPayout(
   }
 
   const payload = parsed.data;
+  const paidAmount = payload.paidAmount ?? 0;
   let attachmentPath = payload.existingAttachmentPath || null;
   const incomingAttachment = formData.get("paymentAttachment");
   const attachmentFile =
-    payload.paymentStatus !== "pending" &&
+    paidAmount > 0 &&
     incomingAttachment instanceof File &&
     incomingAttachment.size > 0
       ? incomingAttachment
@@ -163,9 +164,8 @@ export async function savePartnerPayout(
   }
 
   const totalAmount = Number(selectedResult?.partner_amount ?? 0);
-  const paidAmount = payload.paidAmount ?? 0;
   const resolvedPaymentStatus: PaymentStatus =
-    payload.paymentStatus === "pending" || paidAmount <= 0
+    paidAmount <= 0
       ? "pending"
       : totalAmount > 0 && paidAmount < totalAmount
         ? "partial"

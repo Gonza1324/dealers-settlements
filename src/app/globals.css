@@ -1420,11 +1420,26 @@ textarea {
   margin: 0;
 }
 
+.payout-amount-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.payout-amount-control .secondary-button {
+  grid-column: auto;
+  white-space: nowrap;
+}
+
 .payout-form > label:not(.field),
 .payout-form .secondary-button,
 .payout-form .error-text,
 .payout-form .success-text {
   grid-column: 1 / -1;
+}
+
+.payout-form .payout-amount-control .secondary-button {
+  grid-column: auto;
 }
 
 .filter-panel {

@@ -1,10 +1,23 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { savePartnerPayout } from "@/features/settlements/actions";
 import { initialFormState } from "@/features/masters/shared/form-state";
 import type { PartnerMonthlyResultRecord } from "@/features/settlements/types";
 import { formatCurrency } from "@/lib/utils/format";
+
+function todayDateValue() {
+  const now = new Date();
+  const timezoneOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+
+  return new Date(now.getTime() - timezoneOffsetMs).toISOString().slice(0, 10);
+}
+
+function formatNumberInputValue(value: unknown) {
+  const numberValue = Number(value ?? 0);
+
+  return Number.isFinite(numberValue) ? numberValue.toFixed(2) : "";
+}
 
 export function PayoutForm({
   result,
@@ -18,6 +31,8 @@ export function PayoutForm({
     result.payout_status === "pending"
       ? (result.paid_amount ?? "")
       : (result.paid_amount ?? result.partner_amount);
+  const totalDueValue = formatNumberInputValue(result.partner_amount);
+  const [paidAmount, setPaidAmount] = useState(String(defaultPaidAmount));
 
   return (
     <form action={formAction} className="payout-form">
@@ -29,32 +44,31 @@ export function PayoutForm({
         value={result.payment_attachment_path ?? ""}
       />
       <label className="field">
-        <span>Status</span>
-        <select
-          defaultValue={result.payout_status}
-          disabled={!canEdit || !result.payout_id}
-          name="paymentStatus"
-        >
-          <option value="pending">pending</option>
-          <option value="partial">partial</option>
-          <option value="paid">paid</option>
-        </select>
-      </label>
-      <label className="field">
         <span>Paid amount</span>
-        <input
-          defaultValue={defaultPaidAmount}
-          disabled={!canEdit || !result.payout_id}
-          name="paidAmount"
-          step="0.01"
-          type="number"
-        />
+        <div className="payout-amount-control">
+          <input
+            disabled={!canEdit || !result.payout_id}
+            name="paidAmount"
+            onChange={(event) => setPaidAmount(event.target.value)}
+            step="0.01"
+            type="number"
+            value={paidAmount}
+          />
+          <button
+            className="secondary-button"
+            disabled={!canEdit || !result.payout_id}
+            onClick={() => setPaidAmount(totalDueValue)}
+            type="button"
+          >
+            Use total
+          </button>
+        </div>
         <small className="muted">Total due: {formatCurrency(result.partner_amount)}</small>
       </label>
       <label className="field">
         <span>Paid at</span>
         <input
-          defaultValue={result.paid_at ?? ""}
+          defaultValue={result.paid_at ?? todayDateValue()}
           disabled={!canEdit || !result.payout_id}
           name="paidAt"
           type="date"
