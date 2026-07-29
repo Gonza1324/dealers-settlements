@@ -2019,6 +2019,95 @@ textarea {
   background: var(--surface-sunken);
 }
 
+.readiness-score-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.readiness-score-card {
+  background:
+    radial-gradient(90% 120% at 0% 0%, var(--accent-soft), transparent 58%),
+    var(--surface);
+}
+
+.readiness-score-value {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.readiness-score-value h2 {
+  margin: 0;
+  font-size: 44px;
+  line-height: 1;
+}
+
+.readiness-check-grid {
+  margin-bottom: 18px;
+}
+
+.readiness-check-header,
+.readiness-alert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.readiness-check-grid .dashboard-mini-card strong {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.readiness-check-grid .dashboard-mini-card p {
+  margin: 0;
+}
+
+.readiness-alert-list {
+  display: grid;
+  gap: 10px;
+}
+
+.readiness-alert {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-sunken);
+}
+
+.readiness-alert.critical {
+  border-color: rgba(255, 93, 99, 0.34);
+  background:
+    linear-gradient(90deg, rgba(255, 93, 99, 0.08), transparent 60%),
+    var(--surface-sunken);
+}
+
+.readiness-alert.warning {
+  border-color: rgba(246, 170, 22, 0.34);
+  background:
+    linear-gradient(90deg, rgba(246, 170, 22, 0.08), transparent 60%),
+    var(--surface-sunken);
+}
+
+.readiness-alert.info {
+  border-color: rgba(47, 124, 255, 0.3);
+}
+
+.readiness-alert h3 {
+  margin: 8px 0 4px;
+  font-size: 16px;
+}
+
+.readiness-alert p {
+  margin: 0;
+}
+
 @media (max-width: 1440px) {
   .filter-form-grid,
   .dashboard-filters-form {
@@ -2030,6 +2119,10 @@ textarea {
   }
 
   .dashboard-insight-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .readiness-score-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -2138,7 +2231,12 @@ textarea {
   }
 
   .dashboard-insight-grid,
-  .dashboard-primary-row {
+  .dashboard-primary-row,
+  .readiness-score-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .readiness-alert {
     grid-template-columns: minmax(0, 1fr);
   }
 

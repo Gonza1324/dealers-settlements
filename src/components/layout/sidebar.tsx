@@ -15,6 +15,7 @@ type GroupedNavItem = NavItem & { group?: string };
 function inferGroup(href: string): string {
   if (
     href.startsWith("/dashboard") ||
+    href.startsWith("/readiness") ||
     href === "/" ||
     href.startsWith("/deals") ||
     href.startsWith("/dead-deals") ||

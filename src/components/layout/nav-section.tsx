@@ -14,6 +14,7 @@ const NAV_ICONS: Record<string, string> = {
   "/financiers": "◉",
   "/imports": "⇣",
   "/partners": "◇",
+  "/readiness": "!",
   "/settings": "⚙",
   "/settlements": "✓",
 };
