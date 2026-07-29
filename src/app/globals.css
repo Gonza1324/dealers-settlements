@@ -930,6 +930,61 @@ textarea {
   max-height: 280px;
 }
 
+.audit-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.audit-summary-grid .dashboard-mini-card {
+  min-height: auto;
+}
+
+.audit-summary-grid .dashboard-mini-card strong {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.audit-row {
+  position: relative;
+}
+
+.audit-row td:first-child {
+  border-left: 3px solid transparent;
+}
+
+.audit-row.danger td:first-child {
+  border-left-color: var(--danger);
+}
+
+.audit-row.warning td:first-child {
+  border-left-color: var(--warning);
+}
+
+.audit-row.success td:first-child {
+  border-left-color: var(--accent);
+}
+
+.audit-row.info td:first-child {
+  border-left-color: var(--info);
+}
+
+.audit-summary-cell {
+  min-width: 280px;
+  max-width: 460px;
+}
+
+.audit-summary-cell strong {
+  display: block;
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.audit-summary-cell p {
+  margin: 0;
+}
+
 .import-edit-form {
   display: grid;
   gap: 20px;
@@ -2126,6 +2181,10 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .audit-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .payout-breakdown-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2232,7 +2291,8 @@ textarea {
 
   .dashboard-insight-grid,
   .dashboard-primary-row,
-  .readiness-score-grid {
+  .readiness-score-grid,
+  .audit-summary-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
